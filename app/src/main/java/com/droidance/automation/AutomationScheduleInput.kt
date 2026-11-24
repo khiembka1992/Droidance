@@ -4,7 +4,10 @@
 package com.droidance.automation
 
 import java.time.Instant
+import java.time.format.DateTimeParseException
 import kotlinx.serialization.json.*
+
+internal class AutomationStartTimeException(val code: String, val repair: String) : IllegalArgumentException(code)
 
 /** Shared protocol for model drafts and the Agent tool; relative offsets use a host-owned clock. */
 object AutomationScheduleInput {
@@ -14,17 +17,36 @@ object AutomationScheduleInput {
             if (it is JsonNull) default else requireNotNull(it.jsonPrimitive.longOrNull) { "INVALID_$key" }
         } ?: default
         val cadence = AutomationCadence.valueOf(requireNotNull(text("cadence")).uppercase())
-        val absolute = text("run_at")?.let { Instant.parse(it).toEpochMilli() }
-        val delay = value["delay_minutes"]?.takeUnless { it is JsonNull }?.let {
-            requireNotNull(it.jsonPrimitive.longOrNull) { "INVALID_DELAY" }
+        val runAtInput = text("run_at")
+        val delayInput = value["delay_minutes"]?.takeUnless { it is JsonNull }
+        val usesStartTime = cadence == AutomationCadence.ONCE || cadence == AutomationCadence.INTERVAL
+        val startTimeRepair = "Provide exactly one of run_at or delay_minutes."
+        if (runAtInput != null && delayInput != null) {
+            throw AutomationStartTimeException("CONFLICTING_START_TIME", startTimeRepair)
         }
-        require(absolute == null || delay == null) { "CONFLICTING_START_TIME" }
-        require(delay == null || delay >= 0L) { "INVALID_DELAY" }
-        require(cadence in setOf(AutomationCadence.ONCE, AutomationCadence.INTERVAL) || (absolute == null && delay == null)) {
+        if (usesStartTime && runAtInput == null && delayInput == null) {
+            throw AutomationStartTimeException("MISSING_START_TIME", startTimeRepair)
+        }
+        val absolute = try {
+            runAtInput?.let { Instant.parse(it).toEpochMilli() }
+        } catch (_: DateTimeParseException) {
+            throw AutomationStartTimeException("INVALID_RUN_AT", "Use an ISO-8601 date and time with an explicit UTC offset.")
+        } catch (_: ArithmeticException) {
+            throw AutomationStartTimeException("INVALID_RUN_AT", "Provide a deadline within the supported date range.")
+        }
+        val delay = delayInput?.let {
+            it.jsonPrimitive.longOrNull?.takeIf { minutes -> minutes >= 0 }
+                ?: throw AutomationStartTimeException("INVALID_DELAY", "Use a nonnegative whole number of minutes.")
+        }
+        require(usesStartTime || (absolute == null && delay == null)) {
             "START_TIME_REQUIRES_ONCE_OR_INTERVAL"
         }
         require(cadence == AutomationCadence.INTERVAL || number("interval_minutes") == 0L) { "INTERVAL_REQUIRES_INTERVAL_CADENCE" }
-        val runAt = absolute ?: delay?.let { Math.addExact(referenceTimeMs, Math.multiplyExact(it, 60_000L)) } ?: 0L
+        val runAt = try {
+            absolute ?: delay?.let { Math.addExact(referenceTimeMs, Math.multiplyExact(it, 60_000L)) } ?: 0L
+        } catch (_: ArithmeticException) {
+            throw AutomationStartTimeException("INVALID_DELAY", "Provide a delay within the supported date range.")
+        }
         return AutomationSchedule(
             cadence = cadence,
             hour = if (cadence in setOf(AutomationCadence.DAILY, AutomationCadence.WEEKLY))

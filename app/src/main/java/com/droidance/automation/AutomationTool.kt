@@ -27,25 +27,40 @@ class AutomationTool(
     override val name = "automation"
     override val tier = ToolTier.CORE
     override val category = ToolCategory.SYSTEM
+    private val scheduleOperations = mapOf("op" to listOf("create", "update"))
+    private val clockCadences = mapOf("cadence" to listOf("DAILY", "WEEKLY"))
+    private val startCadences = mapOf("cadence" to listOf("ONCE", "INTERVAL"))
+    private val repeatingCadences = mapOf("cadence" to listOf("DAILY", "WEEKLY", "INTERVAL"))
     override val definition get() = ToolDefinition(name, description(), linkedMapOf(
-        "op" to ToolParameter("string", "Automation operation", true, listOf("list", "read", "create", "update", "set_enabled", "delete")),
-        "id" to ToolParameter("string", "Exact definition ID for read/update/set_enabled/delete"),
-        "title" to ToolParameter("string", "User-facing task title"),
-        "instruction" to ToolParameter("string", "Work to perform at each occurrence; omit the request to create a schedule"),
-        "cadence" to ToolParameter("string", "Schedule type", false, listOf("ONCE", "DAILY", "WEEKLY", "INTERVAL")),
-        "hour" to ToolParameter("integer", "Local hour 0..23"),
-        "minute" to ToolParameter("integer", "Local minute 0..59"),
-        "days_of_week" to ToolParameter("array", "ISO weekdays 1..7 for WEEKLY", items = ToolParameter("integer", "Day")),
-        "time_zone" to ToolParameter("string", "Explicit IANA time zone"),
-        "run_at" to ToolParameter("string", "ONCE deadline or INTERVAL first deadline, ISO-8601 with UTC offset"),
-        "delay_minutes" to ToolParameter("integer", "Minutes after the user's message; host computes deadline. Mutually exclusive with run_at"),
-        "interval_minutes" to ToolParameter("integer", "INTERVAL duration in minutes, 1..5256000"),
-        "end_at" to ToolParameter("string", "Optional inclusive repetition end, ISO-8601 with UTC offset"),
-        "max_occurrences" to ToolParameter("integer", "Repetition trigger limit; zero means unlimited; includes merged/skipped deadlines"),
-        "missed_policy" to ToolParameter("string", "Deadlines over one minute late", false, listOf("RUN_ONCE", "SKIP")),
-        "original_request" to ToolParameter("string", "Original user request, separate from the per-run instruction"),
-        "enabled" to ToolParameter("boolean", "New enabled state"),
-        "offset" to ToolParameter("integer", "List offset, default zero")
+        "op" to ToolParameter("string", "Automation operation", enumValues = listOf("list", "read", "create", "update", "set_enabled", "delete")),
+        "id" to ToolParameter("string", "Exact definition ID", required = false,
+            requiredWhen = mapOf("op" to listOf("read", "update", "set_enabled", "delete"))),
+        "title" to ToolParameter("string", "User-facing task title", required = false,
+            requiredWhen = scheduleOperations, minLength = 1),
+        "instruction" to ToolParameter("string", "Work to perform at each occurrence; omit the request to create a schedule",
+            required = false, requiredWhen = scheduleOperations, minLength = 1),
+        "cadence" to ToolParameter("string", "Schedule type", required = false,
+            enumValues = listOf("ONCE", "DAILY", "WEEKLY", "INTERVAL"), requiredWhen = scheduleOperations),
+        "hour" to ToolParameter("integer", "Local hour 0..23", required = false, requiredWhen = clockCadences),
+        "minute" to ToolParameter("integer", "Local minute 0..59", required = false, requiredWhen = clockCadences),
+        "days_of_week" to ToolParameter("array", "ISO weekdays 1..7", required = false,
+            items = ToolParameter("integer", "Day"), requiredWhen = mapOf("cadence" to listOf("WEEKLY")), minItems = 1),
+        "time_zone" to ToolParameter("string", "Explicit IANA time zone", required = false, requiredWhen = scheduleOperations),
+        "run_at" to ToolParameter("string", "First deadline, ISO-8601 with UTC offset. Mutually exclusive with delay_minutes",
+            required = false, allowedWhen = startCadences, minLength = 1),
+        "delay_minutes" to ToolParameter("integer", "Minutes after the user's message; host computes deadline. Mutually exclusive with run_at",
+            required = false, allowedWhen = startCadences),
+        "interval_minutes" to ToolParameter("integer", "Interval duration in minutes, 1..5256000", required = false,
+            requiredWhen = mapOf("cadence" to listOf("INTERVAL"))),
+        "end_at" to ToolParameter("string", "Inclusive repetition end, ISO-8601 with UTC offset",
+            required = false, allowedWhen = repeatingCadences, minLength = 1),
+        "max_occurrences" to ToolParameter("integer", "Repetition trigger limit; zero means unlimited; includes merged/skipped deadlines",
+            required = false, allowedWhen = repeatingCadences),
+        "missed_policy" to ToolParameter("string", "Deadlines over one minute late", required = false, enumValues = listOf("RUN_ONCE", "SKIP")),
+        "original_request" to ToolParameter("string", "Original user request, separate from the per-run instruction", required = false),
+        "enabled" to ToolParameter("boolean", "New enabled state", required = false,
+            requiredWhen = mapOf("op" to listOf("set_enabled"))),
+        "offset" to ToolParameter("integer", "List offset, default zero", required = false)
     ))
 
     override suspend fun execute(arguments: String): ToolExecutionResult = try {
@@ -55,7 +70,7 @@ class AutomationTool(
         val result = when (text("op")) {
             "list" -> {
                 val definitions = store.definitions.value
-                val offset = args["offset"]?.jsonPrimitive?.int ?: 0
+                val offset = args["offset"]?.takeUnless { it is JsonNull }?.jsonPrimitive?.int ?: 0
                 require(offset in 0..definitions.size) { "INVALID_CURSOR" }
                 val selected = definitions.drop(offset).take(16)
                 buildJsonObject {
@@ -88,5 +103,8 @@ class AutomationTool(
         }
         ToolProtocolResult.success(result.toString())
     } catch (cancel: CancellationException) { throw cancel }
-    catch (error: Exception) { ToolProtocolResult.failed("AUTOMATION_ERROR", false, error) }
+    catch (error: AutomationStartTimeException) {
+        ToolProtocolResult.notExecuted(error.code, retryable = true,
+            details = buildJsonObject { put("repair", error.repair) })
+    } catch (error: Exception) { ToolProtocolResult.failed("AUTOMATION_ERROR", false, error) }
 }

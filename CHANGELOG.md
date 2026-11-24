@@ -8,6 +8,10 @@ Record a notable change in `Unreleased` within the same pull request that implem
 
 ## [Unreleased]
 
+### Fixed
+
+- Allow chat-created scheduled tasks to specify a single start time.
+
 ## [0.3.1] - 2026-11-18
 
 - Retry the device driver connection once from the foreground app when its initial handshake times out.

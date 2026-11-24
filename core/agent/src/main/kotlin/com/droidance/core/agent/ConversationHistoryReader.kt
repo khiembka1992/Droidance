@@ -30,15 +30,19 @@ class ConversationHistoryReader @Inject constructor(private val events: AgentEve
     }
 
     internal fun project(entries: List<ConversationEntryReadModel>): List<ChatMessage> {
-        val assistants = entries.filterNot(::isUser).groupBy { it.turnId }
+        val dialogue = entries.filterNot { entry ->
+            entry.kind == ConversationEntryKind.SYSTEM_NOTICE || entry.kind == ConversationEntryKind.TURN_SYSTEM_NOTICE ||
+                entry.isModelRequestFailureNotice()
+        }
+        val assistants = dialogue.filterNot(::isUser).groupBy { it.turnId }
         val lastAssistantIds = assistants.values.mapTo(mutableSetOf()) { it.last().itemId }
-        return entries.mapNotNull { entry ->
+        return dialogue.mapNotNull { entry ->
             if (isUser(entry)) ChatMessage(role = Role.USER, content = entry.text)
             else if (entry.itemId in lastAssistantIds) {
                 val text = assistants.getValue(entry.turnId).asSequence()
                     .map { PublicAssistantText.sanitize(it.text).trim() }
                     .filter(String::isNotBlank).distinct().joinToString("\n\n")
-                ChatMessage(role = Role.ASSISTANT, content = text)
+                text.takeIf(String::isNotBlank)?.let { ChatMessage(role = Role.ASSISTANT, content = it) }
             } else null
         }.takeLast(20)
     }

@@ -860,7 +860,9 @@ class AgentRuntime @Inject constructor(
     data class RuntimeTurnOutcome(
         val response: String,
         val status: String,
-        val completion: com.droidance.tools.CompletionResult?
+        val completion: com.droidance.tools.CompletionResult?,
+        val modelRequestFailed: Boolean = false,
+        val retryableModelRequest: Boolean = false
     )
 
     @kotlinx.serialization.Serializable
@@ -1343,15 +1345,20 @@ class AgentRuntime @Inject constructor(
                 if (turnEpoch != conversationEpoch) {
                     throw kotlinx.coroutines.CancellationException("Conversation switched")
                 }
-                conversationHistory.add(ChatMessage(role = Role.ASSISTANT, content = finalResponse))
-                _lastResponse.value = finalResponse
+                val modelFailureDiagnostic = uiResult.modelRequestFailureDiagnostic()
                 val status = terminalProjection.executionTerminalStatus
-                taskSession.complete(
-                    status = terminalProjection.reportStatus,
-                    reply = finalResponse,
-                    diagnosticCode = effectiveFailureReason.name.lowercase()
-                        .takeIf { effectiveTerminal != TurnTerminal.DONE && effectiveTerminal != TurnTerminal.DIRECT_REPLY }
-                )
+                if (modelFailureDiagnostic == null) {
+                    conversationHistory.add(ChatMessage(role = Role.ASSISTANT, content = finalResponse))
+                    taskSession.complete(
+                        status = terminalProjection.reportStatus,
+                        reply = finalResponse,
+                        diagnosticCode = effectiveFailureReason.name.lowercase()
+                            .takeIf { effectiveTerminal != TurnTerminal.DONE && effectiveTerminal != TurnTerminal.DIRECT_REPLY }
+                    )
+                } else {
+                    taskSession.completeWithNotice(terminalProjection.reportStatus, finalResponse, modelFailureDiagnostic)
+                }
+                _lastResponse.value = finalResponse
                 finalizeTaskArtifacts(
                     status = status,
                     durableTurn = durableTurn
@@ -1366,7 +1373,10 @@ class AgentRuntime @Inject constructor(
                 RuntimeTurnOutcome(
                     response = finalResponse,
                     status = terminalProjection.reportStatus,
-                    completion = toolExecutor.completionResult()
+                    completion = toolExecutor.completionResult(),
+                    modelRequestFailed = modelFailureDiagnostic != null,
+                    retryableModelRequest = modelFailureDiagnostic != null && !uiResult.hasToolCalls &&
+                        request.source == MessageSource.DIRECT
                 )
             }
         } finally {

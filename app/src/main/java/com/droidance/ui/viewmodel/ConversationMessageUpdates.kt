@@ -4,6 +4,7 @@
 package com.droidance.ui.viewmodel
 
 import com.droidance.core.agent.PublicAssistantText
+import com.droidance.core.agent.isModelRequestFailureNotice
 import com.droidance.agent.ActiveConversationTask
 import com.droidance.core.agent.event.ConversationEntryKind
 import com.droidance.core.agent.event.ConversationEntryReadModel
@@ -28,7 +29,7 @@ internal fun reconcileConversationMessages(
         val live = currentById[durable.messageId]
         if (!durable.isUser && durable.turnId !in terminalTurnIds && live != null &&
             (live.completedAtMs > 0L && durable.isCurrentSegment || durable.text.isBlank() && live.isTransient)
-        ) durable.copy(text = live.text, isTransient = live.isTransient,
+        ) durable.copy(text = live.text, isTransient = live.isTransient, modelFailureNotice = live.modelFailureNotice,
             completedAtMs = durable.completedAtMs.takeIf { it > 0 } ?: live.completedAtMs) else durable
     }.toMutableList()
     val durableIds = projected.mapTo(mutableSetOf(), UIMessage::messageId)
@@ -86,7 +87,8 @@ internal suspend fun projectConversationMessages(
                 imageBytes = entry.attachments.mapNotNull { loadImage(it) }))
             val segment = byInput[entry.itemId] ?: return@forEach
             if (!segment.isCurrent && segment.replies.isEmpty() && segment.roundIds.isEmpty()) return@forEach
-            val replies = segment.replies
+            val modelFailure = segment.replies.lastOrNull { it.isModelRequestFailureNotice() }
+            val replies = segment.replies.filterNot { it.isModelRequestFailureNotice() }
             val visible = if (replies.any { it.kind in setOf(ConversationEntryKind.TURN_ASSISTANT_REPLY,
                     ConversationEntryKind.ASSISTANT_START, ConversationEntryKind.ASSISTANT_STAGE_RESULT,
                     ConversationEntryKind.ASSISTANT_USER_INTERVENTION) })
@@ -95,6 +97,7 @@ internal suspend fun projectConversationMessages(
                 roundIds = segment.roundIds, isCurrentSegment = segment.isCurrent,
                 text = visible.map { PublicAssistantText.sanitize(it.text).trim() }.filter(String::isNotBlank)
                     .distinct().joinToString("\n\n"), isUser = false,
+                modelFailureNotice = modelFailure?.text,
                 timestamp = formatMessageTime(entry.occurredAt), timestampMs = entry.occurredAt,
                 startedAtMs = entry.occurredAt, completedAtMs = segment.nextInput?.occurredAt ?: 0L))
         }

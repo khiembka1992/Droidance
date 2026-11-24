@@ -171,6 +171,12 @@ class TaskLifecycle @Inject constructor(
             toolsActivated = true
         }
 
+        suspend fun completeWithNotice(status: String, notice: String, diagnosticCode: String) {
+            check(!finished) { "Task is already settled" }
+            ledger.completeWithNotice(durableTurn, status, notice, diagnosticCode)
+            finished = true
+        }
+
         suspend fun complete(status: String, reply: String, diagnosticCode: String? = null) {
             check(!finished) { "Task is already settled" }
             ledger.complete(durableTurn, status, reply, diagnosticCode)

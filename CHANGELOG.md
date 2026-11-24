@@ -11,6 +11,7 @@ Record a notable change in `Unreleased` within the same pull request that implem
 ### Fixed
 
 - Allow chat-created scheduled tasks to specify a single start time.
+- Show model-service failures separately in chat, with retry when safe, and keep error notices out of model history.
 
 ## [0.3.1] - 2026-11-18
 

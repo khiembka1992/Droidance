@@ -599,6 +599,7 @@
     <string name="chat_provider_auth_failed">Model service authentication failed. Check the provider configuration.</string>
     <string name="chat_provider_permission_denied">The model service denied this request. Check your API key permissions or plan.</string>
     <string name="chat_provider_service_reason">%1$s\nService reason: %2$s</string>
+    <string name="chat_retry_model_request">Retry</string>
     <string name="chat_provider_rate_limited">The model service is rate limited. Try again later.</string>
     <string name="chat_network_unavailable">The network is unavailable. Check your connection.</string>
     <string name="automation_once">Once</string>

@@ -714,9 +714,10 @@ class LLMRouter(
             activeCalls.remove(call)
             exchange.finish(e)
             coroutineContext.ensureActive()
+            if (!call.isCanceled()) logFailedExchange(e)
             throw e
         }
-        exchange.response(response.code, response.header("x-request-id") ?: response.header("request-id"), response.header("retry-after"))
+        exchange.response(response.code, response.modelRequestId(), response.header("retry-after"))
         var exchangeFailure: Throwable? = null
         val usageState = ChatCompletionsUsageState()
         try {
@@ -816,7 +817,7 @@ class LLMRouter(
                 }
             }
             if (!usageState.terminalChoiceReceived && !doneReceived) {
-                throw IOException("Chat Completions stream ended without finish_reason or [DONE]")
+                throw ChatCompletionsStreamFormatException()
             }
             runCatching { reader.close() }
             val promptCacheObservation = usageState.observation
@@ -835,6 +836,7 @@ class LLMRouter(
         } catch (error: Throwable) {
             exchangeFailure = error
             coroutineContext.ensureActive()
+            if (!call.isCanceled()) logFailedExchange(error, response, redactor)
             throw error
         } finally {
             cancellationBinding.complete()
@@ -935,9 +937,10 @@ class LLMRouter(
             activeCalls.remove(call)
             exchange.finish(e)
             coroutineContext.ensureActive()
+            if (!call.isCanceled()) logFailedExchange(e)
             throw e
         }
-        exchange.response(response.code, response.header("x-request-id") ?: response.header("request-id"), response.header("retry-after"))
+        exchange.response(response.code, response.modelRequestId(), response.header("retry-after"))
         var exchangeFailure: Throwable? = null
         val previousPendingComputerCallId = state.pendingComputerCallId
         var responseCompleted = false
@@ -992,6 +995,7 @@ class LLMRouter(
         } catch (error: Throwable) {
             exchangeFailure = error
             coroutineContext.ensureActive()
+            if (!call.isCanceled()) logFailedExchange(error, response, redactor)
             throw error
         } finally {
             cancellationBinding.complete()
@@ -1011,6 +1015,26 @@ class LLMRouter(
             activeCalls.remove(call)
         }
     }.flowOn(Dispatchers.IO)
+
+    private fun Response.modelRequestId(): String? = header("x-request-id") ?: header("request-id")
+
+    private fun logFailedExchange(
+        error: Throwable,
+        response: Response? = null,
+        redactor: TransportDiagnosticRedactor? = null
+    ) {
+        val phase = when {
+            response == null -> "transport"
+            !response.isSuccessful -> "http"
+            error.providerHttpException() != null -> "stream_error"
+            else -> "response_stream"
+        }
+        val requestId = response?.modelRequestId()?.let { redactor?.text(it) }
+            ?.filterNot(Char::isISOControl)?.take(128)
+        diagnostics.warning("DroidanceLLMRouter", "Model request failed phase=$phase " +
+            "http_status=${response?.code ?: "unavailable"} request_id=${requestId ?: "unavailable"} " +
+            "exception=${error.javaClass.simpleName}")
+    }
 
     private class RequestCancelledBeforeRegistrationException : IOException(
         "LLM request cancelled before registration"
@@ -1150,3 +1174,7 @@ class LLMRouter(
         )
 
 }
+
+class ChatCompletionsStreamFormatException : IOException(
+    "Chat Completions stream ended without finish_reason or [DONE]"
+)

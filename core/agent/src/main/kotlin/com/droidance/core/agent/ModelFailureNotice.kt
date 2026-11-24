@@ -3,6 +3,9 @@
 
 package com.droidance.core.agent
 
+import com.droidance.core.agent.event.ConversationEntryKind
+import com.droidance.core.agent.event.ConversationEntryReadModel
+import com.droidance.core.model.llm.ChatCompletionsStreamFormatException
 import com.droidance.core.model.llm.ProviderErrorCategory
 import com.droidance.core.model.llm.providerHttpException
 
@@ -15,12 +18,25 @@ internal fun modelFailureNoticeKey(error: Throwable): String = when (error.provi
     ProviderErrorCategory.CONTEXT_LIMIT -> "termination_model_context_limit"
     ProviderErrorCategory.REQUEST_REJECTED, ProviderErrorCategory.PREVIOUS_RESPONSE_NOT_FOUND,
     ProviderErrorCategory.REASONING_UNSUPPORTED, ProviderErrorCategory.IMAGE_DETAIL_UNSUPPORTED -> "termination_model_request_rejected"
+    ProviderErrorCategory.SERVER -> "termination_model_server"
     ProviderErrorCategory.MODEL_UNAVAILABLE -> "termination_model_not_found"
     else -> when {
-        generateSequence(error) { it.cause }.take(8).any { it is java.io.IOException } -> "termination_model_network"
-        error is kotlinx.serialization.SerializationException ||
+        error is ChatCompletionsStreamFormatException || error is kotlinx.serialization.SerializationException ||
             error is com.droidance.core.model.llm.OpenAIResponsesIncompleteException ||
             error is com.droidance.core.model.llm.OpenAIResponsesUnterminatedException -> "termination_model_response_invalid"
+        generateSequence(error) { it.cause }.take(8).any { it is java.io.IOException } -> "termination_model_network"
         else -> "termination_model_unavailable"
     }
 }
+
+private const val MODEL_REQUEST_DIAGNOSTIC_PREFIX = "MODEL_REQUEST:"
+
+fun TurnResult.modelRequestFailureDiagnostic(): String? {
+    if (terminal != TurnTerminal.SYSTEM_ERROR || !modelFailureSummary.isNullOrBlank()) return null
+    if (failureReason != TurnFailureReason.MODEL_UNAVAILABLE && failureReason != TurnFailureReason.MODEL_TIMEOUT) return null
+    return MODEL_REQUEST_DIAGNOSTIC_PREFIX + (stopDiagnostic ?: failureReason.name)
+}
+
+fun ConversationEntryReadModel.isModelRequestFailureNotice(): Boolean =
+    (kind == ConversationEntryKind.TURN_SYSTEM_NOTICE || kind == ConversationEntryKind.TURN_ASSISTANT_REPLY) &&
+        (diagnosticCode?.startsWith(MODEL_REQUEST_DIAGNOSTIC_PREFIX) == true || diagnosticCode == "model_unavailable")

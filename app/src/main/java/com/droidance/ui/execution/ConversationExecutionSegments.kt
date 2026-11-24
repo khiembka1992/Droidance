@@ -4,6 +4,7 @@
 package com.droidance.ui.execution
 
 import com.droidance.core.agent.LiveTaskTiming
+import com.droidance.core.agent.isModelRequestFailureNotice
 import com.droidance.core.agent.event.*
 import com.droidance.core.persistence.agent.event.*
 
@@ -102,8 +103,9 @@ fun AgentThreadReadModel.segmentPresentations(timing: LiveTaskTiming?): List<Tur
                 .sortedBy { it.sequence }.map { it.copy(text = com.droidance.core.agent.PublicAssistantText.sanitize(it.text).trim()) }
                 .filter { it.text.isNotBlank() },
             intervention = replies.lastOrNull { it.kind == ConversationEntryKind.ASSISTANT_USER_INTERVENTION }?.text.orEmpty(),
-            finalSummary = (replies.lastOrNull { it.kind == ConversationEntryKind.TURN_ASSISTANT_REPLY }
-                ?: replies.lastOrNull { it.kind == ConversationEntryKind.TURN_SYSTEM_NOTICE })?.text.orEmpty(),
+            finalSummary = (replies.lastOrNull { it.kind == ConversationEntryKind.TURN_ASSISTANT_REPLY && !it.isModelRequestFailureNotice() }
+                ?: replies.lastOrNull { it.kind == ConversationEntryKind.TURN_SYSTEM_NOTICE && !it.isModelRequestFailureNotice() })
+                ?.text.orEmpty(),
             activity = activity, toolDetails = details, roundDetails = rounds, resultCard = result,
             hasDeviceExecution = details.values.any { it.startedAt != null &&
                 it.executionStatus != ToolExecutionStatus.NOT_EXECUTED &&

@@ -162,6 +162,8 @@ class HomeViewModel @Inject constructor(
     }
 
     @Volatile private var latestSubmittedTurnId: String? = null
+    private val retryableModelRequest = MutableStateFlow<TurnRequest?>(null)
+    val retryableModelTurnId = retryableModelRequest.map { it?.let { request -> "turn:${request.requestId}" } }
     // Only the first visit to a newly generated route is known to be empty.
     // A restored route must still read its durable history.
     private val initiallyEmpty = savedStateHandle.get<String>("conversationId") == null &&
@@ -549,6 +551,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun retryModelRequest(turnId: String) {
+        val request = retryableModelRequest.value ?: return
+        if (turnId != "turn:${request.requestId}" || rejectQuarantinedThreadWrite() ||
+            conversationTasks.activeTasks.value[conversationId].orEmpty().isNotEmpty()) return
+        val lastInput = _messages.value.lastOrNull { it.isUser }
+        if (lastInput?.turnId != turnId || lastInput.isGuidance) return
+        val options = captureComposerOptions() ?: return
+        if (!retryableModelRequest.compareAndSet(request, null)) return
+        val retry = request.copy(requestId = UUID.randomUUID().toString(), modelPlan = options.modelPlan,
+            executionSpace = options.space)
+        submitMessage(retry, lastInput.imageUris, ConversationSubmissionMode.QUEUE)
+    }
+
     fun deleteQueuedMessage(turnId: String) {
         if (conversationTasks.deleteQueued(conversationId, turnId)) {
             _messages.update { messages -> messages.filterNot { it.turnId == turnId && it.isTransient } }
@@ -573,6 +588,7 @@ class HomeViewModel @Inject constructor(
 
     private fun submitConversationRequest(request: TurnRequest, turnId: String) {
         latestSubmittedTurnId = turnId
+        retryableModelRequest.value = null
         var currentAssistantMessage = UIMessage(
             turnId = turnId, text = "", isUser = false, messageId = "assistant:$turnId",
             timestamp = getCurrentTime(), timestampMs = System.currentTimeMillis(),
@@ -587,8 +603,13 @@ class HomeViewModel @Inject constructor(
             onCompleted = { outcome ->
                 val latest = _messages.value.lastOrNull { !it.isUser && it.turnId == turnId && it.isCurrentSegment }
                     ?: currentAssistantMessage
+                if (outcome.retryableModelRequest && latestSubmittedTurnId == turnId) {
+                    retryableModelRequest.value = request
+                }
                 currentAssistantMessage = latest.copy(
-                    text = mergeFinalAssistantText(latest.text, outcome.response),
+                    text = if (outcome.modelRequestFailed) latest.text.takeUnless { latest.isTransient }.orEmpty()
+                        else mergeFinalAssistantText(latest.text, outcome.response),
+                    modelFailureNotice = outcome.response.takeIf { outcome.modelRequestFailed },
                     completedAtMs = System.currentTimeMillis(), isTransient = false
                 )
                 replaceAssistantMessage(currentAssistantMessage)
@@ -728,7 +749,8 @@ data class UIMessage(
     val anchorMessageId: String? = null,
     val roundIds: Set<String> = emptySet(),
     val isCurrentSegment: Boolean = true,
-    val isGuidance: Boolean = false
+    val isGuidance: Boolean = false,
+    val modelFailureNotice: String? = null
 ) {
     fun showsPresentationFor(candidateTurnId: String, candidateMessageId: String): Boolean =
         !isUser && turnId != null && turnId == candidateTurnId && messageId == candidateMessageId

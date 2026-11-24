@@ -1210,6 +1210,7 @@ internal suspend fun TaskTurnSession.runModelRound(repairPurpose: RepairPurpose)
         val failureClass = when {
             incomplete?.outputLimitReached == true -> "MODEL_OUTPUT_TRUNCATED"
             incomplete != null || e is com.droidance.core.model.llm.OpenAIResponsesUnterminatedException ||
+                e is com.droidance.core.model.llm.ChatCompletionsStreamFormatException ||
                 e is kotlinx.serialization.SerializationException -> "MODEL_RESPONSE_FORMAT"
             providerFailure != null -> "PROVIDER_${providerFailure.category.name}"
             generateSequence(e as Throwable?) { it.cause }.take(8).any { it is java.io.IOException } -> "NETWORK"

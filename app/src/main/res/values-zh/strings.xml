@@ -599,6 +599,7 @@
     <string name="chat_provider_auth_failed">模型服务认证失败，请检查服务商配置。</string>
     <string name="chat_provider_permission_denied">模型服务拒绝了请求，请检查 API 密钥的权限或套餐。</string>
     <string name="chat_provider_service_reason">%1$s\n服务端原因：%2$s</string>
+    <string name="chat_retry_model_request">重试</string>
     <string name="chat_provider_rate_limited">模型服务暂时限流，请稍后重试。</string>
     <string name="chat_network_unavailable">网络暂时不可用，请检查连接。</string>
     <string name="automation_once">仅一次</string>

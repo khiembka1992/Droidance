@@ -163,6 +163,8 @@ internal fun HomeScreen(
     }
 
     val visibleMessages = remember(messages, queuedTurnIds) { messages.filterNot { it.turnId in queuedTurnIds } }
+    val retryableModelTurnId by viewModel.retryableModelTurnId.collectAsStateWithLifecycle(initialValue = null)
+    val latestUserMessage = remember(messages) { messages.lastOrNull { it.isUser } }
     val latestAssistantId = remember(messages) { messages.lastOrNull { !it.isUser }?.messageId }
     val presentationsByMessage = remember(turnPresentations) { turnPresentations.associateBy { it.messageId } }
     // A loading snapshot is history; later user messages may animate once, even after lazy disposal.
@@ -309,7 +311,8 @@ internal fun HomeScreen(
 
                     items(visibleMessages, key = { it.messageId }) { message ->
                         val isLatestAssistant = message.messageId == latestAssistantId
-                        val isStreaming = !message.isUser && message.isCurrentSegment && (message.turnId in activeTurnIds ||
+                        val isStreaming = !message.isUser && message.modelFailureNotice == null &&
+                            message.isCurrentSegment && (message.turnId in activeTurnIds ||
                             (activeTurnIds.isEmpty() && isLatestAssistant && isProcessing))
                         val isQueued = message.turnId in queuedTurnIds
                         val turnPresentation = if (message.isUser) {
@@ -320,7 +323,9 @@ internal fun HomeScreen(
                             }
                         }
                         val ownsRetainedVirtualExecution = message.messageId == retainedViewerMessageId
-                        ChatBubble(
+                        if (message.modelFailureNotice == null || message.text.isNotBlank() ||
+                            turnPresentation?.hasDurablePresentation == true
+                        ) ChatBubble(
                             text = message.text,
                             isUser = message.isUser,
                             availableSkills = skills,
@@ -357,6 +362,27 @@ internal fun HomeScreen(
                             },
                             onToolConfirmation = viewModel::respondToToolConfirmation
                         )
+                        message.modelFailureNotice?.let { notice ->
+                            val retryTurnId = message.turnId?.takeIf {
+                                it == retryableModelTurnId && latestUserMessage?.turnId == it &&
+                                    !latestUserMessage.isGuidance && !isProcessing
+                            }
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = MaterialTheme.shapes.medium,
+                                color = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                            ) {
+                                Column(Modifier.padding(start = 14.dp, end = 14.dp, top = 10.dp, bottom = 10.dp)) {
+                                    Text(notice, style = MaterialTheme.typography.bodyMedium)
+                                    if (retryTurnId != null) {
+                                        TextButton(onClick = { viewModel.retryModelRequest(retryTurnId) }) {
+                                            Text(stringResource(R.string.chat_retry_model_request))
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     if (appTakeoverStatusUiState.visible) {

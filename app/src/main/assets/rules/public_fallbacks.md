@@ -40,8 +40,9 @@ These local notices describe runtime termination only; they do not certify task 
       "termination_model_network": "The connection to the model service failed and automatic retries did not restore it. Check the network or provider connection, then retry. Task records are retained.",
       "termination_model_rate_limit": "The model service is limiting requests and automatic recovery could not continue within its retry budget. Wait a while or check your provider limits, then retry.",
       "termination_model_context_limit": "The model service rejected the request because its context limit was exceeded. Check the selected model and context settings; task records are retained.",
-      "termination_model_request_rejected": "The model service rejected the request format or parameters. Check the provider protocol and model settings. Task records are retained.",
+      "termination_model_request_rejected": "The model service rejected this request. Try again. If the error persists, check the provider protocol and model settings.",
       "termination_model_not_found": "The selected model is unavailable from this provider. Check the model name and provider availability, then retry.",
+      "termination_model_server": "The model service encountered a server error. Try again in a moment.",
       "termination_model_response_invalid": "The model response was incomplete or could not be read after automatic recovery. Check the provider protocol or try again. Task records are retained.",
       "termination_internal_error_detail": "An application execution error occurred ({error_type}; reference {reference}). The task is incomplete. Export data in Settings > Data to inspect the retained diagnostic record."
     },
@@ -80,8 +81,9 @@ These local notices describe runtime termination only; they do not certify task 
       "termination_model_network": "连接模型服务失败，自动重试后仍未恢复。请检查网络或服务商连接后重试，任务记录已保留。",
       "termination_model_rate_limit": "模型服务限制了请求频率，未能在自动恢复的重试额度内继续。请稍后重试，或检查服务商的请求限制。",
       "termination_model_context_limit": "请求超过了模型服务的上下文限制。请检查所选模型和上下文设置，任务记录已保留。",
-      "termination_model_request_rejected": "模型服务拒绝了请求格式或参数。请检查服务商协议和模型设置，任务记录已保留。",
+      "termination_model_request_rejected": "模型服务拒绝了本次请求。可以重试，若仍失败，请检查服务商协议和模型设置。",
       "termination_model_not_found": "服务商当前无法提供所选模型。请检查模型名称及服务商的可用状态后重试。",
+      "termination_model_server": "模型服务端暂时出错，请稍后重试。",
       "termination_model_response_invalid": "模型回复不完整或无法解析，自动恢复后仍未取得可用回复。请检查服务商协议或重试，任务记录已保留。",
       "termination_internal_error_detail": "应用执行出错（{error_type}，诊断编号 {reference}），任务尚未完成。请在“设置 → 数据”中导出数据，查看已保留的诊断记录。"
     }

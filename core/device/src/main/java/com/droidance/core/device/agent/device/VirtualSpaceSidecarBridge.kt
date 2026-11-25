@@ -295,10 +295,9 @@ class VirtualSpaceSidecarBridge @Inject constructor(
                     val launch = shellRunner.shell(cmd, ADB_START_TIMEOUT_MS, "shell,v2")
                     if (shellRunner.isFailure(launch)) {
                         lastSidecarStartDiagnostic = "Device shell launch failed: ${launch.take(160)}"
-                        false
-                    } else {
-                        awaitBinder(RuntimeMode.STANDARD)
+                        return@synchronized false
                     }
+                    awaitBinder(RuntimeMode.STANDARD)
                 }
                 else -> false
             }

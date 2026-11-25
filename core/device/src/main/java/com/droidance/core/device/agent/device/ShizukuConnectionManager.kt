@@ -9,6 +9,7 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.IBinder
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
@@ -98,15 +99,19 @@ class ShizukuConnectionManager @Inject constructor(@ApplicationContext private v
             val result = remote.execute(command, timeoutMs.coerceIn(1, 120_000), UUID.randomUUID().toString())
             when {
                 result.getBoolean("truncated") -> "[SHIZUKU_OUTPUT_TRUNCATED]"
-                result.getString("execution_status") != "SUCCEEDED" ->
-                    "[SHIZUKU_EXECUTION_FAILED] ${result.getString("diagnostic_code").orEmpty()}"
+                result.getString("execution_status") != "SUCCEEDED" -> {
+                    val code = result.getString("diagnostic_code").orEmpty()
+                    Log.w(TAG, "UserService shell failed: $code")
+                    "[SHIZUKU_EXECUTION_FAILED] $code"
+                }
                 else -> result.getString("stdout").orEmpty() + result.getString("stderr").orEmpty()
             }
         } catch (_: InterruptedException) {
             releaseUserService()
             Thread.currentThread().interrupt()
             "[SHIZUKU_INTERRUPTED]"
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            Log.w(TAG, "UserService bind or shell call failed", error)
             releaseUserService()
             "[SHIZUKU_DELIVERY_UNKNOWN]"
         }
@@ -128,9 +133,20 @@ class ShizukuConnectionManager @Inject constructor(@ApplicationContext private v
         }
         connection = callback
         Shizuku.bindUserService(serviceArgs, callback)
-        if (!latch.await(10, TimeUnit.SECONDS)) { releaseUserService(); return@synchronized null }
-        service?.takeIf { it.asBinder().isBinderAlive && it.uid == 2000 }
-            .also { if (it == null) releaseUserService() }
+        if (!latch.await(10, TimeUnit.SECONDS)) {
+            Log.w(TAG, "Timed out waiting for the UserService Binder callback")
+            releaseUserService()
+            return@synchronized null
+        }
+        val bound = service?.takeIf { it.asBinder().isBinderAlive }
+        val uid = bound?.uid
+        if (uid != 2000) {
+            Log.w(TAG, "UserService Binder did not report shell UID: $uid")
+            releaseUserService()
+            return@synchronized null
+        }
+        Log.i(TAG, "UserService Binder connected with shell UID")
+        bound
     }
 
     fun releaseUserService() {
@@ -161,6 +177,7 @@ class ShizukuConnectionManager @Inject constructor(@ApplicationContext private v
     companion object {
         const val PACKAGE_NAME = "moe.shizuku.privileged.api"
         const val PERMISSION_NAME = "moe.shizuku.manager.permission.API_V23"
+        private const val TAG = "DroidanceShizuku"
         private const val REQUEST_CODE = 4096
     }
 }

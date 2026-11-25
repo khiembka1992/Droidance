@@ -5,6 +5,7 @@ package com.droidance.core.device.agent.device
 import android.os.Bundle
 import android.os.Process
 import android.system.Os
+import android.util.Log
 import androidx.annotation.Keep
 import kotlin.system.exitProcess
 
@@ -12,6 +13,10 @@ import kotlin.system.exitProcess
 @Keep
 class ShizukuShellService : IShizukuShellService.Stub() {
     private val commands = ManagedShellCommands()
+
+    init {
+        Log.i("DroidanceShizuku", "UserService started: uid=${Process.myUid()} gid=${Os.getgid()}")
+    }
 
     override fun getUid(): Int = Process.myUid()
 

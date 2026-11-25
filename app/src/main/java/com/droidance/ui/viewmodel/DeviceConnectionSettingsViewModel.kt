@@ -3,6 +3,7 @@
 package com.droidance.ui.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.droidance.R
@@ -102,13 +103,16 @@ class DeviceConnectionSettingsViewModel @Inject constructor(
                 val ready = withContext(Dispatchers.IO) {
                     // Verify the chosen bootstrap even when an existing resident Binder is reusable.
                     if (method == DeviceConnectionMethod.SHIZUKU && shizuku.shell("id -u", 5_000).trim() != "2000") {
+                        Log.w("DeviceConnection", "Shizuku shell identity probe failed")
                         false
                     } else {
                         root.beginCandidate(method)
                         try {
                             val metrics = context.resources.displayMetrics
                             bridge.ensureResidentChannel(metrics.widthPixels.coerceAtLeast(1), metrics.heightPixels.coerceAtLeast(1),
-                                metrics.densityDpi.coerceAtLeast(1), RuntimeMode.STANDARD)
+                                metrics.densityDpi.coerceAtLeast(1), RuntimeMode.STANDARD).also { connected ->
+                                if (!connected) Log.w("DeviceConnection", "Resident channel failed after $method bootstrap")
+                            }
                         } finally { root.endCandidate() }
                     }
                 }
@@ -125,7 +129,7 @@ class DeviceConnectionSettingsViewModel @Inject constructor(
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (error: Exception) {
-                android.util.Log.w("DeviceConnection", "Connection failed: ${error.javaClass.simpleName}")
+                Log.w("DeviceConnection", "Connection failed", error)
                 _state.update { it.copy(message = if (method == DeviceConnectionMethod.ROOT)
                     R.string.connection_root_start_failed else R.string.connection_shizuku_start_failed) }
             } finally {

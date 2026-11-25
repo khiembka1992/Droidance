@@ -8,6 +8,10 @@ Record a notable change in `Unreleased` within the same pull request that implem
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix Shizuku connections on Android 11 devices where the shell launcher exits before its child process.
+
 ## [0.3.2] - 2026-11-24
 
 ### Fixed

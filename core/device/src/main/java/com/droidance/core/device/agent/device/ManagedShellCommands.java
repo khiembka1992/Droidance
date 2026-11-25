@@ -7,6 +7,7 @@ import com.droidance.core.agent.device.*;
 
 import com.droidance.core.device.agent.device.*;
 
+import android.os.Build;
 import android.system.Os;
 import android.system.OsConstants;
 import java.io.InputStream;
@@ -68,6 +69,7 @@ public final class ManagedShellCommands {
         SystemQueryOutput.Result[] selected={null};
         String[] selectionError={null};
         Thread out=null, err=null;
+        boolean finished = false;
         java.util.concurrent.ScheduledFuture<?> deadline=deadlines.schedule(() -> {
             synchronized(slot) { slot.timedOut=true;slot.canceled=true;kill(slot); }
         }, Math.max(1,Math.min(120000,timeoutMs)),TimeUnit.MILLISECONDS);
@@ -76,7 +78,11 @@ public final class ManagedShellCommands {
                 if(slot.canceled || slot.process!=null)return status(new Result(-1,"",""), "NOT_EXECUTED", "SHELL_REVOKED");
                 // The user command cannot start before its process group is registered by the host.
                 String wrapper="printf '%s\\n' \"$$\"; read -r ready; [ \"$ready\" = '"+id+"' ] || exit 125;\n"+command;
-                slot.process=new ProcessBuilder("/system/bin/setsid","/system/bin/sh","-c",wrapper).start();
+                // Android 11 added -w so setsid can relay the shell's exit status when it forks.
+                ProcessBuilder launcher = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                        ? new ProcessBuilder("/system/bin/setsid", "-w", "/system/bin/sh", "-c", wrapper)
+                        : new ProcessBuilder("/system/bin/setsid", "/system/bin/sh", "-c", wrapper);
+                slot.process = launcher.start();
             }
             String pid=readHeader(slot.process.getInputStream());
             synchronized(slot) {
@@ -96,9 +102,14 @@ public final class ManagedShellCommands {
             },"shell-out");
             err=new Thread(() -> { try { errRead[0]=BoundedShellOutput.read(slot.process.getErrorStream()); error[0]=errRead[0].text; } catch(Exception ignored){} },"shell-err");
             out.start(); err.start();
-            boolean finished=slot.process.waitFor(Math.max(1,Math.min(120000,timeoutMs)),TimeUnit.MILLISECONDS);
+            finished = slot.process.waitFor(Math.max(1, Math.min(120000, timeoutMs)), TimeUnit.MILLISECONDS);
             int exit=finished ? slot.process.exitValue() : -1;
-            synchronized(slot) { kill(slot); }
+            synchronized (slot) {
+                // Stop descendants that inherited the output pipes. Destroying the Java Process
+                // also closes its streams, which can race the readers on Android 11.
+                if (finished) killGroup(slot);
+                else kill(slot);
+            }
             out.join(1000); err.join(1000);
             boolean selectionFailed=(filter != null || selector != null) && (selected[0] == null || selectionError[0] != null);
             Result result=new Result(slot.canceled || selectionFailed ? -1 : exit,output[0],error[0],selected[0]);
@@ -116,7 +127,12 @@ public final class ManagedShellCommands {
                 slot.dispatched ? "SHELL_EFFECT_UNKNOWN" : "SHELL_START_FAILED");
         } finally {
             deadline.cancel(false);
-            synchronized(slot) { kill(slot); slot.process=null; slot.canceled=true; }
+            synchronized (slot) {
+                if (finished) killGroup(slot);
+                else kill(slot);
+                slot.process = null;
+                slot.canceled = true;
+            }
             // Keep a short tombstone: late dispatch/cancel must never restart this identity.
         }
     }
@@ -129,8 +145,13 @@ public final class ManagedShellCommands {
         throw new IllegalStateException("SHELL_START_HANDSHAKE_FAILED");
     }
     private static void kill(Slot slot) {
-        if(slot.group>1) { try { Os.kill(-slot.group,OsConstants.SIGKILL); } catch(Exception ignored){} }
+        killGroup(slot);
         if(slot.process!=null)slot.process.destroyForcibly();
-        slot.group=0;
+    }
+    private static void killGroup(Slot slot) {
+        if (slot.group > 1) {
+            try { Os.kill(-slot.group, OsConstants.SIGKILL); } catch (Exception ignored) {}
+            slot.group = 0;
+        }
     }
 }

@@ -10,18 +10,18 @@ def strings(module, locale):
 def format_arguments(text):
     return sorted(re.findall(r"%[0-9]+\$[a-z]", text))
 for module in ["app", "core/device"]:
-    english, chinese = strings(module, "values"), strings(module, "values-zh")
-    assert english.keys() == chinese.keys(), f"Locale resource keys differ in {module}"
+    english, vietnamese = strings(module, "values"), strings(module, "values-vi")
+    assert english.keys() == vietnamese.keys(), f"Locale resource keys differ in {module}"
     for key in english:
-        assert english[key].tag == chinese[key].tag, key
+        assert english[key].tag == vietnamese[key].tag, key
         if english[key].tag == "plurals":
             assert english[key].find("item[@quantity='other']") is not None, key
-            assert chinese[key].find("item[@quantity='other']") is not None, key
+            assert vietnamese[key].find("item[@quantity='other']") is not None, key
             expected = format_arguments("".join(english[key][0].itertext()))
-            for item in list(english[key]) + list(chinese[key]):
+            for item in list(english[key]) + list(vietnamese[key]):
                 assert format_arguments("".join(item.itertext())) == expected, key
         else:
-            assert format_arguments("".join(english[key].itertext())) == format_arguments("".join(chinese[key].itertext())), key
+            assert format_arguments("".join(english[key].itertext())) == format_arguments("".join(vietnamese[key].itertext())), key
 network = ET.parse(root / "app/src/main/res/xml/network_security_config.xml").getroot()
 base_config = network.find("base-config")
 assert base_config.attrib["cleartextTrafficPermitted"] == "true"

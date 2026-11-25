@@ -97,8 +97,8 @@ fun SettingsLanguageScreen(
 @Composable
 private fun languageLabel(language: AppLanguage): String = when (language) {
     AppLanguage.SYSTEM -> stringResource(R.string.settings_language_system)
-    AppLanguage.SIMPLIFIED_CHINESE -> stringResource(R.string.settings_language_zh)
     AppLanguage.ENGLISH -> stringResource(R.string.settings_language_en)
+    AppLanguage.VIETNAMESE -> stringResource(R.string.settings_language_vi)
 }
 
 @Composable

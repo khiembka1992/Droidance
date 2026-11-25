@@ -14,8 +14,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class LocalizedPublicFallbacks(val translations: Map<String, Map<String, String>>) {
     fun validate() {
-        require(translations.keys == ResolvedLanguage.entries.map { it.tag }.toSet())
-        val keys = translations.values.first().keys
+        require("en" in translations)
+        val keys = translations.getValue("en").keys
         require("termination_default" in keys)
         require(translations.values.all { messages ->
             messages.keys == keys && messages.values.all(String::isNotBlank)
@@ -23,7 +23,8 @@ internal data class LocalizedPublicFallbacks(val translations: Map<String, Map<S
     }
 
     fun text(language: String, key: String): String =
-        translations.getValue(language)[key] ?: error("Missing public fallback: $key")
+        translations[language]?.get(key) ?: translations.getValue("en")[key]
+            ?: error("Missing public fallback: $key")
 
     fun termination(language: String, reason: String): String =
         translations.getValue(language)["termination_$reason"] ?: text(language, "termination_default")

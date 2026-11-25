@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.droidance.core.device.BackgroundRunState
 import com.droidance.daemon.TaskExecutionService
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -16,6 +17,7 @@ class AutomationAlarmReceiver : BroadcastReceiver() {
     @Inject lateinit var automationManager: AutomationManager
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (BackgroundRunState.isPaused(context)) return
         val automationId = intent.getStringExtra(AutomationAlarmScheduler.EXTRA_AUTOMATION_ID)
         val definitionVersion = intent.getIntExtra(
             AutomationAlarmScheduler.EXTRA_DEFINITION_VERSION,

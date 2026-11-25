@@ -10,6 +10,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,6 +30,7 @@ import java.io.File
 import java.security.MessageDigest
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /**
@@ -70,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     private var permissionNavigation by mutableStateOf(false)
 
     private var resultConversationId by mutableStateOf<String?>(null)
+    private var exiting by mutableStateOf(false)
 
     private fun debugTokenMatches(presented: String?): Boolean {
         val file = File(filesDir, DEBUG_TOKEN_FILE)
@@ -95,7 +99,29 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        (application as DroidanceApp).enterBackgroundStandby()
         appUpdateManager.checkIfDue(appOpen = true)
+    }
+
+    private fun exitApp() {
+        if (exiting) return
+        exiting = true
+        lifecycleScope.launch {
+            try {
+                val stopped = (application as DroidanceApp).exitBackgroundWork()
+                if (!stopped) {
+                    Toast.makeText(this@MainActivity, R.string.exit_runtime_unconfirmed, Toast.LENGTH_LONG).show()
+                }
+                finishAndRemoveTask()
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (error: Exception) {
+                Log.w("MainActivity", "Droidance exit failed", error)
+                Toast.makeText(this@MainActivity, R.string.exit_failed, Toast.LENGTH_LONG).show()
+            } finally {
+                exiting = false
+            }
+        }
     }
 
     override fun onResume() {
@@ -136,6 +162,8 @@ class MainActivity : AppCompatActivity() {
                     initialAutoSend = debugAutoSend,
                     resultConversationId = resultConversationId,
                     permissionNavigation = permissionNavigation,
+                    exiting = exiting,
+                    onExit = ::exitApp,
                     onConversationShown = navigationPresentation::recordConversation,
                     onOnboardingCompleted = { navigationPresentation.recordOnboarding(true) },
                     onResultOpened = {

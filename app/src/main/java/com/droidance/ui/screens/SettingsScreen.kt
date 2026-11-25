@@ -135,8 +135,8 @@ fun SettingsScreen(
                         title = stringResource(R.string.settings_language),
                         value = when (overview.language) {
                             AppLanguage.SYSTEM -> stringResource(R.string.settings_language_system)
-                            AppLanguage.SIMPLIFIED_CHINESE -> stringResource(R.string.settings_language_zh)
                             AppLanguage.ENGLISH -> stringResource(R.string.settings_language_en)
+                            AppLanguage.VIETNAMESE -> stringResource(R.string.settings_language_vi)
                         },
                         icon = DroidanceIcons.Languages,
                         onClick = onNavigateToLanguage

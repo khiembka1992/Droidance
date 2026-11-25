@@ -14,6 +14,8 @@ import android.os.Looper
 import android.util.Log
 import androidx.work.Configuration
 import com.droidance.core.device.air.AirModePairingManager
+import com.droidance.core.device.BackgroundRunState
+import com.droidance.core.device.agent.device.ShizukuConnectionManager
 import com.droidance.core.agent.AgentProcessRecoveryCoordinator
 import com.droidance.agent.AgentWorkspaceStore
 import com.droidance.automation.AppTakeoverCoordinator
@@ -31,7 +33,11 @@ import android.view.Display
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -55,6 +61,7 @@ class DroidanceApp : Application(), Configuration.Provider {
     @Inject lateinit var capabilityRegistry: com.droidance.agent.RuntimeCapabilityRegistry
     @Inject lateinit var generalSettings: com.droidance.settings.GeneralSettingsRepository
     @Inject lateinit var airModePairingManager: AirModePairingManager
+    @Inject lateinit var shizukuConnectionManager: ShizukuConnectionManager
     @Inject lateinit var appTakeoverCoordinator: AppTakeoverCoordinator
     @Inject lateinit var automationCoordinator: AutomationCoordinator
     @Inject lateinit var automationManager: AutomationManager
@@ -62,6 +69,9 @@ class DroidanceApp : Application(), Configuration.Provider {
     @Inject lateinit var airNotifications: com.droidance.core.device.air.AirModeNotificationController
 
     private var presentationLanguage: String? = null
+    private var backgroundJob: Job? = null
+    private var exitInProgress = false
+    private var reconnectAirOnOpen = false
 
     private var wifiNetworkCallback: ConnectivityManager.NetworkCallback? = null
     private val activeWifiNetworks = ConcurrentHashMap.newKeySet<Network>()
@@ -72,6 +82,7 @@ class DroidanceApp : Application(), Configuration.Provider {
     }
     @Volatile private var pendingAirWifiTrigger: String = "registered"
     private val airWifiTransportRefresh = Runnable {
+        if (BackgroundRunState.isPaused(this)) return@Runnable
         airModePairingManager.onWifiNetworkChanged(
             pendingAirWifiTrigger,
             activeWifiNetworks.isNotEmpty()
@@ -101,7 +112,6 @@ class DroidanceApp : Application(), Configuration.Provider {
             applicationScope.launch(Dispatchers.IO) { installedAppsManager.init() }
             return
         }
-        runtimeProcessClient.startPresentation()
         // 追踪自身 Activity 前台状态，用于悬浮窗可见性判断
         val foregroundActivities = RuntimeForegroundActivities<Activity>()
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
@@ -134,14 +144,68 @@ class DroidanceApp : Application(), Configuration.Provider {
                 runtimeProcessClient.send("foreground", android.os.Bundle().apply { putBoolean("visible", foregroundState.isInForeground) })
             }
         })
+        if (!BackgroundRunState.isPaused(this)) startBackgroundWork()
+    }
+
+    internal fun enterBackgroundStandby() {
+        if (exitInProgress) return
+        val resumedFromExit = BackgroundRunState.resume(this)
+        startBackgroundWork()
+        TaskExecutionService.startStandby(this, restoreSchedules = resumedFromExit)
+    }
+
+    private fun startBackgroundWork() {
+        if (backgroundJob?.isActive == true) return
+        val job = SupervisorJob(applicationScope.coroutineContext[Job])
+        backgroundJob = job
+        val scope = CoroutineScope(applicationScope.coroutineContext + job)
+        runtimeProcessClient.startPresentation()
         KeepAliveJobService.schedule(this)
         heartbeatManager.startHeartbeat()
         registerNetworkCallback()
-        applicationScope.launch(Dispatchers.IO) { airModePairingManager.ensureConnectedIfPaired() }
-        applicationScope.launch(Dispatchers.IO) {
+        val reconnectAir = reconnectAirOnOpen
+        reconnectAirOnOpen = false
+        scope.launch(Dispatchers.IO) {
+            if (reconnectAir) airModePairingManager.reconnect()
+            airModePairingManager.ensureConnectedIfPaired()
+        }
+        scope.launch(Dispatchers.IO) {
             installedAppsManager.init()
-            com.droidance.daemon.startAppInventoryMaintenance(this@DroidanceApp, installedAppsManager, applicationScope)
-            capabilityRegistry.monitorChannelAvailability { installedAppsManager.refreshIfIncomplete() }
+            com.droidance.daemon.startAppInventoryMaintenance(this@DroidanceApp, installedAppsManager, scope)
+            capabilityRegistry.monitorChannelAvailability(scope) { installedAppsManager.refreshIfIncomplete() }
+        }
+    }
+
+    internal suspend fun exitBackgroundWork(): Boolean {
+        if (exitInProgress) return false
+        exitInProgress = true
+        try {
+            BackgroundRunState.pause(this)
+            backgroundJob?.cancel()
+            backgroundJob = null
+            runtimeProcessClient.stopPresentation()
+            TaskExecutionService.stopStandby(this)
+            KeepAliveJobService.cancel(this)
+            heartbeatManager.stopHeartbeat()
+            wifiNetworkCallback?.let { callback ->
+                getSystemService(ConnectivityManager::class.java)?.unregisterNetworkCallback(callback)
+                wifiNetworkCallback = null
+                networkHandler.removeCallbacksAndMessages(null)
+                activeWifiNetworks.clear()
+            }
+            return withContext(NonCancellable + Dispatchers.IO) {
+                try {
+                    runtimeProcessClient.stopResidentRuntime()
+                } finally {
+                    reconnectAirOnOpen = airModePairingManager.shouldMaintainResidentChannel
+                    airModePairingManager.disconnect()
+                    shizukuConnectionManager.releaseUserService()
+                    airNotifications.cancelRuntimeChannelLost()
+                    TaskExecutionService.cancelManualTakeover(this@DroidanceApp)
+                }
+            }
+        } finally {
+            exitInProgress = false
         }
     }
 
@@ -184,6 +248,7 @@ class DroidanceApp : Application(), Configuration.Provider {
     }
 
     private fun scheduleAirWifiTransportRefresh(trigger: String) {
+        if (BackgroundRunState.isPaused(this)) return
         pendingAirWifiTrigger = trigger
         networkHandler.removeCallbacks(airWifiTransportRefresh)
         networkHandler.postDelayed(airWifiTransportRefresh, 1_500L)
@@ -192,6 +257,7 @@ class DroidanceApp : Application(), Configuration.Provider {
     private fun notifyAirWifiTransportLost() {
         networkHandler.removeCallbacks(airWifiTransportRefresh)
         networkHandler.post {
+            if (BackgroundRunState.isPaused(this)) return@post
             airModePairingManager.onWifiNetworkChanged(
                 "lost",
                 activeWifiNetworks.isNotEmpty()

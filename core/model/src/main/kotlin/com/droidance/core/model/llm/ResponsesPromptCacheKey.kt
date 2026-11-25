@@ -26,6 +26,7 @@ object ResponsesPromptCacheKey {
         val prefix = listOf("model", "instructions", "tools").joinToString("\u001f") { request[it]?.toString().orEmpty() }
         val digest = MessageDigest.getInstance("SHA-256").digest(prefix.toByteArray(Charsets.UTF_8))
             .joinToString("") { "%02x".format(it) }
-        return JsonObject(request + ("prompt_cache_key" to JsonPrimitive("droidance-$digest")))
+        // The hex SHA-256 digest fits the Responses API's 64-character limit.
+        return JsonObject(request + ("prompt_cache_key" to JsonPrimitive(digest)))
     }
 }

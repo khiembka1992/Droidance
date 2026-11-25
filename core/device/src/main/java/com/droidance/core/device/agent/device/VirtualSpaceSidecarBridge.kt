@@ -3,6 +3,8 @@
 
 package com.droidance.core.device.agent.device
 
+import com.droidance.core.device.BackgroundRunState
+
 import com.droidance.core.device.tools.LauncherIntentCommand
 
 import com.droidance.core.agent.device.*
@@ -181,6 +183,7 @@ class VirtualSpaceSidecarBridge @Inject constructor(
                 val service = serviceOrNull(selectedMode) ?: return@synchronized invalid("Resident device service is unavailable")
                 return@synchronized startService(service, width, height, densityDpi, "resident_runtime", selectedMode)
             }
+            if (BackgroundRunState.isPaused(context)) return@synchronized invalid("Droidance background work is paused")
             // Allocate a virtual display only when execution starts on the resident shell Binder.
             if (!reconcileDuplicateResidentSidecars(selectedMode)) {
                 return@synchronized invalid(
@@ -256,6 +259,7 @@ class VirtualSpaceSidecarBridge @Inject constructor(
      */
     fun replaceStaleResidentSidecar(width: Int, height: Int, densityDpi: Int): Boolean =
         synchronized(serviceLock) {
+            if (!RuntimeProcessRole.isOwner && BackgroundRunState.isPaused(context)) return@synchronized false
             if (isRegisteredServiceAlive(RuntimeMode.STANDARD)) return@synchronized true
             if (shellRunner.isAvailable(ShellIdentity.SHELL)) return@synchronized false
             val stale = rawServiceOrNull(RuntimeMode.STANDARD) ?: return@synchronized false
@@ -266,6 +270,7 @@ class VirtualSpaceSidecarBridge @Inject constructor(
         if (RuntimeProcessRole.isOwner) return isRegisteredServiceAlive(RuntimeMode.STANDARD)
         val selectedMode = mode?.takeIf { it == RuntimeMode.STANDARD } ?: return false
         return synchronized(serviceLock) {
+            if (BackgroundRunState.isPaused(context)) return@synchronized false
             if (!reconcileDuplicateResidentSidecars(selectedMode)) return@synchronized false
             if (isRegisteredServiceAlive(selectedMode)) return@synchronized true
             replaceIncompatibleResidentSidecar(selectedMode, width, height, densityDpi)
@@ -322,18 +327,18 @@ class VirtualSpaceSidecarBridge @Inject constructor(
     }.getOrElse { "sidecar evidence failed: ${it.javaClass.simpleName}" }
 
     /** Stops the sidecar and its supervisor; a graceful exit also works without the live ADB shell. */
-    fun stopResidentChannel() {
+    fun stopResidentChannel(): Boolean =
         synchronized(serviceLock) {
             val service = rawServiceOrNull(RuntimeMode.STANDARD)
-            stopResidentSidecarProcess(
+            val stopped = stopResidentSidecarProcess(
                 RuntimeMode.STANDARD,
                 service,
                 allowGracefulDestroy = service != null,
                 currentProtocolOnly = false
             )
             clearStoppedSidecar(service?.asBinder())
+            stopped || service?.asBinder()?.isBinderAlive == false
         }
-    }
 
     private fun awaitBinder(
         mode: RuntimeMode,

@@ -7,6 +7,7 @@ import android.app.ActivityOptions
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import com.droidance.core.device.BackgroundRunState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -37,6 +38,7 @@ class NotificationWatcher : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         sbn ?: return
+        if (BackgroundRunState.isPaused(this)) return
 
         val notification = sbn.notification
         val extras = notification.extras

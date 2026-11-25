@@ -9,6 +9,7 @@ import com.droidance.agent.ManualTakeoverState
 import com.droidance.agent.device.RuntimeDriverBinderReceiver
 import com.droidance.core.agent.*
 import com.droidance.core.agent.device.ExecutionSpace
+import com.droidance.core.device.BackgroundRunState
 import com.droidance.core.device.agent.device.*
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -54,7 +55,7 @@ class RuntimeProcessClient @Inject constructor(
     private val presence = android.os.Binder()
     private val connectionLock = Any()
     @Volatile private var connection: IAgentRuntimeOwner? = null
-    private val pollStarted = java.util.concurrent.atomic.AtomicBoolean()
+    private var presentationJob: Job? = null
     private val _connectionState = MutableStateFlow(RuntimeConnectionState.CONNECTING)
     val connectionState = _connectionState.asStateFlow()
 
@@ -91,8 +92,10 @@ class RuntimeProcessClient @Inject constructor(
 
     fun owner(): IAgentRuntimeOwner {
         check(!isOwner) { "The runtime owner does not connect to itself" }
+        if (BackgroundRunState.isPaused(context)) throw RuntimeUnavailableException()
         connection?.takeIf { it.asBinder().isBinderAlive }?.let { return it }
         return synchronized(connectionLock) {
+            if (BackgroundRunState.isPaused(context)) throw RuntimeUnavailableException()
             connection?.takeIf { it.asBinder().isBinderAlive } ?: run {
                 // A live Binder from the previous APK is incompatible but can launch its replacement.
                 // Do not reject it before the bridge has had a chance to perform that handoff.
@@ -129,6 +132,7 @@ class RuntimeProcessClient @Inject constructor(
     init {
         if (!isOwner) scope.launch(Dispatchers.IO) {
             for ((operation, arguments) in controls) {
+                if (BackgroundRunState.isPaused(context)) continue
                 try {
                     if (operation in setOf("resumeSkillDraft", "foreground")) command("configuration", RuntimeConfigurationSync.snapshot(context))
                     command(operation, arguments)
@@ -140,15 +144,41 @@ class RuntimeProcessClient @Inject constructor(
 
     fun send(operation: String, arguments: Bundle = Bundle()) {
         check(!isOwner)
+        if (BackgroundRunState.isPaused(context)) return
         check(controls.trySend(operation to Bundle(arguments)).isSuccess)
+    }
+
+    @Synchronized
+    fun stopPresentation() {
+        presentationJob?.cancel()
+        presentationJob = null
+        while (controls.tryReceive().isSuccess) { }
+        state.value = AgentState.IDLE
+        isMobileUseTaskActive.value = false
+        _connectionState.value = RuntimeConnectionState.UNAVAILABLE
+    }
+
+    fun stopResidentRuntime(): Boolean = synchronized(connectionLock) {
+        val owner = connection?.takeIf { it.asBinder().isBinderAlive }
+        owner?.let {
+            runCatching { command(it, "cancel", Bundle().apply { putString("origin", "app_exit") }) }
+                .onFailure { error -> android.util.Log.w("DroidanceRuntime", "Task cancellation failed during exit", error) }
+        }
+        val sidecar = bridge.get()
+        val wasConnected = owner != null || sidecar.isResidentBinderAlive()
+        val stopped = sidecar.stopResidentChannel()
+        connection = null
+        stopped || !wasConnected
     }
 
     /** Sends arguments that carry file descriptors directly; [command] serializes plain values only. */
     fun transfer(operation: String, arguments: Bundle): Bundle = decode(owner().command(operation, arguments))
 
-    fun command(operation: String, arguments: Bundle = Bundle()): Bundle {
+    fun command(operation: String, arguments: Bundle = Bundle()): Bundle = command(owner(), operation, arguments)
+
+    private fun command(owner: IAgentRuntimeOwner, operation: String, arguments: Bundle): Bundle {
         val descriptor = RuntimeWire.write(cacheDir, arguments)
-        return try { decode(owner().command(operation, Bundle().apply { putParcelable("payload", descriptor) })) }
+        return try { decode(owner.command(operation, Bundle().apply { putParcelable("payload", descriptor) })) }
             finally { descriptor.close() }
     }
 
@@ -210,10 +240,14 @@ class RuntimeProcessClient @Inject constructor(
 
     private fun decode(response: android.os.ParcelFileDescriptor): Bundle = RuntimeWire.read(response)
 
+    @Synchronized
     private fun startPolling() {
-        if (!pollStarted.compareAndSet(false, true)) return
+        if (presentationJob?.isActive == true || BackgroundRunState.isPaused(context)) return
+        val job = SupervisorJob(scope.coroutineContext[Job])
+        presentationJob = job
+        val presentationScope = CoroutineScope(scope.coroutineContext + job)
         val displayUpdates = kotlinx.coroutines.channels.Channel<Bundle>(kotlinx.coroutines.channels.Channel.CONFLATED)
-        scope.launch(Dispatchers.IO) {
+        presentationScope.launch(Dispatchers.IO) {
             var lastFailure: String? = null
             for (snapshot in displayUpdates) {
                 try {
@@ -227,11 +261,12 @@ class RuntimeProcessClient @Inject constructor(
                 }
             }
         }
-        scope.launch(Dispatchers.IO) {
+        presentationScope.launch(Dispatchers.IO) {
             var lastFailure: String? = null
             while (isActive) {
                 try {
                     val snapshot = decode(owner().state())
+                    ensureActive()
                     _connectionState.value = RuntimeConnectionState.CONNECTED
                     historyRevision.value = snapshot.getString("historyRevision")
                     navigation.recordOnboarding(snapshot.getBoolean("onboardingComplete"))

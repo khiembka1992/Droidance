@@ -132,6 +132,8 @@ fun AppNavigation(
     initialAutoSend: Boolean = false,
     resultConversationId: String? = null,
     permissionNavigation: Boolean = false,
+    exiting: Boolean,
+    onExit: () -> Unit,
     onConversationShown: (String) -> Unit,
     onOnboardingCompleted: () -> Unit,
     onResultOpened: () -> Unit = {}
@@ -260,6 +262,8 @@ fun AppNavigation(
                     currentRoute = currentRoute,
                     currentConversationId = currentConversationId,
                     visible = drawerState.currentValue == DrawerValue.Open || drawerState.targetValue == DrawerValue.Open,
+                    exiting = exiting,
+                    onExit = onExit,
                     onClose = { scope.launch { drawerState.close() } }
                 )
             }

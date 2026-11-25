@@ -12,6 +12,7 @@ import androidx.work.WorkManager
 import com.droidance.core.device.config.InstalledAppsManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 
 /** Package events maintain the cache; a lookup miss repairs events missed while stopped. */
@@ -30,8 +31,7 @@ fun startAppInventoryMaintenance(context: Context, apps: InstalledAppsManager, s
                 try { apps.onPackageChanged(packageName, removed) }
                 catch (cancelled: CancellationException) { throw cancelled }
                 catch (_: Exception) { apps.invalidate() }
-                finally { pending.finish() }
-            }
+            }.invokeOnCompletion { pending.finish() }
         }
     }
     val filter = IntentFilter().apply {
@@ -40,4 +40,5 @@ fun startAppInventoryMaintenance(context: Context, apps: InstalledAppsManager, s
         addDataScheme("package")
     }
     ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+    scope.coroutineContext.job.invokeOnCompletion { context.unregisterReceiver(receiver) }
 }

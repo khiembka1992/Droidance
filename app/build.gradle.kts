@@ -53,7 +53,7 @@ android {
         applicationId = "com.droidance"
         minSdk = 28
         targetSdk = 35
-        resourceConfigurations += listOf("en", "zh")
+        resourceConfigurations += listOf("en", "vi")
         buildConfigField("String", "UPDATE_REPOSITORY", "\"$updateRepository\"")
         versionCode = 18
         versionName = "0.3.2"

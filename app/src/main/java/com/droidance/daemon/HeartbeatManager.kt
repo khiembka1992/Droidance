@@ -5,6 +5,7 @@ package com.droidance.daemon
 
 import android.content.Context
 import android.util.Log
+import com.droidance.core.device.BackgroundRunState
 import androidx.work.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +26,7 @@ class HeartbeatManager @Inject constructor(
     }
 
     fun startHeartbeat() {
+        if (BackgroundRunState.isPaused(context)) return
         val intervalMinutes = generalSettingsRepository.heartbeatInterval().toLong()
             .coerceAtLeast(MIN_HEARTBEAT_INTERVAL_MINUTES)
         val request = PeriodicWorkRequestBuilder<HeartbeatWorker>(
@@ -42,6 +44,9 @@ class HeartbeatManager @Inject constructor(
         Log.i("HeartbeatManager", "Heartbeat started with a ${intervalMinutes}-minute interval")
     }
 
+    fun stopHeartbeat() {
+        WorkManager.getInstance(context).cancelUniqueWork(HEARTBEAT_WORK_NAME)
+    }
 }
 
 class HeartbeatWorker(
@@ -50,6 +55,7 @@ class HeartbeatWorker(
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+        if (BackgroundRunState.isPaused(appContext)) return@withContext Result.success()
         try {
             Log.i("HeartbeatWorker", "Heartbeat check started")
 

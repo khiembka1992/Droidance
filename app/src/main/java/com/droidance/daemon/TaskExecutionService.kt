@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import com.droidance.R
+import com.droidance.core.device.BackgroundRunState
 import com.droidance.core.device.air.AirModePairingManager
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
@@ -59,6 +60,7 @@ class TaskExecutionService : Service() {
         /** 便捷方法：启动常驻服务（待命模式） */
         fun startStandby(context: Context, restoreSchedules: Boolean = false) {
             if (com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner) return
+            if (BackgroundRunState.isPaused(context)) return
             val appContext = context.applicationContext
             KeepAliveJobService.schedule(appContext)
             val intent = Intent(appContext, TaskExecutionService::class.java).apply {
@@ -77,6 +79,7 @@ class TaskExecutionService : Service() {
                 com.droidance.runtime.RuntimeNotifications.post(context, NOTIFICATION_ID, R.string.app_name, taskTitle.orEmpty(), true)
                 return
             }
+            if (BackgroundRunState.isPaused(context)) return
             val appContext = context.applicationContext
             val intent = Intent(appContext, TaskExecutionService::class.java).apply {
                 action = ACTION_START_EXECUTION
@@ -97,6 +100,7 @@ class TaskExecutionService : Service() {
                 com.droidance.runtime.RuntimeNotifications.cancel(context, NOTIFICATION_ID)
                 return
             }
+            if (BackgroundRunState.isPaused(context)) return
             val appContext = context.applicationContext
             val intent = Intent(appContext, TaskExecutionService::class.java).apply {
                 action = ACTION_STOP_EXECUTION
@@ -116,6 +120,20 @@ class TaskExecutionService : Service() {
         const val MANUAL_TAKEOVER_NOTIFICATION_ID = 1003
         const val MANUAL_TAKEOVER_CHANNEL_ID = "droidance_manual_takeover"
         const val TASK_STARTED_NOTIFICATION_ID = 1004
+
+        internal fun stopStandby(context: Context) {
+            val intent = standbyIntent(context)
+            val alarms = context.getSystemService(AlarmManager::class.java)
+            for (requestCode in 0..1) {
+                PendingIntent.getService(context, requestCode, intent,
+                    PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                )?.let { alarms.cancel(it); it.cancel() }
+            }
+            context.stopService(intent)
+        }
+
+        private fun standbyIntent(context: Context) =
+            Intent(context, TaskExecutionService::class.java).setAction(ACTION_STANDBY)
 
         fun refreshLanguage(context: Context) {
             if (com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner) return
@@ -488,15 +506,18 @@ class TaskExecutionService : Service() {
     }
 
     @Volatile private var isStandby = false
+    private var executionTitle: String? = null
 
     override fun onCreate() {
         super.onCreate()
         instance = this
+        if (BackgroundRunState.isPaused(this)) return
         createNotificationChannel()
         KeepAliveJobService.schedule(this)
         restoreScope.launch { airModePairingManager.ensureConnectedIfPaired() }
         restoreScope.launch {
             for (request in restoreRequests) {
+                if (BackgroundRunState.isPaused(this@TaskExecutionService)) continue
                 try {
                     airModePairingManager.ensureConnectedIfPaired()
                     EntryPointAccessors.fromApplication(applicationContext, KeepAliveEntryPoint::class.java)
@@ -508,63 +529,43 @@ class TaskExecutionService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val l10n = ContextCompat.getContextForLanguage(this)
+        if (BackgroundRunState.isPaused(this)) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf(startId)
+            return START_NOT_STICKY
+        }
+
         when (intent?.action) {
-            ACTION_STOP_EXECUTION -> {
-                val shouldKeepStandby = airModePairingManager.isPreviouslyPaired
-                if (shouldKeepStandby) {
-                    isStandby = true
-                    val notification = buildNotification(l10n, R.string.task_service_standby_status)
-                    try {
-                        startForeground(NOTIFICATION_ID, notification)
-                    } catch (e: Exception) {
-                        Log.w("TaskExecutionService", "进入待命前台失败: ${e.message}")
-                    }
-                    acquireKeepAliveWakeLock()
-                    acquireKeepAliveWifiLock()
-                    return START_STICKY
-                } else {
-                    releaseKeepAliveWakeLock()
-                    releaseKeepAliveWifiLock()
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                    stopSelf(startId)
-                    return START_NOT_STICKY
-                }
-            }
             ACTION_START_EXECUTION -> {
                 isStandby = false
-                val title = intent.getStringExtra(EXTRA_TASK_TITLE)
-                val notification = if (!title.isNullOrBlank()) {
-                    buildNotification(l10n, R.string.task_service_running_named, title)
-                } else {
-                    buildNotification(l10n, R.string.task_service_running_status)
-                }
-                try {
-                    startForeground(NOTIFICATION_ID, notification)
-                } catch (e: Exception) {
-                    Log.w("TaskExecutionService", "进入前台执行服务失败: ${e.message}")
-                }
-                acquireKeepAliveWakeLock()
-                acquireKeepAliveWifiLock()
-                return START_NOT_STICKY
+                executionTitle = intent.getStringExtra(EXTRA_TASK_TITLE).orEmpty()
             }
-            ACTION_STANDBY, ACTION_RESTORE -> {
+            ACTION_STOP_EXECUTION -> {
+                executionTitle = null
                 isStandby = true
-                val notification = buildNotification(l10n, R.string.task_service_standby_status)
-                try {
-                    startForeground(NOTIFICATION_ID, notification)
-                } catch (e: Exception) {
-                    Log.w("TaskExecutionService", "进入待命前台失败: ${e.message}")
-                }
-                acquireKeepAliveWakeLock()
-                acquireKeepAliveWifiLock()
-                if (intent.action == ACTION_RESTORE) restoreRequests.trySend(Unit)
-                return START_STICKY
             }
-            else -> {
-                return START_NOT_STICKY
+            ACTION_STANDBY, ACTION_RESTORE, null -> {
+                isStandby = executionTitle == null
+                if (intent?.action == ACTION_RESTORE) restoreRequests.trySend(Unit)
             }
+            else -> return START_NOT_STICKY
         }
+
+        val l10n = ContextCompat.getContextForLanguage(this)
+        val title = executionTitle
+        val notification = when {
+            title == null -> buildNotification(l10n, R.string.task_service_standby_status)
+            title.isBlank() -> buildNotification(l10n, R.string.task_service_running_status)
+            else -> buildNotification(l10n, R.string.task_service_running_named, title)
+        }
+        try {
+            startForeground(NOTIFICATION_ID, notification)
+        } catch (e: Exception) {
+            Log.w("TaskExecutionService", "Failed to start foreground service", e)
+        }
+        acquireKeepAliveWakeLock()
+        acquireKeepAliveWifiLock()
+        return if (isStandby) START_STICKY else START_NOT_STICKY
     }
 
     override fun onDestroy() {
@@ -576,6 +577,7 @@ class TaskExecutionService : Service() {
         }
         releaseKeepAliveWakeLock()
         releaseKeepAliveWifiLock()
+        stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()
     }
 
@@ -648,13 +650,11 @@ class TaskExecutionService : Service() {
     }
 
     private fun scheduleRestart(requestCode: Int) {
-        val restartIntent = Intent(applicationContext, TaskExecutionService::class.java).apply {
-            action = ACTION_STANDBY
-        }
+        if (BackgroundRunState.isPaused(this)) return
         val pendingRestart = PendingIntent.getService(
             applicationContext,
             requestCode,
-            restartIntent,
+            standbyIntent(applicationContext),
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager

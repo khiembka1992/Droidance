@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.droidance.core.device.BackgroundRunState
 
 /**
  * 开机广播接收器
@@ -14,7 +15,7 @@ import android.util.Log
  */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action !in SUPPORTED_ACTIONS) return
+        if (intent.action !in SUPPORTED_ACTIONS || BackgroundRunState.isPaused(context)) return
         Log.i("BootReceiver", "Device boot detected; restoring Droidance background work")
         // HeartbeatManager 使用 WorkManager，系统会自动恢复
         KeepAliveJobService.schedule(context)

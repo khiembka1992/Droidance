@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources xmlns:ns0="http://schemas.android.com/tools" ns0:locale="en">
+    <string name="settings_air_notification_channel">pair cặp gỡ lỗi không dây</string>
+    <string name="settings_air_notification_input_label">Enter mã cặp 6 số</string>
+    <string name="settings_air_notification_action">Enter mã</string>
+    <string name="settings_air_notification_title">Enter dụng mã cặp gỡ lỗi không dây</string>
+    <string name="settings_air_notification_text">Keep hệ thống mở hộp thoại đôi và nhập mã 6 số vào đây.</string>
+    <string name="settings_air_notification_submitted_title">received mã đôi đã nhận</string>
+    <string name="settings_air_notification_submitted_text">Submit mã phối hợp cho dịch vụ đôi của hệ thống. Giữ cho màn hình này mở.</string>
+    <string name="settings_air_notification_waiting_text">received mã cặp đã nhận. Đang chờ cổng gỡ lỗi không dây.</string>
+    <string name="settings_air_notification_succeeded_title">P hợp thành công</string>
+    <string name="settings_air_notification_succeeded_text">pairi cặp không cần gỡ lỗi đã hoàn tất.</string>
+    <string name="settings_air_notification_failed_title">pair cặp gỡ lỗi không dây chưa hoàn tất</string>
+    <string name="settings_air_notification_connection_failed_title">connectionng kết nối không gỡ lỗi dây thất bại</string>
+    <string name="settings_air_notification_pairing_required_title">Dry cần phải kết đôi lần nữa</string>
+    <string name="settings_air_notification_pairing_required_text">authorizationAB hiện thời không còn được chấp nhận. Tap để mở các tùy chọn nhà phát triển, rồi kết hợp lại từ việc gỡ lỗi Wireless.</string>
+    <string name="settings_air_notification_invalid_code_text">The mã cặp phải là 6 chữ số.</string>
+    <string name="settings_air_notification_unavailable_text">No yêu cầu đôi không hoạt động sẵn sàng. Mở thiết lập gỡ lỗi không dây và nhập hộp thoại đôi hệ thống.</string>
+    <string name="settings_air_notification_permission_required">Allow cho phép thông báo động trước khi nhập mã đôi từ bóng của thông báo.</string>
+    <string name="settings_air_notifications_disabled">notificationi chuyển thông báo đã tắt. Cho phép chúng vào các thiết lập hệ thống trước.</string>
+    <string name="settings_air_notification_channel_disabled">Theng phân loại thông báo không có lỗi kết nối không thể xuất hiện. Cho phép cảnh báo về nó trong thiết lập hệ thống trước.</string>
+    <string name="settings_air_notification_post_failed">notng thông báo đôi không gửi được. Hãy kiểm tra lại thiết lập thông báo hệ thống rồi thử lại.</string>
+    <string name="settings_air_notification_input_missing">not không nhận được kết nhập đôi. Giữ cho hộp thoại đôi hệ thống mở lại và nhập lại mã vào thông báo.</string>
+    <string name="settings_air_pairing_required_detail">And đã từ chối chìa khóa song song ADB hiện tại. mở bộ gỡ lỗi Wireless cặp với mã cặp và cặp một lần nữa.</string>
+    <string name="settings_air_wifi_unavailable_detail">No sẽ thử lại khi Wi-Fi trở về.</string>
+    <string name="settings_air_pairing_service_not_found">No dịch vụ đôi đã được tìm. Cho phép Doidance chạy ở nền, mở lại hộp thoại đôi hệ thống, và nhập mã mới vào thông báo.</string>
+    <string name="settings_air_pairing_timeout">P lại thời gian mở hộp thoại kết hợp hệ thống để lấy mã mới.</string>
+    <string name="settings_air_pairing_rejected">And đã từ chối cặp, lấy mã kết hợp và thử lại.</string>
+    <string name="settings_air_pairing_connection_failed">not hế hế hế hế. Hãy lấy một mã cặp mới rồi thử lại.</string>
+    <string name="settings_air_adb_health_check_failed">checkDB không thành công. Hãy thử lại lần nữa.</string>
+    <string name="settings_air_adb_health_response_missing">bridgeAB không trả lời đúng. Hãy thử lại lần nữa.</string>
+    <string name="settings_air_adb_identity_check_failed">not thử lại xem sao.</string>
+    <string name="settings_air_adb_identity_response_missing">response không hợp lệ. Hãy thử lại.</string>
+    <string name="settings_air_adb_connection_failed">connection kết nối không dây ADB bị lỗi. Hãy kiểm tra xem việc gỡ lỗi không dây vẫn được bật.</string>
+    <string name="settings_air_adb_endpoint_not_found">NoN không tìm thấy điểm kết thúc không dây ADB. Hãy kiểm tra xem nó được bật không dây.</string>
+    <string name="runtime_air_channel_lost_title">channel điều khiển chuẩn bị bị ngắt kết nối</string>
+    <string name="runtime_air_channel_lost_text">Openance Mở để kiểm tra kết nối, và bật Wi-Fi và gỡ lỗi không dây. Một lần nữa, nếu quyền hạn hết hạn.</string>
+    <string name="runtime_root_channel_lost_title">channel kênh điều khiển gốc bị ngắt kết nối</string>
+    <string name="runtime_root_channel_lost_text">Openance để kiểm tra truy cập của Root và tái kết nối thiết bị.</string>
+    <string name="settings_air_local_port_close_failed">not xác nhận cổng gỡ lỗi đã đóng. Đã cất giữ hồ sơ cổng và lịch sử cổng; kết nối lại với Wi-Fi rồi thử lại.</string>
+    <string name="settings_air_local_adb_connection_failed">not% 1 không thể kết nối tới cổng gỡ lỗi cục bộ. Hãy giữ bộ gỡ lỗi USB và chấp nhận việc khởi chạy lại khả năng truy cập lỗi hệ thống.</string>
+    <string name="settings_air_debug_port_invalid">Enter một cổng từ 1 đến 65535.</string>
+    <string name="runtime_shizuku_channel_lost_title">channeluku kênh điều khiển bị ngắt kết nối</string>
+    <string name="runtime_shizuku_channel_lost_text">Openance để kiểm tra dịch vụ của Shizuku và xác nhận, rồi nối lại thiết bị.</string>
+</resources>

@@ -9,6 +9,7 @@ import com.droidance.core.device.agent.*
 import com.droidance.agent.*
 
 import android.content.Context
+import com.droidance.core.device.BackgroundRunState
 import com.droidance.core.agent.device.DeviceCapabilities
 import com.droidance.core.agent.device.DeviceExecutionStrategy
 import com.droidance.core.agent.device.DeviceExecutionStrategyResolver
@@ -91,7 +92,7 @@ class RuntimeCapabilityRegistry @Inject constructor(
         if (!com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner &&
             rootConnection.currentMethod == DeviceConnectionMethod.ROOT) {
             appScope.launch(Dispatchers.IO) {
-                if (rootConnection.authorize()) ensureResidentChannel()
+                if (!BackgroundRunState.isPaused(context) && rootConnection.authorize()) ensureResidentChannel()
             }
         }
         if (!com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner) appScope.launch(Dispatchers.IO) {
@@ -101,6 +102,7 @@ class RuntimeCapabilityRegistry @Inject constructor(
         }
         appScope.launch(Dispatchers.IO) {
             com.droidance.core.device.agent.device.SidecarBinderRegistry.deaths.collect {
+                if (BackgroundRunState.isPaused(context)) return@collect
                 debugLogManager.appendPersistentEvent("air-pairing", "resident sidecar Binder died; recovering the device connection")
                 recoverResidentChannel()
             }
@@ -117,8 +119,8 @@ class RuntimeCapabilityRegistry @Inject constructor(
     }
 
     /** Start after application initialization; the first observation establishes a silent baseline. */
-    fun monitorChannelAvailability(onReady: suspend () -> Unit) {
-        appScope.launch(Dispatchers.IO) {
+    fun monitorChannelAvailability(scope: CoroutineScope, onReady: suspend () -> Unit) {
+        scope.launch(Dispatchers.IO) {
             val availability = RuntimeChannelAvailability()
             var previouslyReady = false
             while (true) {
@@ -172,6 +174,7 @@ class RuntimeCapabilityRegistry @Inject constructor(
     }
 
     private fun recoverResidentChannel() {
+        if (BackgroundRunState.isPaused(context)) return
         if (rootConnection.currentMethod == DeviceConnectionMethod.SHIZUKU) {
             if (shizuku.refresh().ready) ensureResidentChannel()
             return
@@ -189,6 +192,7 @@ class RuntimeCapabilityRegistry @Inject constructor(
     /** 全能力常驻 sidecar：ensureResidentChannel 幂等，重复触发安全。 */
     private fun ensureResidentChannel() {
         appScope.launch(Dispatchers.IO) {
+            if (BackgroundRunState.isPaused(context)) return@launch
             if (rootConnection.currentMethod == DeviceConnectionMethod.ROOT) {
                 if (!rootConnection.rootReady) return@launch
             } else if (rootConnection.currentMethod == DeviceConnectionMethod.SHIZUKU) {

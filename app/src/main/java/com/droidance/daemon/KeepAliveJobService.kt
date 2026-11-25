@@ -10,6 +10,7 @@ import android.app.job.JobService
 import android.content.ComponentName
 import android.content.Context
 import android.util.Log
+import com.droidance.core.device.BackgroundRunState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -36,6 +37,7 @@ class KeepAliveJobService : JobService() {
         private const val INTERVAL_MS = 15 * 60 * 1000L
 
         fun schedule(context: Context) {
+            if (BackgroundRunState.isPaused(context)) return
             val scheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
             if (scheduler.getPendingJob(JOB_ID) != null) return
 
@@ -54,17 +56,23 @@ class KeepAliveJobService : JobService() {
                 Log.e(TAG, "KeepAlive job schedule failed")
             }
         }
+
+        fun cancel(context: Context) {
+            context.getSystemService(JobScheduler::class.java).cancel(JOB_ID)
+        }
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var work: Job? = null
 
     override fun onStartJob(params: JobParameters?): Boolean {
+        if (BackgroundRunState.isPaused(this)) return false
         Log.i(TAG, "KeepAlive job triggered, service running: ${TaskExecutionService.instance != null}")
         runCatching { TaskExecutionService.startStandby(applicationContext) }
             .onFailure { Log.w(TAG, "Restart standby service failed: ${it.message}") }
         work = scope.launch {
             try {
+                if (BackgroundRunState.isPaused(applicationContext)) return@launch
                 val ep = EntryPointAccessors.fromApplication(applicationContext, KeepAliveEntryPoint::class.java)
                 ep.airModePairingManager().keepAlive()
                 ep.appUpdateManager().checkIfDue(appOpen = false)
@@ -78,7 +86,7 @@ class KeepAliveJobService : JobService() {
 
     override fun onStopJob(params: JobParameters?): Boolean {
         work?.cancel()
-        return true
+        return !BackgroundRunState.isPaused(this)
     }
 
     override fun onDestroy() {

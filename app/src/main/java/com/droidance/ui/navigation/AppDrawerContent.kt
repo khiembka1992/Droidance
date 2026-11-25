@@ -53,6 +53,8 @@ internal fun AppDrawerContent(
     currentRoute: String,
     currentConversationId: String? = null,
     visible: Boolean,
+    exiting: Boolean,
+    onExit: () -> Unit,
     onClose: () -> Unit,
     vm: ConversationListViewModel = hiltViewModel(),
     updateVm: UpdateViewModel = hiltViewModel()
@@ -74,6 +76,22 @@ internal fun AppDrawerContent(
     var deleting by remember { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<ConversationListItem?>(null) }
     var expandedConversationMenuId by remember { mutableStateOf<String?>(null) }
+    var confirmExit by remember { mutableStateOf(false) }
+
+    if (confirmExit) {
+        com.droidance.ui.components.DroidanceDialog(
+            onDismissRequest = { confirmExit = false },
+            title = stringResource(R.string.exit_title),
+            text = stringResource(R.string.exit_message),
+            confirmLabel = stringResource(R.string.drawer_exit),
+            onConfirm = {
+                confirmExit = false
+                onExit()
+            },
+            dismissLabel = stringResource(R.string.common_cancel),
+            onDismiss = { confirmExit = false }
+        )
+    }
 
     pendingDelete?.let { target ->
         val isRunning = runningConversationId == target.id
@@ -240,6 +258,17 @@ internal fun AppDrawerContent(
         }
 
         HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+
+        TextButton(
+            onClick = { confirmExit = true },
+            enabled = !exiting,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+        ) {
+            Text(
+                text = stringResource(if (exiting) R.string.exit_in_progress else R.string.drawer_exit),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),

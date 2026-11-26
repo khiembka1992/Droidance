@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 YBBLab
 // SPDX-License-Identifier: Apache-2.0
 
-// PVAutoAgent - Android AI Agent 自动化平台
+// PVAutoAgent - Android AI agent automation platform
 pluginManagement {
     includeBuild("build-logic")
     repositories {

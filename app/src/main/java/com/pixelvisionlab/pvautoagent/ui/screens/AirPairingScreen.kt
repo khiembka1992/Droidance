@@ -49,8 +49,8 @@ import com.pixelvisionlab.pvautoagent.ui.components.PVAutoAgentDialog
 import com.pixelvisionlab.pvautoagent.ui.viewmodel.SettingsViewModel
 
 /**
- * 无线调试配对向导：初始化和设置→执行共用同一页。
- * 一页只做一件事——把「开发者选项 → 无线调试 → 通知栏填码」三步讲清楚，并把状态和唯一主操作摆在固定位置。
+ * Wireless debugging pairing wizard: initialization and Settings→Execution share the same page.
+ * The page does only one thing -- explain the three steps "Developer options → Wireless debugging → enter the code from the notification shade" clearly, and keep the status and the single primary action in fixed positions.
  */
 @Composable
 fun AirPairingScreen(
@@ -224,7 +224,7 @@ fun AirPairingScreen(
     }
 }
 
-/** 状态卡：与权限行同一形态（图标块 + 标题 + 状态副标题），进行中的提示挂在同一张卡里 */
+/** Status card: same shape as a permission row (icon block + title + status subtitle); in-progress hints hang inside the same card */
 @Composable
 private fun AirPairingStatusCard(
     state: com.pixelvisionlab.pvautoagent.ui.viewmodel.SettingsUiState,
@@ -269,7 +269,7 @@ private fun AirPairingStatusCard(
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }
-                // 进行中留一条回到系统无线调试页的通路——用户切回 App 后不必取消重来
+                // While in progress, keep a way back to the system wireless debugging page -- so the user does not have to cancel and start over after switching back to the app
                 when {
                     (pairingState == PairingState.IDLE || pairingState == PairingState.CONNECTED) &&
                         state.airPreviouslyPaired -> {
@@ -478,7 +478,7 @@ private fun AirPairingStepRow(index: Int, title: String, desc: String) {
     }
 }
 
-/** 已连接时仅展示结果，不提供会破坏当前连接的操作。 */
+/** When connected, show only the result and offer no action that would break the current connection. */
 @Composable
 private fun AirPairingConnectedStatus() {
     Surface(
@@ -517,7 +517,7 @@ private fun AirPairingConnectedStatus() {
     }
 }
 
-/** 底部唯一主操作：推进动作用石墨黑实心，取消操作用中性描边。 */
+/** The single primary action at the bottom: advancing actions use a graphite-black fill, cancel actions use a neutral outline. */
 @Composable
 private fun AirPairingPrimaryAction(
     label: String,

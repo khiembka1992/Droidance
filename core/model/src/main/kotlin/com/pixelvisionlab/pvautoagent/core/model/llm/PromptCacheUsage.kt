@@ -23,7 +23,7 @@ data class PromptCacheUsageObservation(
     val cacheWriteTokens: Int? = null
 )
 
-/** Chat Completions 的 finish_reason 早于最终 usage chunk 时继续收尾读取。 */
+/** When Chat Completions' finish_reason arrives before the final usage chunk, keep reading to finish it off. */
 class ChatCompletionsUsageState {
     var inputTokens: Int? = null
         private set

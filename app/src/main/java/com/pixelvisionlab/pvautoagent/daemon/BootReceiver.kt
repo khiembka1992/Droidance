@@ -10,14 +10,14 @@ import android.util.Log
 import com.pixelvisionlab.pvautoagent.core.device.BackgroundRunState
 
 /**
- * 开机广播接收器
- * 在设备启动后恢复定时任务和心跳机制
+ * Boot broadcast receiver
+ * Restores scheduled tasks and the heartbeat mechanism after the device boots
  */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action !in SUPPORTED_ACTIONS || BackgroundRunState.isPaused(context)) return
         Log.i("BootReceiver", "Device boot detected; restoring PVAutoAgent background work")
-        // HeartbeatManager 使用 WorkManager，系统会自动恢复
+        // HeartbeatManager uses WorkManager, so the system restores it automatically
         KeepAliveJobService.schedule(context)
         // Returning releases the broadcast queue needed by the runtime's Binder handoff.
         TaskExecutionService.startStandby(context, restoreSchedules = true)

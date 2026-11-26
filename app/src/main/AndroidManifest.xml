@@ -7,50 +7,50 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- 网络访问（LLM API） -->
+    <!-- Network access (LLM API) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- 前台服务 -->
+    <!-- Foreground service -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
-    <!-- 存储（Markdown 文件读写） -->
+    <!-- Storage (reading and writing Markdown files) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
 
-    <!-- 开机自启（恢复定时任务） -->
+    <!-- Start at boot (restore scheduled tasks) -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!-- 精确闹钟（定时任务） -->
+    <!-- Exact alarms (scheduled tasks) -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
-    <!-- 通知权限 -->
+    <!-- Notification permission -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- 联系人 -->
+    <!-- Contacts -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
-    <!-- 短信 -->
+    <!-- SMS -->
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
-    <!-- 通话记录 -->
+    <!-- Call log -->
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
-    <!-- 日历 -->
+    <!-- Calendar -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
 
-    <!-- 媒体文件（Android 13+ 细粒度权限） -->
+    <!-- Media files (fine-grained permissions on Android 13+) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
@@ -58,13 +58,13 @@
     <!-- WiFi -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <!-- AIR 首次配对成功后由 ADB shell 授予，用于后续自动恢复无线调试。 -->
+    <!-- Granted by the ADB shell after the first successful AIR pairing, used to restore wireless debugging automatically. -->
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
-    <!-- mDNS 多播（AIR 模式无线调试配对服务发现） -->
+    <!-- mDNS multicast (wireless-debugging pairing service discovery in AIR mode) -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
-    <!-- 查询所有已安装应用（Android 11+ 包可见性限制，automation app 必需） -->
+    <!-- Query all installed apps (package visibility restrictions on Android 11+, required for automation) -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
@@ -75,19 +75,19 @@
         </intent>
     </queries>
 
-    <!-- 闹钟 -->
+    <!-- Alarms -->
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
-    <!-- 振动 -->
+    <!-- Vibration -->
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Return the visible host task to input focus after a user taps its editor. -->
     <uses-permission android:name="android.permission.REORDER_TASKS" />
 
-    <!-- 屏幕常亮（任务执行期间防止息屏） -->
+    <!-- Keep the screen on (prevent sleep during task execution) -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-    <!-- 应用自更新（安装未知应用权限） -->
+    <!-- App self-update (install unknown apps permission) -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
@@ -150,7 +150,7 @@
             android:excludeFromRecents="true"
             android:taskAffinity="" />
 
-        <!-- 主界面 -->
+        <!-- Main screen -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -163,7 +163,7 @@
             </intent-filter>
         </activity>
 
-        <!-- 通知监听服务 -->
+        <!-- Notification listener service -->
         <service
             android:name=".automation.NotificationWatcher"
             android:process=":input_driver"
@@ -174,20 +174,20 @@
             </intent-filter>
         </service>
 
-        <!-- 前台任务执行服务 -->
+        <!-- Foreground task execution service -->
         <service
             android:name=".daemon.TaskExecutionService"
             android:exported="false"
             android:foregroundServiceType="specialUse" />
 
-        <!-- 定时守护服务：周期性恢复常驻服务和设备连接 -->
+        <!-- Scheduled watchdog service: periodically restores the resident service and device connection -->
         <service
             android:name=".daemon.KeepAliveJobService"
             android:enabled="true"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <!-- 开机广播接收器 -->
+        <!-- Boot broadcast receiver -->
         <receiver
             android:name=".daemon.BootReceiver"
             android:exported="true">
@@ -206,12 +206,12 @@
             android:name=".automation.AutomationAlarmReceiver"
             android:exported="false" />
 
-        <!-- AIR 模式无线配对码接收器 -->
+        <!-- Wireless pairing code receiver for AIR mode -->
         <receiver
             android:name="com.pixelvisionlab.pvautoagent.core.device.air.AirModePairingReceiver"
             android:exported="false" />
 
-        <!-- Sidecar binder 接收器：shell 身份的 app_process server 通过广播推送 binder（绕过 ServiceManager） -->
+        <!-- Sidecar binder receiver: the shell-identity app_process server sends the binder over a broadcast (bypassing ServiceManager) -->
         <receiver
             android:name="com.pixelvisionlab.pvautoagent.core.device.agent.device.SidecarBinderReceiver"
             android:exported="true"
@@ -221,7 +221,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- 文件分享 Provider -->
+        <!-- File sharing provider -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

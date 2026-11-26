@@ -101,7 +101,7 @@ class AgentStatusOverlay @Inject constructor(
                     }
                 }
             }
-            // 运行岛随 mobile_use 执行空间与主屏生命周期更新。
+            // The runtime island updates with the mobile_use execution space and the main display lifecycle.
             appScope.launch {
                 agentRuntime.currentTaskTitle.collect {
                     mainHandler.post {
@@ -112,7 +112,7 @@ class AgentStatusOverlay @Inject constructor(
             appScope.launch {
                 agentRuntime.isPaused.collect { paused ->
                     mainHandler.post {
-                        // 接管 = 暂停 agent，让用户手动操作；再点「继续」交还给 agent
+                        // Takeover = pause the agent and let the user operate manually; tapping "Resume" hands it back to the agent
                         if (shouldShowExternalTaskOverlay()) showRuntimeSurfaceIndicator()
                     }
                 }
@@ -132,7 +132,7 @@ class AgentStatusOverlay @Inject constructor(
                             runtimeSurfaceController.hideAll()
                             return@post
                         }
-                        // 小手只跟随真实输入生命周期，并挂到事件所属 display；它只做视觉反馈，不注入输入。
+                        // The hand follows only the real input lifecycle and attaches to the display the event belongs to; it is visual feedback only and injects no input.
                         when (event) {
                             is InputActionLifecycleEvent.Started ->
                                 runtimeSurfaceController.showAction(event)
@@ -264,7 +264,7 @@ class AgentStatusOverlay @Inject constructor(
         }
     }
 
-    /** 通过冻结的 sidecar 在主屏打开普通 Activity 查看页。 */
+    /** Opens the ordinary Activity viewer page on the main display through the frozen sidecar. */
     private fun openVirtualSpaceViewer() {
         appScope.launch(Dispatchers.IO) {
             if (!virtualSpaceViewerLauncher.open()) {

@@ -4,7 +4,7 @@ All notable user-visible changes to PV AutoAgent are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/), and public releases use [Semantic Versioning](https://semver.org/).
 
-Record a notable change in `Unreleased` within the same pull request that implements it. Use only the categories that contain changes: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, and `Security`. Mark incompatible entries with `**Breaking:**`, name the affected contract, and give migration steps. At release time, move the entries under the exact version and its release date. Supply the corresponding Simplified Chinese notes as release input; local authoring records are not part of the public source.
+Record a notable change in `Unreleased` within the same pull request that implements it. Use only the categories that contain changes: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, and `Security`. Mark incompatible entries with `**Breaking:**`, name the affected contract, and give migration steps. At release time, move the entries under the exact version and its release date. Supply the corresponding Vietnamese notes as a release input outside the source checkout; local authoring records are not part of the public source.
 
 ## [Unreleased]
 
@@ -153,7 +153,7 @@ Known issue: Text replacement can intermittently retain previous text when editi
 
 ### Changed
 
-- GitHub release descriptions are English. In-app update notes use the selected app language, with separate English and Chinese text.
+- GitHub release descriptions are English. In-app update notes use the selected app language, with separate English and Vietnamese text.
 
 ## [0.1.3] - 2026-11-02
 

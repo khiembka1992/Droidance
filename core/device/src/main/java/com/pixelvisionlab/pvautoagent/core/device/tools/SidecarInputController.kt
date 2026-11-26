@@ -96,7 +96,7 @@ class SidecarInputController @Inject constructor(
         )
     }
 
-    /** 在冻结的执行后端和 display 上执行一次可核验的文本粘贴。 */
+    /** Performs one verifiable text paste on the frozen execution backend and display. */
     suspend fun inputText(text: String, clearExisting: Boolean, expectedFocusTarget: String, method: TextInputMethod): DeviceInputResult = withContext(Dispatchers.IO) {
         val startMs = System.currentTimeMillis()
         val context = executionContextStore.requireCurrent()

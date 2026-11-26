@@ -34,8 +34,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /**
- * PVAutoAgent 主界面 Activity
- * 负责主导航宿主和启动参数转发
+ * PVAutoAgent main UI Activity
+ * Hosts the main navigation and forwards launch parameters
  */
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {

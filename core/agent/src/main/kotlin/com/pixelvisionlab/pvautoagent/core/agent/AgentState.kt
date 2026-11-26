@@ -6,9 +6,9 @@ package com.pixelvisionlab.pvautoagent.core.agent
 import com.pixelvisionlab.pvautoagent.core.agent.*
 
 enum class AgentState {
-    IDLE,            // 空闲，等待输入
-    THINKING,        // 正在调用 LLM 推理
-    EXECUTING_TOOL,  // 正在执行工具（点击/截图等）
-    WAITING_PERMISSION, // 已持久暂停，等待 Android 系统权限结果
-    ERROR            // 出错
+    IDLE,            // Idle, waiting for input
+    THINKING,        // Calling the LLM for reasoning
+    EXECUTING_TOOL,  // Executing a tool (click/screenshot, etc.)
+    WAITING_PERMISSION, // Persistently paused, waiting for the Android system permission result
+    ERROR            // Error
 }

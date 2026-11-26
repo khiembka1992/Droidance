@@ -50,10 +50,10 @@ class VirtualSpaceReadiness @Inject constructor(
             )
         val existing = capabilityRegistry.getVirtualDisplayId()
         if (existing != null && virtualSpaceManager.hasLiveSessionForMode(mode)) {
-            // 只有显式要求(创建/设置页自检)才跑健康探活——它会在虚拟屏上启动探针 Activity。
-            // 每个动作回合都调本方法；若这里因健康标记未 ready 就重跑探活，会把已打开的目标 App
-            // 反复盖成 PVAutoAgent 探针页(observe 里 pkg=com.pixelvisionlab.pvautoagent.debug)，导致"开了应用却无法操作"。
-            // display 已存在且 active 时直接复用，健康检查只在创建时做一次。
+            // The health probe runs only on explicit request (creation / settings-page self-check) -- it launches a probe Activity on the virtual display.
+            // This method is called on every action round; if it re-ran the probe here just because the health flag was not ready, it would repeatedly overwrite an already-open target App
+            // with the PVAutoAgent probe page (pkg=com.pixelvisionlab.pvautoagent.debug in observe), producing "the app opened but cannot be operated".
+            // When the display already exists and is active, reuse it directly; the health check runs only once at creation.
             if (requireHealthProbe || capabilityRegistry.refresh().virtualSpaceHealthReason
                     .startsWith("[INPUT_PERMISSION_DENIED]")) {
                 return runHealthProbe(existing, mode)
@@ -111,7 +111,7 @@ class VirtualSpaceReadiness @Inject constructor(
             return failed(VirtualSpaceReadinessStatus.INPUT_PERMISSION_DENIED, displayId,
                 "[INPUT_PERMISSION_DENIED] ${inputFailure.detail}")
         }
-        // 黑帧/无帧时附上探针实际落点：区分"被重定向主屏"和"虚拟屏渲染黑帧"两类真因
+        // On a black frame / no frame, attach where the probe actually landed: this distinguishes the two root causes, "redirected to the main display" and "virtual display rendered a black frame"
         if (frameFailure != null) {
             val (status, reason) = frameFailure
             if (
@@ -139,7 +139,7 @@ class VirtualSpaceReadiness @Inject constructor(
         // A rendered frame establishes capture readiness. Explicit input denial was handled above;
         // transient warm-up failures while the input window registers remain nonfatal.
         capabilityRegistry.markVirtualSpaceHealthReady(displayId)
-        // 自检做完立刻销毁探针 Activity，避免白屏残留并覆盖目标 App 的首帧。
+        // Destroy the probe Activity immediately once the self-check is done, so a white screen does not linger and cover the target App's first frame.
         driver.command("probeFinish")
         return VirtualSpaceReadinessResult(
             status = VirtualSpaceReadinessStatus.READY,
@@ -164,7 +164,7 @@ class VirtualSpaceReadiness @Inject constructor(
         return null
     }
 
-    /** 帧探测通过返回 null；失败返回 (状态, 原因)，由调用方补充落点诊断后统一 failed()。 */
+    /** Frame probe returns null on success; on failure returns (status, reason), and the caller adds landing-point diagnostics and calls the shared failed(). */
     private fun waitForNonBlackFrame(displayId: Int, mode: RuntimeMode): Pair<VirtualSpaceReadinessStatus, String>? {
         val deadline = System.currentTimeMillis() + virtualSpaceRuntimePolicy.renderWaitTimeoutMs()
         var lastReason = "[VIRTUAL_SPACE_FRAME_FAILED] no probe frame returned for displayId=$displayId"
@@ -191,9 +191,9 @@ class VirtualSpaceReadiness @Inject constructor(
         message: String
     ): VirtualSpaceReadinessResult {
         capabilityRegistry.markVirtualSpaceHealthFailed(message)
-        // 真因落盘：之前探活失败只在设置页一闪而过，debug 包里看不到卡在哪一步
+        // Record the root cause to disk: probe failures used to flash by only on the settings page, leaving the debug bundle unable to show which step was stuck
         debugLogManager.appendEvent("virtual_space: readiness probe failed [$status] $message")
-        // 失败路径也要销毁探针（落点诊断已在上游读过静态字段），避免它作为白屏残留到下次任务
+        // The failure path must also destroy the probe (landing-point diagnostics already read the static field upstream), so it does not linger as a white screen into the next task
         driver.command("probeFinish")
         return VirtualSpaceReadinessResult(status = status, displayId = displayId, message = message)
     }

@@ -68,10 +68,10 @@ private fun detectUserImageMimeType(bytes: ByteArray): String = when {
 }
 
 /**
- * Thread/Turn 的唯一运行时边界。
+ * The single runtime boundary for a Thread/Turn.
  *
- * AgentRuntime 仍然可以保留用于 UI 的 StateFlow，但所有可恢复的用户消息、模型会话
- * 身份和最终回执必须先进入 EventStore。这个类只负责建立和关闭 Turn，不参与模型决策。
+ * AgentRuntime can still keep a StateFlow for the UI, but every recoverable user message, model session
+ * identity, and final receipt must enter the EventStore first. This class only opens and closes a Turn and takes no part in model decisions.
  */
 @Singleton
 class AgentTurnLedger @Inject constructor(
@@ -136,7 +136,7 @@ class AgentTurnLedger @Inject constructor(
             eventStore.createThread(threadId, userText.trim().take(120).ifBlank { "PVAutoAgent" })
         }
 
-        // beginTurn 已经冻结了 Provider 选择；先取一次同一冻结配置，后续所有恢复轮次都复用它。
+        // beginTurn has already frozen the Provider selection; read that same frozen config once here, and all later recovery rounds reuse it.
         val plan = modelClient.planStreamChat(messages = emptyList(), hasImage = false)
         val identity = createIdentity(threadId, plan, stablePrefix)
         val session = FrozenTurnModelSession(

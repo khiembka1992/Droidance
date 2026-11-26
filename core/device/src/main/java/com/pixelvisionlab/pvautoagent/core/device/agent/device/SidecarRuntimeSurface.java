@@ -121,12 +121,12 @@ final class SidecarRuntimeSurface {
                 " layerStack=" + indicatorDisplayLayerStack);
     }
 
-    /** 冻结的旧事务只处理隐藏；协议 15 起显示必须携带 App 渲染的位图。 */
+    /** The frozen legacy transaction only handles hiding; since protocol 15, showing must carry a bitmap rendered by the app. */
     synchronized boolean updateIndicator(boolean visible, String label, String actionLabel, boolean paused) {
         return updateIsland(visible, label, "", actionLabel, "", paused);
     }
 
-    /** 冻结的旧事务只处理隐藏；协议 15 起显示必须携带 App 渲染的位图。 */
+    /** The frozen legacy transaction only handles hiding; since protocol 15, showing must carry a bitmap rendered by the app. */
     synchronized boolean updateIsland(
             boolean visible,
             String progressText,
@@ -160,7 +160,7 @@ final class SidecarRuntimeSurface {
         return applied;
     }
 
-    /** 冻结的旧事务只处理隐藏；协议 15 起显示必须携带指针位图。 */
+    /** The frozen legacy transaction only handles hiding; since protocol 15, showing must carry the pointer bitmap. */
     synchronized boolean updateCursor(
             boolean visible,
             int actionType,

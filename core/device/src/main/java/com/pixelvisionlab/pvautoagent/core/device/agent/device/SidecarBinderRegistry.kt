@@ -21,7 +21,7 @@ object SidecarBinderRegistry {
     val deaths: kotlinx.coroutines.flow.SharedFlow<Unit> = deathEvents
     private val binders = ConcurrentHashMap<Int, IBinder>()
 
-    // 诊断：app 端通过广播收到 binder 的次数，区分"sidecar 没发广播"和"app 没收到广播"
+    // Diagnostics: how many times the app side received a binder via broadcast, to distinguish "the sidecar did not send a broadcast" from "the app did not receive the broadcast"
     @Volatile
     var receivedCount: Int = 0
         private set
@@ -31,10 +31,10 @@ object SidecarBinderRegistry {
         if (value == null) {
             binders.remove(uid)
         } else {
-            // Sidecar 会周期性重发同一个服务的 Binder，BroadcastReceiver 每次都可能
-            // 得到一个新的代理对象。无条件覆盖会让 backendSessionId 在任务中途抖动，
-            // 已冻结的执行绑定随后被误判为“session changed”。只在旧 Binder 已死时
-            // 换代；同一常驻进程的 rebroadcast 保持第一次收到的稳定代理引用。
+            // The sidecar periodically rebroadcasts the Binder of the same service, and the BroadcastReceiver may get
+            // a new proxy object each time. Overwriting unconditionally would make backendSessionId flap in the middle of a task,
+            // and the already-frozen execution binding would then be misjudged as "session changed". Switch only when the old Binder is dead;
+            // a rebroadcast from the same resident process keeps the stable proxy reference received the first time.
             val current = binders[uid]
             if ((current == null || !current.isBinderAlive) && watchForDeath(uid, value)) {
                 binders[uid] = value

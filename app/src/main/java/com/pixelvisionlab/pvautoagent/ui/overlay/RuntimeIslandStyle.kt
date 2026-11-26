@@ -10,11 +10,11 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 
 /**
- * 灵动岛视觉令牌。主屏运行岛（sidecar 合成位图）、接管镜像控制岛、虚拟空间查看页控制岛共用
- * 同一套配色与圆角，三处不再各写一遍十六进制。
+ * Runtime island visual tokens. The main-display runtime island (bitmap composited by the sidecar), the takeover-mirror control island, and the virtual space viewer page control island share
+ * the same color scheme and corner radii, so the three places no longer each write out their own hex values.
  *
- * 语汇是 iOS 灵动岛式的克制：一体式深色胶囊 + 白字，角色直接融入岛体，操作按钮统一采用等尺寸中性圆圈底座。
- * 暂停/接管与停止按钮保持统一的半透明中性底色与纯白图标，不随接管状态变黄。
+ * The vocabulary is the restraint of iOS Dynamic Island: a single-piece dark pill + white text, roles blend directly into the island body, and action buttons uniformly use same-size neutral circular bases.
+ * The pause/takeover and stop buttons keep a consistent translucent neutral background and pure white icons, and do not turn yellow with the takeover state.
  */
 object RuntimeIslandStyle {
     const val PILL_FILL = "#0D0E10"
@@ -26,7 +26,7 @@ object RuntimeIslandStyle {
     const val NEUTRAL_CHIP_FILL = "#1FFFFFFF"
     const val PAUSED_CHIP_FILL = "#1FFFFFFF"
 
-    // ── 岛的几何：主屏与虚拟空间共用同一套，任何状态下都不伸缩 ──────────────
+    // ── Island geometry: the main display and the virtual space share one set, and it never stretches in any state ──────────────
     // Scale the whole composition together, including text, mascot, controls and their glyphs.
     const val SCALE = 1.25f
     const val WIDTH_DP = 172f * SCALE
@@ -47,7 +47,7 @@ object RuntimeIslandStyle {
     const val MASCOT_LABEL_GAP_DP = 4f * SCALE
     const val LABEL_INSET_DP = MASCOT_LEFT_DP + MASCOT_SIZE_DP + MASCOT_LABEL_GAP_DP
     const val LABEL_TEXT_SP = 11f * SCALE
-    /** 窄屏上左右各至少留这么多，否则岛会贴死在屏幕边上。 */
+    /** Leave at least this much on each side on narrow screens, otherwise the island would stick to the screen edge. */
     const val SIDE_MIN_MARGIN_DP = 16f
     /** The default island center sits one fifth of the screen height above the bottom. */
     const val BOTTOM_POSITION_FRACTION = .2f
@@ -97,7 +97,7 @@ object RuntimeIslandStyle {
 
     fun fillColor(): Int = Color.parseColor(PILL_FILL)
 
-    /** 岛内按钮：全圆角中性胶囊。 */
+    /** Buttons inside the island: fully rounded neutral pill. */
     fun chip(density: Float, fill: String, radiusDp: Float = 13f): GradientDrawable =
         GradientDrawable().apply {
             setColor(Color.parseColor(fill))

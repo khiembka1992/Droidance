@@ -35,9 +35,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 运行时能力注册表。
+ * Runtime capability registry.
  *
- * 这里记录“当前能做什么”的代码真相，避免把实时能力状态塞回 Markdown。
+ * This records the code's source of truth for "what can be done right now", so live capability state is not stuffed back into Markdown.
  */
 @Singleton
 class RuntimeCapabilityRegistry @Inject constructor(
@@ -69,8 +69,8 @@ class RuntimeCapabilityRegistry @Inject constructor(
             adbBridgeAvailable = adbBridgeAvailable,
             inputInjectionReady = inputInjectionReady,
             visionProviderAvailable = visionProviderAvailable,
-            // 常驻 sidecar binder 存活时也能出文本观察(virtual frame capture)，不应漏掉这条 WiFi
-            // 无关的路线——否则 airReady 门禁即便放开了 adbBridgeAvailable 也会被这里再次卡住。
+            // A live resident sidecar binder can also deliver text observation (virtual frame capture), so this WiFi-
+            // independent route must not be missed -- otherwise the airReady gate would stall here again even after adbBridgeAvailable has been relaxed.
             textObservationAvailable = screenCaptureAvailable || adbBridgeAvailable || virtualSpaceBridgeAvailable,
             virtualSpaceBridgeAvailable = virtualSpaceBridgeAvailable,
         )
@@ -107,7 +107,7 @@ class RuntimeCapabilityRegistry @Inject constructor(
                 recoverResidentChannel()
             }
         }
-        // 配对/连接成功即主动建立唯一的全能力常驻 sidecar，不等首次设备操作惰性启动。
+        // As soon as pairing / connection succeeds, proactively establish the single full-capability resident sidecar instead of waiting for the first device operation to lazily start it.
         // The virtual display keeps using its resident Binder after the live ADB connection ends.
         appScope.launch {
             airModePairingManager.state.collect { state ->
@@ -189,7 +189,7 @@ class RuntimeCapabilityRegistry @Inject constructor(
         if (airModePairingManager.isShellReady) ensureResidentChannel()
     }
 
-    /** 全能力常驻 sidecar：ensureResidentChannel 幂等，重复触发安全。 */
+    /** Full-capability resident sidecar: ensureResidentChannel is idempotent, so repeated triggering is safe. */
     private fun ensureResidentChannel() {
         appScope.launch(Dispatchers.IO) {
             if (BackgroundRunState.isPaused(context)) return@launch
@@ -209,8 +209,8 @@ class RuntimeCapabilityRegistry @Inject constructor(
                     mode
                 )
             }.getOrDefault(false)
-            // 只写 logcat 的话，真机 debug 导出包完全看不到这行——之前排查"WiFi关了还能不能用"
-            // 全靠代码推理，就是因为这里没有落进 debugLogManager。改走这里，下次导出直接可见。
+            // If this only went to logcat, a debug build exported from a physical device would never show this line -- when investigating "can it still work after WiFi is off"
+            // earlier, it was all code reasoning, precisely because this never reached debugLogManager. Routing it here makes it directly visible in the next export.
             debugLogManager.appendEvent(
                 "🔗 resident sidecar on paired: mode=${mode.name} ok=$ok" +
                     if (!ok) " diag=${virtualSpaceSidecarBridge.lastSidecarStartDiagnostic.take(160)}" else ""
@@ -238,9 +238,9 @@ class RuntimeCapabilityRegistry @Inject constructor(
             updatedAtMs = System.currentTimeMillis()
         )
         snapshot = refreshed
-        // transport 两信号独立观测（§5.5）：在线 ADB 与常驻 Binder 分别记录。ADB 从可用变不可用而 Binder
-        // 仍活着时只记录 transport 迁移，不触发重新配对阻断；两者都消失才提示需重新连接，
-        // 且明确说明无法凭空重启 sidecar 进程，不谎称可永久离线自恢复。
+        // Two transport signals are observed independently (§5.5): live ADB and the resident Binder are recorded separately. When ADB goes from available to unavailable while the Binder
+        // is still alive, record only the transport transition and do not trigger a re-pairing block; only when both disappear do we prompt for a reconnect,
+        // and state clearly that the sidecar process cannot be restarted out of thin air, without claiming permanent offline self-recovery.
         if (current.updatedAtMs > 0 &&
             (current.adbBridgeAvailable != refreshed.adbBridgeAvailable ||
                 current.virtualSpaceBridgeAvailable != refreshed.virtualSpaceBridgeAvailable)

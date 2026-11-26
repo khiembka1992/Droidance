@@ -23,7 +23,7 @@ import com.pixelvisionlab.pvautoagent.config.AppLanguage
 import com.pixelvisionlab.pvautoagent.settings.AppThemeMode
 import com.pixelvisionlab.pvautoagent.ui.icons.PVAutoAgentIcons
 
-// ── 主题与语言 ────────────────────────────────────────────────────────────────
+// ── Theme and language ────────────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

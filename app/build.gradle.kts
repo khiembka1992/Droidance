@@ -103,7 +103,7 @@ android {
 
     packaging {
         jniLibs {
-            // 16 KB 页大小设备兼容性：.so 文件以未压缩方式内嵌，确保页对齐生效
+            // 16 KB page-size device compatibility: native libraries stay uncompressed so page alignment takes effect
             useLegacyPackaging = false
         }
         resources {
@@ -141,7 +141,7 @@ dependencies {
     implementation(project(":core:device"))
     implementation(project(":core:knowledge"))
     implementation(project(":core:persistence"))
-    // AndroidX 核心
+    // AndroidX core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime)
@@ -161,7 +161,7 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
-    // Hilt 依赖注入
+    // Hilt dependency injection
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
@@ -169,23 +169,23 @@ dependencies {
     // HTTP transport
     implementation(libs.okhttp)
 
-    // Room 数据库
+    // Room database
     implementation(libs.room.runtime)
 
-    // WorkManager 定时任务
+    // WorkManager scheduled tasks
     implementation(libs.work.manager)
 
-    // 序列化
+    // Serialization
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.snakeyaml.engine)
 
-    // 图片加载
+    // Image loading
     implementation(libs.coil.compose)
 
-    // 协程
+    // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
-    // Markdown 渲染
+    // Markdown rendering
     implementation(libs.markdown.renderer.m3)
 
     testImplementation(libs.junit)

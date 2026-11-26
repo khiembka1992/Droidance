@@ -17,7 +17,7 @@ object AppEntryLanding {
                  targetPackage: String, foregroundPackage: String?): Boolean =
         isVirtual && (launchMode != AppLaunchMode.RESUME || foregroundPackage != targetPackage)
 
-    /** 解析 App 的 launcher 组件；解析不到时返回 null，由调用方退回纯深链。 */
+    /** Resolves the app's launcher component; returns null when it cannot be resolved, and the caller then falls back to the plain deep link. */
     fun launcherComponent(context: Context, packageName: String): String? =
         runCatching { context.packageManager.getLaunchIntentForPackage(packageName)?.component }
             .getOrNull()

@@ -34,8 +34,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
- * 设置页面 ViewModel
- * 管理服务状态和通用设置（AI Provider 配置已移至独立页面）
+ * Settings page ViewModel
+ * Manages service status and general settings (AI Provider configuration has moved to its own page)
  */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -125,7 +125,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    // ====== 通用设置 ======
+    // ====== General settings ======
 
     fun setHeartbeatInterval(minutes: Float) {
         generalSettingsRepository.setHeartbeatInterval(minutes)
@@ -262,7 +262,7 @@ class SettingsViewModel @Inject constructor(
         _uiState.update { it.copy(appLanguage = language) }
     }
 
-    // ====== 保存/加载 ======
+    // ====== Save/Load ======
 
     private fun loadSettings() {
         val themeMode = generalSettingsRepository.themeMode()
@@ -276,7 +276,7 @@ class SettingsViewModel @Inject constructor(
         )
     }
 
-    // ====== 服务状态检查 ======
+    // ====== Service status checks ======
 
     private fun checkServiceStatus() {
         _uiState.update {
@@ -503,7 +503,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    /** 清空所有对话 */
+    /** Clears all conversations */
     fun clearAllConversations() {
         if (dataBusy) return
         _uiState.update { it.copy(dataClearing = DataClearTarget.CONVERSATIONS, dataActionMessage = "") }
@@ -527,7 +527,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    /** 清理诊断目录和当前运行日志；保留对话事件、回放附件、其他持久日志、记忆与设置。 */
+    /** Cleans up the diagnostics directory and the current run log; keeps conversation events, replay attachments, other persistent logs, memory and settings. */
     fun clearLogData() {
         if (dataBusy) return
         _uiState.update { it.copy(dataClearing = DataClearTarget.LOGS, dataActionMessage = "") }
@@ -565,12 +565,12 @@ class SettingsViewModel @Inject constructor(
 }
 
 /**
- * 设置页面 UI 状态（简化版，AI 配置已移至 ProviderConfigManager）
+ * Settings page UI state (simplified version; AI configuration has moved to ProviderConfigManager)
  */
 enum class DataClearTarget { CONVERSATIONS, LOGS }
 
 data class SettingsUiState(
-    // 服务状态
+    // Service status
     val notificationListenerEnabled: Boolean = false,
     val postNotificationsGranted: Boolean = false,
     val readContactsGranted: Boolean = false,
@@ -591,14 +591,14 @@ data class SettingsUiState(
     val exactAlarmGranted: Boolean = false,
     val batteryOptimizationIgnored: Boolean = false,
 
-    // 通用设置
+    // General settings
     val heartbeatIntervalMinutes: Float = 15f,
     val themeMode: AppThemeMode = AppThemeMode.SYSTEM,
     val taskWallMinutes: Int = ExecutionSettingsPolicy.DEFAULT_TASK_WALL_MINUTES,
     val deepLinkEnabled: Boolean = ExecutionSettingsPolicy.DEFAULT_ENABLE_DEEPLINK,
     val appLanguage: AppLanguage = AppLanguage.SYSTEM,
 
-    // Token 用量统计
+    // Token usage statistics
     val usageRange: UsageRange = UsageRange.SEVEN_DAYS,
     val totalPromptTokens: Long = 0,
     val totalCompletionTokens: Long = 0,
@@ -609,10 +609,10 @@ data class SettingsUiState(
     val dailyUsage: List<DailyTokenUsage> = emptyList(),
     val modelUsage: List<ModelTokenUsage> = emptyList(),
 
-    // 设备能力
+    // Device capabilities
     val providerReady: Boolean = false,
 
-    // AIR 无线调试
+    // AIR wireless debugging
     val connectionMethod: DeviceConnectionMethod = DeviceConnectionMethod.WIRELESS,
     val airBridgeState: AirModePairingManager.PairingState = AirModePairingManager.PairingState.IDLE,
     val airPreviouslyPaired: Boolean = false,
@@ -625,7 +625,7 @@ data class SettingsUiState(
     val airPersistenceChanging: Boolean = false,
     val airUsbDebuggingEnabled: Boolean? = null,
 
-    // Debug 导出
+    // Debug export
     val debugExporting: Boolean = false,
     val dataClearing: DataClearTarget? = null,
     val backupOperation: BackupOperation? = null,
@@ -650,7 +650,7 @@ enum class UsageRange(val days: Int?) {
     ALL(null)
 }
 
-/** 用量页条形图的每日汇总（跨 Provider） */
+/** Daily summary for the usage page bar chart (across Providers) */
 data class DailyTokenUsage(
     val date: String,
     val promptTokens: Long,
@@ -661,7 +661,7 @@ data class DailyTokenUsage(
 ) {
     val total: Long get() = promptTokens + completionTokens
 
-    /** null 表示该日没有 Provider 返回可验证的缓存字段。 */
+    /** null means no Provider returned a verifiable cache field for that day. */
     val cacheHitRate: Float?
         get() = when {
             cacheReportedCalls <= 0L -> null

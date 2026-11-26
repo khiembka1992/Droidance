@@ -125,8 +125,8 @@ internal suspend fun TaskTurnSession.runModelRound(repairPurpose: RepairPurpose)
                 )
             }
         }
-        // 只等待上一动作已安排的观测，不因为“进入下一轮”就主动读取当前屏幕。
-        // 新任务的虚拟 display 可能仍显示上一任务的 App；无条件补帧会把旧页面注入当前目标。
+        // Wait only for the observation already scheduled by the previous action; do not actively read the current screen just because we "moved to the next round".
+        // A new task's virtual display may still show the previous task's App; an unconditional frame top-up would inject the old page into the current goal.
         val pendingObservationReady = if (freshObservationRequired && forceFreshObservationCapture) {
             false
         } else {
@@ -135,13 +135,13 @@ internal suspend fun TaskTurnSession.runModelRound(repairPurpose: RepairPurpose)
         if (freshObservationRequired) {
             freshObservationRequired = false
             if (forceFreshObservationCapture) {
-                // 坐标协议失败或计划拒绝后，待消费 envelope 可能仍是失败动作之前的画面。
-                // 只在这些恢复路径丢弃旧 envelope；普通状态变化优先复用动作后的 settled frame。
+                // After a coordinate protocol failure or a rejected plan, the pending envelope may still be the screen from before the failed action.
+                // Drop the old envelope only on these recovery paths; ordinary state changes prefer reusing the settled frame after the action.
                 toolExecutor.invalidatePendingObservation()
                 forceFreshObservationCapture = false
             }
             if (!pendingObservationReady && toolExecutor.pendingScreenshotBase64 == null) {
-                // 人工接管期间界面可能已变化，恢复后必须先取得同一执行空间的新帧。
+                // The screen may have changed during manual takeover, so after resuming we must first obtain a new frame from the same execution space.
                 try {
                     ensureExecutionStarted(DeviceToolNames.ANDROID_READ)
                     // This is a synthetic observation call, so its durable call/observation
@@ -1159,7 +1159,7 @@ internal suspend fun TaskTurnSession.runModelRound(repairPurpose: RepairPurpose)
         }
         debugLogManager.appendEvent("❌ Operator LLM exception: ${e::class.java.simpleName}: ${e.message?.take(2000)}")
         val transportTimeout = isLlmTransportTimeout(e)
-        // 详细打印发往 LLM 的 messages 结构（截短），方便定位 400
+        // Verbosely print the structure of the messages sent to the LLM (truncated), to make 400s easier to locate
         runCatching {
             val structure = messagesForLLM.joinToString(" → ") { m ->
                 val tcCount = m.toolCalls?.size ?: 0

@@ -181,9 +181,9 @@ internal fun SettingsGroupTitle(title: String) {
     )
 }
 
-// ── 共用组件（internal，子页面共享）─────────────────────────────────────────
+// ── Shared components (internal, shared by subpages)─────────────────────────────────────────
 
-/** 子页面小节标题；起始缩进 32dp = 卡片外边距 16 + 行内边距 16，与卡片内文字左对齐 */
+/** Subpage section header; the starting indent of 32dp = card margin 16 + row padding 16, left-aligned with the text inside the card */
 @Composable
 internal fun SettingsSectionHeader(title: String) {
     Text(
@@ -197,7 +197,7 @@ internal fun SettingsSectionHeader(title: String) {
     )
 }
 
-/** 控件边界使用 outline；组内装饰分隔线使用较淡的 outlineVariant。 */
+/** Control borders use outline; decorative separators within a group use the lighter outlineVariant. */
 @Composable
 internal fun settingsHairline(): androidx.compose.ui.graphics.Color =
     MaterialTheme.colorScheme.outline
@@ -222,7 +222,7 @@ internal fun SettingsCardGroup(
     }
 }
 
-/** 同一卡片内多行选择/数值列表的行间细分隔（iOS 式 inset） */
+/** Hairline divider between rows of a multi-row selection/value list in the same card (iOS-style inset) */
 @Composable
 internal fun SettingsInsetDivider(startIndent: Dp = 16.dp, endIndent: Dp = 16.dp) {
     HorizontalDivider(
@@ -299,7 +299,7 @@ internal fun SettingsNavItem(
     }
 }
 
-/** 中性胶囊按钮：行尾操作统一入口，以灰底区分操作。 */
+/** Neutral pill button: the common entry point for row-end actions, using a gray background to distinguish actions. */
 @Composable
 internal fun SettingsPillButton(
     text: String,
@@ -314,7 +314,7 @@ internal fun SettingsPillButton(
     }
 }
 
-/** 行尾操作提示；点击语义由整行承载，避免一项操作出现两套点击目标。 */
+/** Row-end action hint; the tap semantics are carried by the whole row, so a single action does not end up with two tap targets. */
 @Composable
 internal fun SettingsPillLabel(text: String) {
     Surface(
@@ -335,7 +335,7 @@ private fun SettingsPillLabelContent(text: String) {
     )
 }
 
-/** 立即执行型设置行：整行点击，尾部文字描述动作，不使用代表导航的右箭头。 */
+/** Immediate-execution settings row: the whole row is tappable and trailing text describes the action; no right arrow indicating navigation is used. */
 @Composable
 internal fun SettingsActionItem(
     title: String,
@@ -424,10 +424,10 @@ internal fun SettingsSwitchItem(
     }
 }
 
-/** 全应用开关统一缩放比例，避免各处开关大小不一 */
+/** Uniform scale for switches across the whole app, so switch sizes do not vary from place to place */
 internal const val SETTINGS_SWITCH_SCALE = 0.8f
 
-/** 长下拉列表右侧的细滚动条；内容不超高时不绘制 */
+/** Thin scrollbar on the right side of long dropdown lists; not drawn when the content does not overflow */
 internal fun Modifier.settingsScrollbar(
     state: androidx.compose.foundation.ScrollState,
     color: androidx.compose.ui.graphics.Color

@@ -51,12 +51,12 @@ captures/
 PVAutoAgent-debug-*.zip
 
 # Local release authoring and generated release metadata
-/CHANGELOG.zh.md
+/CHANGELOG.vi.md
 /identity.json
 /release.json
 /notes.md
-/notes.zh.md
-/release-notes.zh.md
+/notes.vi.md
+/release-notes.vi.md
 
 # Local documentation, tests and device acceptance tools
 /docs/

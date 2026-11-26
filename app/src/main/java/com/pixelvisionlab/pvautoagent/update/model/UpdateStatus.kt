@@ -6,7 +6,7 @@ package com.pixelvisionlab.pvautoagent.update.model
 import java.io.File
 
 /**
- * 更新检查状态（类型化状态）
+ * Update check state (typed state)
  */
 sealed interface UpdateCheckState {
     data object Disabled : UpdateCheckState
@@ -37,7 +37,7 @@ enum class UpdateCheckError {
 }
 
 /**
- * 下载进度状态
+ * Download progress state
  */
 sealed interface DownloadProgressState {
     data object Idle : DownloadProgressState
@@ -57,7 +57,7 @@ enum class DownloadError {
 }
 
 /**
- * 安装操作结果
+ * Install operation result
  */
 sealed interface InstallResult {
     data object PromptLaunched : InstallResult

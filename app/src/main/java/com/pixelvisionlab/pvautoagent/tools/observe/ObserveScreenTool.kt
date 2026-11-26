@@ -74,14 +74,14 @@ class ObserveScreenTool @Inject constructor(
     private fun frameRecoveryRepeats(): Int =
         ruleConfigManager.harnessPolicy().runtimeThresholds.frameRecoveryRepeats
     companion object {
-        /** 指纹观察缓存容量：覆盖"列表→详情→返回列表"往返，命中即省缩放+编码。 */
+        /** Fingerprint observation cache capacity: covers the "list→detail→back to list" round trip, and a hit saves scaling + encoding. */
         const val OBSERVE_CACHE_MAX_ENTRIES = 8
         const val MODE_PURE_VLM = "pure_vlm"
         const val MODE_CROP_ZOOM = "crop_zoom"
         const val MODE_NONE = "none"
     }
 
-    /** 图像与坐标元数据必须作为同一帧原子发布。 */
+    /** Image and coordinate metadata must be published atomically as the same frame. */
     var setPendingVisionFrame: (suspend (PublishedVisionFrame) -> Unit)? = null
 
     @Volatile
@@ -107,8 +107,8 @@ class ObserveScreenTool @Inject constructor(
     private var lastScreenFingerprint: String? = null
 
     /**
-     * 同一指纹帧的完整观察结果缓存（LRU）。多帧容量让"回到旧页"也命中，
-     * 而不只是"连续两次观察同一帧"：AppTakeover 巡检与列表往返是主要受益场景。
+     * Cache of the complete observation result for the same fingerprint frame (LRU). A multi-frame capacity lets "returning to an old page" hit too,
+     * not just "observing the same frame twice in a row": AppTakeover polling and list round trips are the main beneficiaries.
      */
     private val observeCache = LruCache<String, ObserveCacheEntry>(OBSERVE_CACHE_MAX_ENTRIES)
 
@@ -229,7 +229,7 @@ class ObserveScreenTool @Inject constructor(
         val capabilitySnapshot = registry.current()
         val executionContext = executionContextStore.requireCurrent()
         val displayId = executionContext.displayId
-        // 按当前执行空间截图。虚拟空间必须保持与主屏隔离，不能在后台帧失败时偷看主屏。
+        // Capture the screen according to the current execution space. The virtual space must stay isolated from the main screen; it must not peek at the main screen when a background frame fails.
         val captureDisplayId = displayId.takeUnless { it == 0 }
         val frame = providedFrame ?: if (executionContext.isVirtualSpace) {
             com.pixelvisionlab.pvautoagent.core.agent.tools.captureWithFrameRecovery(

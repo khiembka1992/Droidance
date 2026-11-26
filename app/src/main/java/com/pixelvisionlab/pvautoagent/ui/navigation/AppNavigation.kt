@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 /**
- * 子页面路由
+ * Sub-page routes
  */
 object SubRoutes {
     const val ONBOARDING = "onboarding"
@@ -112,7 +112,7 @@ private fun NavHostController.navigateToNewConversation(
 ) {
     val currentDestinationId = currentDestination?.id
     navigate(SubRoutes.buildNewChatRoute(prompt, autoSend, skillId = skillId, skillDraft = skillDraft)) {
-        // 显式新对话必须得到新的 back-stack entry，不能复用旧 HomeViewModel。
+        // An explicit new conversation must get a new back-stack entry and must not reuse the old HomeViewModel.
         if (currentDestinationId != null) {
             popUpTo(currentDestinationId) { inclusive = true }
         }
@@ -121,7 +121,7 @@ private fun NavHostController.navigateToNewConversation(
 }
 
 /**
- * App 主导航 — 抽屉式布局，无底部导航栏
+ * App main navigation — drawer layout, no bottom navigation bar
  */
 @Composable
 fun AppNavigation(
@@ -156,7 +156,7 @@ fun AppNavigation(
     val normalizedInitialPrompt = initialPrompt?.trim()?.takeIf { it.isNotBlank() }
     val initialResultConversationId = remember { resultConversationId }
 
-    // 启动决策：任务正在跑 → resume；有历史对话 → resume 最近一条；否则新建
+    // Startup decision: a task is running → resume it; there is conversation history → resume the most recent one; otherwise create a new one
     val startDestination = remember(normalizedInitialPrompt, initialAutoSend, lastConversationId) {
         when {
             initialResultConversationId != null -> SubRoutes.buildChatRoute(initialResultConversationId)
@@ -221,7 +221,7 @@ fun AppNavigation(
         onResultOpened()
     }
 
-    // 在对话页拦截系统返回手势 → 先弹出抽屉；抽屉已开时由 ModalNavigationDrawer 自动关闭
+    // Intercept the system back gesture on the chat page → open the drawer first; if the drawer is already open, ModalNavigationDrawer closes it automatically
     BackHandler(enabled = isChatRoute && !drawerState.isOpen) {
         scope.launch { drawerState.open() }
     }
@@ -279,7 +279,7 @@ fun AppNavigation(
             popEnterTransition = { pageEnter(forward = false) },
             popExitTransition = { pageExit() + slideOutHorizontally(pageSlideSpec()) { it / PageSlideFraction } }
         ) {
-            // ====== 首次引导 ======
+            // ====== First-run onboarding ======
             composable(SubRoutes.ONBOARDING) {
                 OnboardingScreen(
                     onComplete = {
@@ -292,7 +292,7 @@ fun AppNavigation(
                 )
             }
 
-            // ====== 自动化 ======
+            // ====== Automation ======
             composable(SubRoutes.TASKS) {
                 AutomationsScreen(
                     onNavigateBack = { navController.popBackStack() },
@@ -315,7 +315,7 @@ fun AppNavigation(
                 )
             }
 
-            // ====== 技能 ======
+            // ====== Skills ======
             composable(SubRoutes.SKILLS) {
                 SkillsScreen(
                     onNavigateBack = { navController.popBackStack() },
@@ -343,7 +343,7 @@ fun AppNavigation(
                 )
             }
 
-            // ====== 设置主页 ======
+            // ====== Settings home ======
             composable(SubRoutes.SETTINGS) {
                 SettingsScreen(
                     onNavigateBack = { navController.popBackStack() },
@@ -358,7 +358,7 @@ fun AppNavigation(
                 )
             }
 
-            // ====== 设置子页面 ======
+            // ====== Settings sub-pages ======
             composable(SubRoutes.SETTINGS_DEVICE_CAPABILITIES) {
                 SettingsDeviceCapabilitiesScreen(
                     onBack = { navController.popBackStack() },
@@ -390,7 +390,7 @@ fun AppNavigation(
                 SettingsAboutScreen(onBack = { navController.popBackStack() })
             }
 
-            // ====== 记忆管理 ======
+            // ====== Memory management ======
             composable(SubRoutes.MEMORY) {
                 MemoryScreen(
                     onNavigateBack = { navController.popBackStack() },
@@ -398,14 +398,14 @@ fun AppNavigation(
                 )
             }
 
-            // ====== 智能体管理 ======
+            // ====== Agent management ======
             composable(SubRoutes.AGENTS) {
                 AgentsScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            // ====== 对话 — 新建 ======
+            // ====== Conversation — new ======
             composable(
                 route = SubRoutes.CHAT_NEW,
                 arguments = listOf(
@@ -455,7 +455,7 @@ fun AppNavigation(
                 )
             }
 
-            // ====== 对话 — 已有 ======
+            // ====== Conversation — existing ======
             composable(
                 route = SubRoutes.CHAT_ID,
                 arguments = listOf(
@@ -474,7 +474,7 @@ fun AppNavigation(
                 )
             }
 
-            // ====== Provider 管理 ======
+            // ====== Provider management ======
             composable(SubRoutes.PROVIDER_LIST) {
                 ProviderListScreen(
                     onNavigateToEdit = { id ->

@@ -167,7 +167,7 @@ internal class TaskTurnServices @Inject constructor(
     internal fun adaptiveReasoningAvailable(): Boolean =
         llmRouter.explicitReasoningEfforts().any { it in reasoningControlPolicy().adaptiveEfforts }
 
-    /** 唯一 Operator system prompt：通用执行协议 + 输出语言。 */
+    /** The single Operator system prompt: general execution protocol + output language. */
     internal fun operatorSystemPrompt(): String = ruleConfigManager.operatorSystemPrompt() + "\n\n" +
         ruleConfigManager.readMarkdownSection("tool_context.md", "contract") +
         if (adaptiveReasoningAvailable()) "\n\n" + ruleConfigManager.readMarkdownSection("agent_core.md", "reasoning_control") else ""
@@ -219,17 +219,17 @@ internal class TaskTurnServices @Inject constructor(
         UnifiedDeviceToolProtocol.isScreenObservation(toolCall.name, toolCall.arguments)
 
     /**
-     * 执行当前用户目标的唯一模型循环。
+     * The single model loop that executes the current user goal.
      *
-     * @param taskGoal 当前用户目标
-     * @param additionalContext 当前会话中与该目标直接相关的附加上下文
-     * @param onStreamContent 流式输出回调
-     * @param stateFlow Agent 状态流（用于更新 UI）
-     * @param onActionUpdate 工具执行前的动作描述回调
-     * @param onTaskTitle 当前任务的固定短标题，在正常响应提交后发布一次
-     * @param onManualTakeoverNeeded 模型识别到真实用户介入边界时暴露人工接管入口
-     * @param waitIfPaused 暂停检查回调
-     * @param takeManualResumeInstruction 用户接管后恢复时，取一次恢复提示并丢弃暂停前的旧动作
+     * @param taskGoal The current user goal
+     * @param additionalContext Additional context in the current session that is directly related to this goal
+     * @param onStreamContent Streaming output callback
+     * @param stateFlow Agent state flow (used to update the UI)
+     * @param onActionUpdate Action description callback before tool execution
+     * @param onTaskTitle Fixed short title for the current task, published once after the normal response is committed
+     * @param onManualTakeoverNeeded Exposes the manual takeover entry point when the model recognizes a real user-intervention boundary
+     * @param waitIfPaused Pause check callback
+     * @param takeManualResumeInstruction On resume after user takeover, fetch the resume hint once and discard the old action from before the pause
      */
 
     internal fun promptValuePreview(value: String, maxChars: Int): String {
@@ -273,14 +273,14 @@ internal class TaskTurnServices @Inject constructor(
     }
 
     internal companion object {
-        /** 动作叙事保留的条数：够模型看清"已经试过什么"，又不会把上下文撑大。 */
+        /** How many action narratives to retain: enough for the model to see "what has already been tried", without inflating the context. */
         const val ACTION_NARRATIVE_LIMIT = 8
 
     }
 
     /**
-     * 生成供悬浮窗实时显示的操作标签
-     * 目标：让用户在悬浮窗上直观看到"Agent 当前在做什么"
+     * Generate the action label shown in real time in the floating window
+     * Goal: let the user see directly in the floating window "what the Agent is currently doing"
      */
     internal fun buildActionLabel(tc: ToolCall): String {
         val operation = UnifiedDeviceToolProtocol.operation(tc.name, tc.arguments)

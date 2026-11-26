@@ -67,8 +67,8 @@ import com.pixelvisionlab.pvautoagent.agent.device.VirtualSpaceManager
 import com.pixelvisionlab.pvautoagent.core.device.agent.device.VirtualSpaceSidecarBridge
 
 /**
- * 工具执行器
- * 管理和执行所有可用的工具
+ * Tool executor
+ * Manages and executes all available tools
  */
 @Singleton
 class ToolExecutor @Inject constructor(
@@ -227,9 +227,9 @@ class ToolExecutor @Inject constructor(
                 registerRetainedVirtualExecution(current)
                 return
             }
-            // 同一 Turn 内先出现 TURN_LOCAL 轮时，该轮的冻结
-            // attempt 不会落库，下一轮会重新准备新的绑定。旧 context 只是本 turn 的临时
-            // 激活，替换为最新绑定，避免误判为跨任务上下文冲突。
+            // When a TURN_LOCAL turn appears first within the same Turn, the frozen
+            // attempt for that turn is not persisted, and the next turn prepares a new binding. The old context is only this turn's temporary
+            // activation, so replace it with the latest binding to avoid misjudging it as a cross-task context conflict.
             executionContextStore.finish(current.executionId)
         }
         val context = ExecutionContext(
@@ -742,7 +742,7 @@ class ToolExecutor @Inject constructor(
         (toolRegistry.getTool("program") as? com.pixelvisionlab.pvautoagent.program.ProgramTool)?.release(owner)
     }
 
-    /** 重置会话级工具缓存。 */
+    /** Reset the conversation-level tool cache. */
     fun resetSession() {
         if (toolTurnServices.currentOrNull() == null) return
         observeScreenTool.invalidateCache()
@@ -1688,7 +1688,7 @@ class ToolExecutor @Inject constructor(
         val reason: String
     )
 
-    // ====== 公共状态 ======
+    // ====== Shared state ======
 
     /** Read-only compatibility views. Consumers must use consumePendingObservation() atomically. */
     override val pendingScreenshotBase64: String?
@@ -1697,7 +1697,7 @@ class ToolExecutor @Inject constructor(
     private val currentModelCoordinateMapper: ModelCoordinateMapper
         get() = observationSession.currentModelCoordinateMapper
 
-    /** observe_screen 工具执行后存储的结构化屏幕状态，由 TaskCoordinator 优先消费。 */
+    /** Structured screen state stored after the observe_screen tool runs, consumed first by TaskCoordinator. */
     override var pendingScreenStateText: String?
         get() = taskState.observations.pendingScreenStateText
         set(value) { taskState.observations.pendingScreenStateText = value }
@@ -1716,7 +1716,7 @@ class ToolExecutor @Inject constructor(
         x to y
     }.getOrElse { null to null }
 
-    /** 后台自动截图 Job（异步执行，不阻塞当前轮工具返回） */
+    /** Background auto-capture Job (runs asynchronously, so it does not block the current turn's tool return) */
     private var autoCaptureJob: Job?
         get() = taskState.observations.autoCaptureJob
         set(value) { taskState.observations.autoCaptureJob = value }
@@ -1738,12 +1738,12 @@ class ToolExecutor @Inject constructor(
         lastDumpElements.clear()
     }
 
-    /** 快速屏幕哈希，用于动作前后对比 UI 是否发生变化。 */
+    /** Fast screen hash, used to compare whether the UI changed before and after an action. */
     private suspend fun quickScreenHash(): Long? {
         return localActionVerifier.quickScreenHash()
     }
 
-    /** 存储最近一次读屏解析出的可交互元素，供统一 find_and_click 与文本目标定位使用。 */
+    /** Stores the interactive elements parsed from the most recent screen read, used by the unified find_and_click and by text-target location. */
     private var lastDumpElements: MutableList<DumpElement>
         get() = taskState.lastDumpElements
         set(value) { taskState.lastDumpElements = value }
@@ -1794,7 +1794,7 @@ class ToolExecutor @Inject constructor(
     ): DeviceInputResult = deviceBackend.tap(x, y, precision)
 
 
-    /** 在 lastDumpElements 中按当前屏幕字面文本搜索元素 */
+    /** Search lastDumpElements for an element by the current screen's literal text */
     private fun searchElements(query: String): List<DumpElement> {
         return lastDumpElements.mapNotNull { it.targetForText(query) }
     }

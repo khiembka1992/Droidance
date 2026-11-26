@@ -79,7 +79,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * 虚拟空间的普通 Activity 查看页。画面和输入始终绑定当前 VirtualDisplay；本页本身不创建悬浮窗。
+ * Ordinary Activity viewer page for a virtual space. The picture and input stay bound to the current VirtualDisplay; this page itself creates no overlay.
  */
 @AndroidEntryPoint
 class VirtualSpaceViewerActivity : AppCompatActivity() {
@@ -330,7 +330,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         previewContainer.addView(navigationBackground,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, Gravity.BOTTOM))
 
-        // 小手画在镜像之上、不可点击（触摸照常穿透给下面的预览做人工接管）。
+        // The hand is drawn above the mirror and is not clickable (touches still pass through to the preview below for manual takeover).
         handView = TouchIndicatorView(this@VirtualSpaceViewerActivity)
         handView.addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
@@ -345,8 +345,8 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
             )
         )
 
-        // 执行中的边缘呼吸流光：虚拟空间只在这块投屏里发光，主屏不亮。
-        // 与接管镜像面板用的是同一个 View，不处理触摸。
+        // Edge breathing glow while executing: the virtual space glows only in this cast, not on the main display.
+        // It is the same View used by the takeover mirror panel and does not handle touch.
         auroraView = AuroraEdgeView(this@VirtualSpaceViewerActivity)
         previewContainer.addView(
             auroraView,
@@ -431,7 +431,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
                 applyIslandOffset(islandDragOffsetPx)
             }
         }
-        // 存下来的偏移可能来自别的屏幕尺寸或方向，布局出来后先钳回屏内再用。
+        // The saved offset may come from a different screen size or orientation, so clamp it back on screen after layout before use.
         islandView.post { applyIslandOffset(islandDragOffsetPx) }
 
         ViewCompat.setOnApplyWindowInsetsListener(rootContainer) { _, insets ->
@@ -516,8 +516,8 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         currentRightInsetPx = rightInset
 
         var layoutChanged = false
-        // 投屏画面保持全屏贴合（与主屏 Edge-to-Edge 视觉一致，绝不对画面强行缩进产生黑边），
-        // 仅对操作悬浮层（错误条、操作岛）做系统栏安全区避让。
+        // The mirrored picture stays full-screen edge-to-edge (matching the main display's Edge-to-Edge look, never forcing an inset on the picture and producing black bars),
+        // and the system bar safe area is avoided only for the operation overlay layers (error bar, operation island).
         (errorView.layoutParams as? FrameLayout.LayoutParams)?.let { lp ->
             val targetTop = topInset + dp(18)
             val targetStart = leftInset + dp(20)
@@ -546,7 +546,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         }
     }
 
-    /** 岛宽定死，只有窄屏才收：左右各留 [RuntimeIslandStyle.SIDE_MIN_MARGIN_DP]。 */
+    /** Island width is fixed and only shrinks on narrow screens: leave [RuntimeIslandStyle.SIDE_MIN_MARGIN_DP] on each side. */
     private fun islandWidthPx(): Int {
         val maxWidth = resources.displayMetrics.widthPixels - currentLeftInsetPx - currentRightInsetPx -
             dp(RuntimeIslandStyle.SIDE_MIN_MARGIN_DP.toInt()) * 2
@@ -564,7 +564,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
     private fun refreshControlState(manual: Boolean = agentRuntime.isPaused.value) {
         val teaching = isTeaching()
         val inputEnabled = manual || teaching
-        // 接管状态一变就算活跃：岛淡下去之后也要立刻亮回来把这件事说清楚。
+        // Any change in takeover state counts as activity: once the island has faded out it must light up again immediately to make this clear.
         if (manual != lastManualState) {
             lastManualState = manual
             markIslandActive()
@@ -594,7 +594,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
             manual = manual, teaching = teaching, state = presentationState
         )
         islandView.post { applyIslandOffset(islandDragOffsetPx) }
-        // 暂停条 = 交给我操作，播放三角 = 把控制交回 agent，与主屏运行岛的 drawActionGlyph 同义。
+        // Pause bar = hand it to me to operate; play triangle = hand control back to the agent. Same meaning as drawActionGlyph on the main display's runtime island.
     }
 
     private fun stopTaskFromIsland() {
@@ -643,7 +643,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         applyIslandOffset(islandDragStartOffsetPx + (rawY - islandDragStartRawY).toInt())
     }
 
-    /** translationY 往下为正，岛贴在底部，往上拖是负偏移；整体必须留在屏幕内。 */
+    /** translationY is positive downward; the island sits at the bottom, so dragging up is a negative offset; the whole island must stay on screen. */
     private fun applyIslandOffset(offsetPx: Int) {
         val parent = islandView.parent as? View ?: rootContainer
         val parentHeight = parent.height.takeIf { it > 0 } ?: previewView.height.takeIf { it > 0 } ?: return
@@ -888,7 +888,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         showChannelError()
     }
 
-    /** 把虚拟屏坐标的动作换算到镜像视图坐标，让小手在预览上跟着 agent 走。 */
+    /** Maps an action in virtual display coordinates to mirror view coordinates so the hand follows the agent on the preview. */
     private fun replayHandCue(cue: VirtualSpaceHandCue?) {
         if (!::handView.isInitialized) return
         if (cue == null) {
@@ -1129,6 +1129,6 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         const val CONTENT_INSPECTION_INTERVAL_MS = 1_000L
         const val NATIVE_IME_INSPECTION_INTERVAL_MS = 100L
 
-        /** 岛内按钮是正圆底座：尺寸取一半做圆角，和主屏运行岛的图标按钮同形。 */
+        /** Island buttons use a perfectly round base: the corner radius is half the size, the same shape as the icon buttons on the main display's runtime island. */
     }
 }

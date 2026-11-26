@@ -111,8 +111,8 @@ public final class VirtualSpaceSidecarMain {
                 System.exit(RESTARTABLE_FAILURE_EXIT_CODE);
             }
             reportInfo("sidecar binder broadcast sent");
-            // 持续重发 binder 广播：防 app receiver 第一次未就绪而丢失 binder，
-            // 让 app 在轮询窗口内总能收到一个存活的 binder。
+            // Continuously rebroadcast the binder: prevents losing the binder when the app receiver is not ready the first time,
+            // so the app can always receive a live binder within the polling window.
             startRebroadcast(service, sidecarContext, targetPackage, packageIdentity);
             Looper.loop();
         } catch (Throwable t) {
@@ -448,9 +448,9 @@ public final class VirtualSpaceSidecarMain {
             SidecarPackageIdentity packageIdentity
     ) {
         Thread t = new Thread(() -> {
-            // 前 15 秒快频(1s)吸收 app receiver 首次未就绪，之后转慢频(5s)长驻。
-            // 关键 WiFi 无关性：sidecar 用 setsid 长活，app 进程重启后错过首轮广播也能在数秒内重新收到
-            // 一个存活的 binder，无需再经 ADB/无线调试(WiFi 关也成立)。广播是本机 IPC，与网络无关。
+            // Fast frequency (1s) for the first 15 seconds to absorb the app receiver not being ready initially, then switch to a slow frequency (5s) for long-term residency.
+            // Key WiFi independence: the sidecar lives long via setsid, so an app process that restarts and misses the first round of broadcasts can still receive
+            // a live binder again within seconds, without going through ADB/wireless debugging again (holds even with WiFi off). The broadcast is local IPC and unrelated to the network.
             int i = 0;
             PowerManager powerManager = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
             int observedAppPid = -1;
@@ -469,8 +469,8 @@ public final class VirtualSpaceSidecarMain {
                     return;
                 }
                 if (packageState == SidecarPackageIdentity.State.UNAVAILABLE) continue;
-                // 熄屏时不向挂起的目标应用发送周期广播，防止 OEM 功耗冻结管理器代理队列打满(如 ColorOS bcMax)强制唤醒
-                // 但无 ADB 时重启后的 app 只能等这里：熄屏时 app 进程号变化才补发一次，不走周期广播。
+                // While the screen is off, do not send periodic broadcasts to the suspended target app, to prevent the OEM power-freeze manager's proxy queue from filling up (e.g. ColorOS bcMax) and force-waking it,
+                // but without ADB a restarted app can only wait for here: while the screen is off, rebroadcast once only when the app's PID changes, not on the periodic schedule.
                 if (powerManager != null && !powerManager.isInteractive()) {
                     int appPid = readAppPid(targetPackage);
                     boolean restarted = observedAppPid >= 0 && appPid > 0 && appPid != observedAppPid;
@@ -502,7 +502,7 @@ public final class VirtualSpaceSidecarMain {
 
     private static java.io.PrintWriter logWriter;
 
-    /** 直接写文件(像 aladdin)，不依赖 stdout 重定向——realme app_process 的 System.out 走 logcat 不进 >log。 */
+    /** Writes the file directly (like aladdin) without relying on stdout redirection -- on realme, app_process's System.out goes to logcat and not into >log. */
     private static synchronized void writeLog(String line, Throwable t) {
         try {
             if (logWriter == null) {

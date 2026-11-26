@@ -15,8 +15,8 @@ object ObservationTextExtractor {
         if (raw.trimStart().startsWith(PURE_VISION_TRANSPORT_MARKER)) {
             return emptyList()
         }
-        // observe_screen 现在以 <untrusted_screen_content> 可读文本块为主体（CUA 单视图），
-        // 优先从中抽取；老格式（裸 JSON）走 structuredTexts 兜底，纯文本行再兜底。
+        // observe_screen now centers on the <untrusted_screen_content> readable text block (CUA single view),
+        // so extract from there first; the old format (bare JSON) falls back to structuredTexts, and plain text lines are the final fallback.
         readableContent(raw, preserveCoordinates)?.takeIf { it.isNotEmpty() }?.let { return it }
         structuredTexts(raw)?.takeIf { it.isNotEmpty() }?.let { return it }
         return raw.lineSequence()
@@ -34,18 +34,18 @@ object ObservationTextExtractor {
         if (end < 0) return null
         return raw.substring(start + open.length, end)
             .lineSequence()
-            .filterNot { it.trim().startsWith("[") }  // 跳过 [屏幕文字…]/[AIR…] 等说明性表头
+            .filterNot { it.trim().startsWith("[") }  // skip descriptive headers such as [screen text…]/[AIR…]
             .mapNotNull { cleanVisibleLine(it, preserveCoordinates) }
             .distinct()
             .toList()
     }
 
     private fun structuredTexts(raw: String): List<String>? {
-        // readableContent 已处理带文本块的新格式；这里只接受真正以 JSON 对象开头的旧格式。
-        // 不在普通工具结果中搜索任意的 "{"uff0c避免把参数片段误当成屏幕 JSON。
+        // readableContent already handles the new format with text blocks; here we only accept the old format that really starts with a JSON object.
+        // Do not search ordinary tool results for an arbitrary "{", to avoid mistaking argument fragments for screen JSON.
         val jsonPart = raw.trimStart()
         if (!jsonPart.startsWith("{")) return null
-        // 只取到末尾第一个完整 JSON 对象，避免把后续诊断文本混入状态摘要。
+        // Take only up to the first complete JSON object at the end, so later diagnostic text is not mixed into the state summary.
         val jsonOnly = jsonPart.substringBefore("\n\n")
         val root = runCatching { Json.parseToJsonElement(jsonOnly.trimStart()).jsonObject }
             .getOrNull() ?: return null

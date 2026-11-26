@@ -120,7 +120,7 @@ internal class TaskTurnSession(
         }
     }
 
-    // 当前回合先使用最小入口消息；回合关闭后由 EventStore typed projection 重建历史。
+    // The current turn starts with a minimal entry message; after the turn closes, the EventStore typed projection rebuilds the history.
     val messages = mutableListOf<ChatMessage>()
     internal val requestHistory = com.pixelvisionlab.pvautoagent.core.agent.context.CacheableRequestHistory()
     internal val conversationTitles = ConversationTitleSession(eventStore, durableTurn.scope)
@@ -156,15 +156,15 @@ internal class TaskTurnSession(
     var totalToolCalls = 0
     var executionToolCalls = 0
     val executedToolNames = mutableListOf<String>()
-    // 只有后台调度轮才把接管配置视为它自己的任务生命周期；普通交互中的接管
-    // 调用仍需由模型明确判断并收尾，不能用配置回执绕过一次性设备任务的证据门槛。
+    // Only a background scheduling round treats the takeover config as its own task lifecycle; takeover
+    // during normal interaction still has to be explicitly judged and wrapped up by the model, and cannot use a config receipt to bypass the evidence bar for a one-shot device task.
     var takeoverManaged = false
-    // 动作叙事：跨轮保留"做过什么、结果如何"的一行式记录，替代把多张历史帧塞回请求。
+    // Action narrative: a one-line record of "what was done, what came of it" kept across rounds, replacing stuffing multiple historical frames back into the request.
     val actionNarrative = ArrayDeque<String>()
-    // 保留最近的本地拒绝原因，跨上下文压缩提示模型，避免
-    // 只看到“已有结果”却忘了某个限定条件仍未被当前画面证明。
+    // Keep the most recent local rejection reasons so they survive context compaction and remind the model, preventing it from
+    // seeing only "there is already a result" while forgetting that some constraint still has not been proven by the current screen.
     val blockedActionNarrative = ArrayDeque<String>()
-    // 只记录本地验证明确确认推动了用户目标的动作；普通运行时生效或页面观察不算进展。
+    // Record only actions that local validation explicitly confirms advanced the user goal; a mere runtime effect or a page observation does not count as progress.
     var channelUnavailableRepeats = 0
     var lastMemoryRefreshInput = 0L
     var lastMemoryRefreshPackage: String? = null

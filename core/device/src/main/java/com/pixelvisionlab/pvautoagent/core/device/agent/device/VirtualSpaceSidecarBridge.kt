@@ -71,10 +71,11 @@ class VirtualSpaceSidecarBridge @Inject constructor(
     private val protocolCompatibility = ConcurrentHashMap<IBinder, Boolean>()
     private val runtimeIdentities = ConcurrentHashMap<IBinder, String>()
 
-    // sidecar 是独立 app_process 子进程；AIDL 是同步阻塞的双向 Binder transact，进程卡住时
-    // 调用方线程会被无限期挂起——既不抛异常也不返回。这曾是"后台任务卡住上百分钟只能手动取消"的
-    // 真凶（sidecar 端一旦出现异常，调用方拿不到任何反馈）。所有跨进程调用统一走 callWithTimeout
-    // 做有界超时，让卡死在几秒内变成明确失败，而不是无限期挂起。
+    // The sidecar is a separate app_process child process; AIDL is a synchronous, blocking, two-way Binder transact, so when the process stalls
+    // the calling thread is suspended indefinitely -- it neither throws nor returns. This was the real culprit behind "a background task hangs for
+    // hundreds of minutes and can only be canceled manually" (once something goes wrong on the sidecar side, the caller gets no feedback at all).
+    // All cross-process calls uniformly go through callWithTimeout with a bounded timeout, so a hang turns into an explicit failure within seconds
+    // instead of hanging indefinitely.
     private val sidecarCallExecutor = Executors.newCachedThreadPool { r ->
         Thread(r, "sidecar-call-timeout").apply { isDaemon = true }
     }
@@ -114,7 +115,7 @@ class VirtualSpaceSidecarBridge @Inject constructor(
         return false
     }
 
-    /** 超时或 Binder 传输失败后清掉缓存引用，避免后续调用继续撞向同一个死连接。 */
+    /** Clears the cached reference after a timeout or a Binder transport failure, so later calls do not keep hitting the same dead connection. */
     private fun markSidecarSuspect(service: IVirtualSpaceSidecar?) {
         if (service == null) return
         val binder = service.asBinder()
@@ -248,7 +249,7 @@ class VirtualSpaceSidecarBridge @Inject constructor(
      * Ensures the single full-capability sidecar process and Binder are resident without creating
      * a virtual display. Virtual-space startup later asks the same service to allocate a display.
      */
-    /** sidecar 启动失败/binder 未到的诊断(含 sidecar 端日志)，供注入诊断回填，让真因在 debug 包可见。 */
+    /** Diagnostics for a sidecar start failure/missing binder (including sidecar-side logs), backfilled into injection diagnostics so the real cause is visible in debug builds. */
     @Volatile
     var lastSidecarStartDiagnostic: String = ""
         private set
@@ -296,7 +297,7 @@ class VirtualSpaceSidecarBridge @Inject constructor(
                         lastSidecarStartDiagnostic = "Device shell unavailable: ${shellRunner.describeShellUnavailable()}"
                         return@synchronized false
                     }
-                    // sidecar 启动必须用 shell,v2(无 PTY)：旧 shell: 协议分配 PTY 会让 app_process 卡死在 main 之前。
+                    // The sidecar must be started with shell,v2 (no PTY): the legacy shell: protocol allocates a PTY, which makes app_process hang before reaching main.
                     val launch = shellRunner.shell(cmd, ADB_START_TIMEOUT_MS, "shell,v2")
                     if (shellRunner.isFailure(launch)) {
                         lastSidecarStartDiagnostic = "Device shell launch failed: ${launch.take(160)}"
@@ -373,9 +374,9 @@ class VirtualSpaceSidecarBridge @Inject constructor(
     )?.isNotEmpty() == true
 
     /**
-     * 同一运行模式只能有一个常驻 sidecar。多个同协议进程会各自周期性广播 Binder，
-     * 后到的广播覆盖 registry，导致当前执行绑定的 session 被误判为已变化并中断任务。
-     * 在建立新的执行绑定前统一清掉重复进程；单进程和无法探测时保持原有路径。
+     * Only one resident sidecar may exist per run mode. Multiple processes speaking the same protocol each broadcast their Binder periodically,
+     * and a later broadcast overwrites the registry, so the session currently bound for execution is misjudged as changed and the task is aborted.
+     * Clear duplicate processes uniformly before establishing a new execution binding; with a single process or when probing is impossible, keep the original path.
      */
     private fun reconcileDuplicateResidentSidecars(
         mode: RuntimeMode,
@@ -451,10 +452,10 @@ class VirtualSpaceSidecarBridge @Inject constructor(
         return ResidentSidecarProcessCommands.parsePids(output)
     }
 
-    // 启动 App 必须走 `am start`，不能用 sidecar 进程内 context.startActivity：
-    // shell 身份(uid=2000)进程内 startActivity 的 callingPackage 取自 base context(=android)，
-    // 被 AMS 拒为 "Permission Denial: package=android does not belong to uid=2000"。
-    // am 进程天然以 com.android.shell 身份运行(=adb shell am start --display)，callingPackage 合法。
+    // Launching an app must go through `am start`, not an in-process context.startActivity in the sidecar:
+    // for a shell-identity (uid=2000) in-process startActivity the callingPackage comes from the base context (=android),
+    // and AMS rejects it with "Permission Denial: package=android does not belong to uid=2000".
+    // The am process natively runs as com.android.shell (=adb shell am start --display), so callingPackage is valid.
     // Launches use the selected shell channel when no Binder was available before dispatch.
     fun launchPackage(
         displayId: Int,
@@ -694,7 +695,7 @@ class VirtualSpaceSidecarBridge @Inject constructor(
         if (!component.isNullOrEmpty()) {
             return "$base -n ${adbShell.escapeForShell(component)}"
         }
-        // 只有包名时，在 shell 内解析 launcher activity 再启动。
+        // With only a package name, resolve the launcher activity inside the shell before launching.
         val resolved = "cmd package resolve-activity --brief " +
             "-a android.intent.action.MAIN -c android.intent.category.LAUNCHER " +
             "${adbShell.escapeForShell(packageName)} | tail -n 1"
@@ -863,8 +864,8 @@ class VirtualSpaceSidecarBridge @Inject constructor(
         }
 
     /**
-     * 最近一次注入实际走了哪条通道（反射 / input 命令）+ 成败 + 失败原因。
-     * 反射失败静默回退 input 命令时对外消息与成功完全一致，只有这条证据能区分两者。
+     * Which channel the most recent injection actually used (reflection / input command) + success or failure + failure reason.
+     * When reflection fails and silently falls back to the input command, the outward-facing message is exactly the same as a success, and only this evidence can distinguish the two.
      */
     fun lastInputEvidence(mode: RuntimeMode? = null): String {
         val service = serviceOrNull(mode) ?: return ""
@@ -874,8 +875,8 @@ class VirtualSpaceSidecarBridge @Inject constructor(
     }
 
     /**
-     * 任务开始时主动唤醒虚拟屏电源组。必须在 onScreenLocked 的 surface 重挂之前调用：
-     * 电源组还在 DOZING 时屏上没有窗口在绘，重挂等不到新帧就会把虚拟空间自己判成不可用。
+     * Actively wakes the virtual display's power group when a task starts. Must be called before onScreenLocked re-attaches the surface:
+     * while the power group is still DOZING no window is drawing on the screen, so the re-attach never gets a new frame and the virtual space judges itself unavailable.
      */
     fun ensureDisplayInteractive(displayId: Int, mode: RuntimeMode?): CommandResult =
         call("ensureDisplayInteractive", mode) { service ->
@@ -1015,7 +1016,7 @@ class VirtualSpaceSidecarBridge @Inject constructor(
         }?.trim()?.takeIf { it.isNotBlank() }
 
     /**
-     * 动作后的短探针只补充输入焦点证据；超时代表证据未知，不应把正常的常驻 sidecar 判死。
+     * The short probe after an action only supplements input-focus evidence; a timeout means the evidence is unknown, and a healthy resident sidecar should not be declared dead over it.
      */
     suspend fun awaitInputFocus(
         displayId: Int, mode: RuntimeMode, expectedBackendSessionId: String, timeoutMs: Long
@@ -1315,15 +1316,15 @@ class VirtualSpaceSidecarBridge @Inject constructor(
     }
 
     /**
-     * 主屏截图优先由 sidecar 通过 WindowManager Binder 直取 HardwareBuffer；直取失败时 sidecar
-     * 内部才调用 screencap。binder 不可用或截图失败返回 null，由 SidecarScreenCapture 继续兜底。
+     * Main-screen capture is preferentially taken by the sidecar directly from a HardwareBuffer via the WindowManager Binder; only when that direct path fails does the sidecar
+     * internally call screencap. If the binder is unavailable or the capture fails it returns null, and SidecarScreenCapture continues as the fallback.
      */
 
 
     /**
-     * 本机(sidecar 进程内 fork sh -c)执行一条 shell 命令，不经 ADB/AIR，与 WiFi 无关。用于
-     * am start 这类必须走真正 shell 命令的操作（sidecar 进程内 startActivity 会被 AMS 拒绝，
-     * 见下方 runAmStart 处的说明）。仅派发前 sidecar 不可用返回 null。
+     * Runs a shell command locally (forking sh -c inside the sidecar process), without going through ADB/AIR and independent of WiFi. Used for
+     * operations such as am start that must go through a real shell command (an in-process startActivity in the sidecar is rejected by AMS,
+     * see the note at runAmStart below). Returns null only when the sidecar is unavailable before dispatch.
      * Never replay an uncertain dispatched command or substitute a different shell session.
      */
     fun execShellCommand(
@@ -1500,9 +1501,9 @@ class VirtualSpaceSidecarBridge @Inject constructor(
                 )
             }
         }
-        // 失败原因必须带够：异常类名 + 消息 + sidecar 端 lastError。
-        // 只报 "sidecar start exception" 时，createVirtualDisplay 的参数校验异常（例如
-        // ALWAYS_UNLOCKED 缺了 OWN_DISPLAY_GROUP）在 debug 包里完全看不出来。
+        // The failure reason must carry enough detail: exception class name + message + sidecar-side lastError.
+        // When only "sidecar start exception" is reported, the createVirtualDisplay parameter validation exception (for example
+        // ALWAYS_UNLOCKED missing OWN_DISPLAY_GROUP) is completely invisible in debug builds.
         return result.getOrElse { e ->
             val sidecarError = runCatching { service.lastError }.getOrNull().orEmpty()
             invalid(
@@ -1568,9 +1569,9 @@ class VirtualSpaceSidecarBridge @Inject constructor(
         markSidecarSuspectOnFailure: Boolean = true,
         action: (IVirtualSpaceSidecar) -> T
     ): Result<T> {
-        // displayModes 只是本地簿记；display 重建/模式切换期间它可能短暂缺失（null），
-        // 此时放行，交给下面的 serviceOrNull + backendSessionId 冻结身份校验兜底；
-        // 只有记录明确属于另一模式才 fail-closed 拦截，避免运行岛动画被误拦持续刷屏。
+        // displayModes is only local bookkeeping; it may be briefly missing (null) while the display is rebuilt/the mode is switched,
+        // so let it pass here and fall back to the serviceOrNull + backendSessionId frozen-identity check below;
+        // fail closed only when the record clearly belongs to another mode, so that runtime island animation is not blocked by mistake and does not keep flooding the log.
         val recordedMode = displayModes[binding.displayId]
         if (binding.displayId != 0 && recordedMode != null && recordedMode != binding.runtimeMode) {
             return Result.failure(IllegalStateException("bound display mode changed"))
@@ -1592,9 +1593,9 @@ class VirtualSpaceSidecarBridge @Inject constructor(
     }
 
     /**
-     * PNG 帧不能直接走 Binder：真机 1080x2376 的全尺寸 PNG 可超过 2MB，而 Binder 单次事务约
-     * 1MB。sidecar 已有受控 JPEG 预览事务；在 app 进程内还原到实际 display 尺寸后继续以 PNG
-     * 向上层提供，既保留坐标物理尺寸，又不让大帧传输把控制 Binder 误判成死亡。
+     * PNG frames cannot go directly over Binder: on a real device a full-size 1080x2376 PNG can exceed 2MB, while a single Binder transaction is about
+     * 1MB. The sidecar already has a controlled JPEG preview transaction; restore it to the actual display size inside the app process and keep providing it upward as PNG,
+     * which both preserves the physical coordinate dimensions and keeps a large frame transfer from making the control Binder be misjudged as dead.
      */
     private fun decodeTransferJpeg(bytes: ByteArray, displayId: Int): ByteArray? {
         val source = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
@@ -1943,7 +1944,7 @@ class VirtualSpaceSidecarBridge @Inject constructor(
         )
     }
 
-    /** 诊断用：把 sidecar 进程存活、setsid/nohup 可用性、日志文件状态、日志内容一起读回来，定位 binder timeout 真因。 */
+    /** For diagnostics: reads back sidecar process liveness, setsid/nohup availability, log file state and log content together, to pin down the real cause of binder timeout. */
     private fun readSidecarLog(): String =
         runCatching {
             val log = ResidentSidecarProcessCommands.logPath(sidecarStorageDirectory())
@@ -1996,10 +1997,10 @@ class VirtualSpaceSidecarBridge @Inject constructor(
         private const val SIDECAR_PROTOCOL_TIMEOUT_MS = 1_000L
         private const val SIDECAR_PROTOCOL_VERSION = VirtualSpaceSidecarService.SIDECAR_PROTOCOL_VERSION
         private const val AM_START_TIMEOUT_MS = 12_000L
-        // 跨进程 Binder 调用的有界超时：tap/key/text 等输入动作正常是毫秒级本机 IPC。
+        // Bounded timeout for cross-process Binder calls: input actions such as tap/key/text are normally millisecond-level local IPC.
         private const val SIDECAR_TEXT_CALL_TIMEOUT_MS = 20_000L
-        // 截图给 sidecar 自身内部截屏逻辑（含 6s 内部超时）留出往返余量。
-        // 创建 VirtualDisplay/ImageReader 比普通调用重，放宽一些。
+        // Leave round-trip headroom for the sidecar's own internal capture logic (including its 6s internal timeout).
+        // Creating a VirtualDisplay/ImageReader is heavier than an ordinary call, so relax a bit more.
         private const val SIDECAR_START_TIMEOUT_MS = 8_000L
     }
 }

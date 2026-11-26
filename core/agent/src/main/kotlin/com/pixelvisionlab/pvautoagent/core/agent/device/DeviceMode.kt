@@ -31,10 +31,10 @@ data class DeviceCapabilities(
     val virtualSpaceBridgeAvailable: Boolean = false
 ) {
 
-    // 实时 ADB 连接(adbBridgeAvailable)断开(如 WiFi 关闭)后，只要配对期间建立的常驻 sidecar
-    // binder(virtualSpaceBridgeAvailable)还活着，AIR 仍应可运行——这条线路本机 Binder IPC 不
-    // 经 ADB。之前只看 adbBridgeAvailable，导致 WiFi 一断即使 sidecar 完好也判定"无可用通道"，
-    // 让常驻通道机制形同虚设。
+    // After the live ADB connection (adbBridgeAvailable) drops (for example when WiFi is turned off), as long as the resident sidecar
+    // binder (virtualSpaceBridgeAvailable) established during pairing is still alive, AIR should still be able to run: this route's local Binder IPC does not
+    // go through ADB. Previously only adbBridgeAvailable was checked, so as soon as WiFi dropped, even a healthy sidecar was judged as "no usable channel",
+    // which made the resident channel mechanism useless in practice.
     val standardReady: Boolean
         get() = (adbBridgeAvailable || virtualSpaceBridgeAvailable) && textObservationAvailable
 }

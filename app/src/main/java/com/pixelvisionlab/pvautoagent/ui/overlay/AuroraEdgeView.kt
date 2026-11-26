@@ -12,12 +12,12 @@ import android.view.WindowInsets
 import android.view.animation.LinearInterpolator
 
 /**
- * 虚拟空间镜像面板的梦幻流光边缘 View（Siri / 小布助手风格）。
+ * Dreamy flowing-light edge View for the virtual space mirror panel (Siri / Breeno style).
  *
- * - 紧贴屏幕物理边缘的圆角描边，动态适配宿主设备屏幕物理 R 角；
- * - 两层 BlurMaskFilter 柔光以不同速度反向流动，色相错开的渐变相互晕染，产生持续变换的氛围光；
- * - 最上层一条细亮边勾勒轮廓，整体低透明度并叠加缓慢呼吸；
- * - 不处理触摸，事件穿透给下层镜像画面。
+ * - A rounded stroke hugging the physical edge of the screen, dynamically adapting to the physical corner radius of the host device's screen;
+ * - Two layers of BlurMaskFilter soft light flow in opposite directions at different speeds, and hue-offset gradients bleed into each other to produce constantly changing ambient light;
+ * - A thin bright edge on the topmost layer outlines the contour, with an overall low opacity plus a slow breathing effect;
+ * - Touch is not handled; events pass through to the mirror image below.
  */
 class AuroraEdgeView(context: Context) : View(context) {
     private var lastDrawAtMs = 0L
@@ -31,11 +31,11 @@ class AuroraEdgeView(context: Context) : View(context) {
     private var phase = 0f
 
     private companion object {
-        /** 装饰流光约 30fps，避免在 120Hz 主屏上做无收益的全屏重绘。 */
+        /** Decorative flowing light runs at about 30fps, avoiding pointless full-screen redraws on a 120Hz main screen. */
         const val ANIMATION_FRAME_INTERVAL_MS = com.pixelvisionlab.pvautoagent.core.device.agent.device.AuroraEdgePainter.FRAME_INTERVAL_MS
     }
 
-    // 一个周期内主环转两圈、副环反向一圈、呼吸整数次，重启无跳变
+    // Within one cycle the main ring turns twice, the secondary ring turns once in reverse, and breathing completes a whole number of times, so a restart does not jump
     private val flowAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
         duration = com.pixelvisionlab.pvautoagent.core.device.agent.device.AuroraEdgePainter.CYCLE_MS
         interpolator = LinearInterpolator()
@@ -54,7 +54,7 @@ class AuroraEdgeView(context: Context) : View(context) {
         alpha = 0f
     }
 
-    /** 更新设备屏幕 Insets 并动态适配四角 R 角 */
+    /** Updates the device screen Insets and dynamically adapts the corner radius at the four corners */
     fun updateWindowInsets(insets: WindowInsets?) {
         val resolved = DeviceCornerRadius.resolve(context, insets)
         if (resolved != cornerRadii) {

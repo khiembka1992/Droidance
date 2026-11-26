@@ -17,10 +17,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Event-sourced Harness 使用的工具静态契约。
+ * The static tool contract used by the Event-sourced Harness.
  *
- * 工具名称、绑定方式和展示语义全部来自 rules/tool_contracts.yaml；代码不为任意
- * 工具补默认分类，配置与实际暴露的工具集合不一致时直接拒绝构造本轮计划。
+ * Tool names, binding modes, and display semantics all come from rules/tool_contracts.yaml; the code does not fill in a default
+ * classification for any tool, and when the config does not match the actually exposed tool set it outright refuses to build the plan for this round.
  */
 @Singleton
 class ToolContractCatalog @Inject constructor(

@@ -38,11 +38,11 @@ def build_identity(source):
                 min_sdk=int(field(r'^\s*minSdk = ([0-9]+)\s*$')))
 
 
-def localized_release_notes(root, version, notes_zh):
-    chinese = notes_zh.read_text(encoding='utf-8').strip()
-    if not chinese:
-        raise ValueError('Simplified Chinese release notes must be nonempty')
-    return {'en': changelog_entry(root / 'CHANGELOG.md', version), 'zh': chinese}
+def localized_release_notes(root, version, notes_vi):
+    vietnamese = notes_vi.read_text(encoding='utf-8').strip()
+    if not vietnamese:
+        raise ValueError('Vietnamese release notes must be nonempty')
+    return {'en': changelog_entry(root / 'CHANGELOG.md', version), 'vi': vietnamese}
 
 
 def tagged_identity(tag, root=ROOT):
@@ -102,8 +102,8 @@ def main():
     identity = sub.add_parser('identity')
     identity.add_argument('--tag', required=True)
     identity.add_argument('--output', type=Path, required=True)
-    identity.add_argument('--notes-zh', type=Path, required=True,
-                          help='UTF-8 Simplified Chinese notes for this release, supplied outside the source checkout')
+    identity.add_argument('--notes-vi', type=Path, required=True,
+                          help='UTF-8 Vietnamese notes for this release, supplied outside the source checkout')
     verify = sub.add_parser('verify-apk')
     verify.add_argument('--identity', type=Path, required=True)
     verify.add_argument('--apk', type=Path, required=True)
@@ -112,18 +112,18 @@ def main():
     args = parser.parse_args()
     if args.command == 'identity':
         data, notes = tagged_identity(args.tag)
-        localized = localized_release_notes(ROOT, data['version_name'], args.notes_zh)
+        localized = localized_release_notes(ROOT, data['version_name'], args.notes_vi)
         args.output.mkdir(parents=True, exist_ok=True)
         (args.output / 'identity.json').write_text(json.dumps(data, indent=2) + '\n')
         (args.output / 'notes.md').write_text(notes + '\n', encoding='utf-8')
-        (args.output / 'notes.zh.md').write_text(localized['zh'] + '\n', encoding='utf-8')
+        (args.output / 'notes.vi.md').write_text(localized['vi'] + '\n', encoding='utf-8')
         print('Tagged source identity and increasing versionCode verified')
     else:
         expected = json.loads(args.identity.read_text())
         tagged, _ = tagged_identity(expected['tag'])
         if expected != tagged:
             raise ValueError('Prepared identity no longer matches the tagged source')
-        localized = localized_release_notes(ROOT, expected['version_name'], args.identity.parent / 'notes.zh.md')
+        localized = localized_release_notes(ROOT, expected['version_name'], args.identity.parent / 'notes.vi.md')
         metadata = verify_apk(args.apk, expected, args.sdk, args.certificate)
         metadata['release_notes'] = localized
         args.apk.with_suffix('.apk.sha256').write_text(f"{metadata['sha256']}  {args.apk.name}\n")

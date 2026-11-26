@@ -36,9 +36,9 @@ data class RetainedVirtualExecution(
 )
 
 /**
- * 虚拟空间核心原语：通过 Standard ADB shell sidecar 创建不可见 VirtualDisplay。
- * App 启动、输入和截图都在 sidecar/displayId 路径内完成；主屏由系统合成层展示状态，
- * 查看页按生命周期挂接独立的合成器镜像。
+ * Core virtual space primitive: creates an invisible VirtualDisplay through the Standard ADB shell sidecar.
+ * App launch, input and screenshots all happen inside the sidecar/displayId path; the main screen shows state through the system compositor,
+ * and the viewer page attaches its own compositor mirror according to the lifecycle.
  */
 @Singleton
 class VirtualSpaceManager @Inject constructor(
@@ -167,7 +167,7 @@ class VirtualSpaceManager @Inject constructor(
     fun lastFailureReason(): String = lastFailureReason
 
     /**
-     * 创建虚拟显示并记录其 displayId。成功返回 displayId，失败返回 null。
+     * Creates a virtual display and records its displayId. Returns displayId on success, null on failure.
      */
     fun start(mode: RuntimeMode?): Int? {
         if (active) {
@@ -211,15 +211,15 @@ class VirtualSpaceManager @Inject constructor(
     }
 
     /**
-     * 为新的执行尝试建立执行代际：保留登录态、保留同一块 VirtualDisplay。
+     * Establishes an execution generation for a new execution attempt: keeps the login state and keeps the same VirtualDisplay.
      *
-     * **不换屏**：20260726-V3 试过每次执行 release 旧屏重建一块，真机实测把冷启动打断了——
-     * 空屏上 `am start` 深链只会起一个 router/trampoline activity 然后 finish，屏上一帧都不产生，
-     * 模型连屏幕都看不到（日志：连续 5 次 VIRTUAL_SPACE_FRAME_FAILED 后 ask_human）。
-     * 启动目标时使用调用方选择的模式，不因执行代际变化自动清空目标任务栈。
-     * 新任务能否覆盖上一任务的页面，前提是该屏电源组处于 interactive（见 sidecar 的唤醒锁）。
+     * **No screen swap**: 20260726-V3 tried releasing the old display and rebuilding a new one on every execution, but on a real device this broke cold start —
+     * on an empty screen, `am start` on a deep link only starts a router/trampoline activity that then finishes, so not a single frame is produced on screen
+     * and the model cannot even see the screen (log: 5 consecutive VIRTUAL_SPACE_FRAME_FAILED, then ask_human).
+     * The launch of the target uses the mode chosen by the caller and does not automatically clear the target task stack just because the execution generation changed.
+     * Whether a new task can cover the previous task's page depends on that screen's power group being interactive (see the sidecar wake lock).
      *
-     * 这里也不再注入 HOME：私有虚拟屏上没有 launcher，HOME 键没有可回的 home activity。
+     * HOME is no longer injected here either: the private virtual screen has no launcher, so the HOME key has no home activity to go back to.
      */
     @Synchronized
     fun beginExecution(executionId: String, threadId: String): VirtualSpaceLaunchResult {
@@ -245,7 +245,7 @@ class VirtualSpaceManager @Inject constructor(
         return VirtualSpaceLaunchResult(true, true, "execution boundary established on displayId=$id")
     }
 
-    /** 把目标 App 启动到虚拟显示上。返回启动命令成功且在预算内出现新鲜可渲染帧。 */
+    /** Launches the target App on the virtual display. Returns whether the launch command succeeded and a fresh renderable frame appeared within the budget. */
     fun launchApp(
         packageName: String,
         launchMode: AppLaunchMode,
@@ -291,7 +291,7 @@ class VirtualSpaceManager @Inject constructor(
         )
     }
 
-    /** 从当前冻结的 sidecar 通道在主屏启动宿主 Activity，不依赖后台启动豁免或悬浮窗权限。 */
+    /** Launches the host Activity on the main screen from the currently frozen sidecar channel, without relying on the background launch exemption or overlay permission. */
     @Synchronized
     fun launchHostActivity(component: String, expectedOwner: RetainedVirtualExecution? = null): Boolean {
         if (!active) return false
@@ -308,7 +308,7 @@ class VirtualSpaceManager @Inject constructor(
         return result.ok
     }
 
-    /** 把指定 Activity 启动到虚拟显示上。返回启动命令成功且在预算内出现新鲜可渲染帧。 */
+    /** Launches the given Activity on the virtual display. Returns whether the launch command succeeded and a fresh renderable frame appeared within the budget. */
     fun launchActivity(component: String): VirtualSpaceLaunchResult {
         if (!active) return VirtualSpaceLaunchResult(false, false, "virtual space is inactive")
         val id = capabilityRegistry.getVirtualDisplayId()
@@ -342,7 +342,7 @@ class VirtualSpaceManager @Inject constructor(
         )
     }
 
-    /** 全屏镜像视图里用户手势转发进虚拟屏（tap/swipe 等 native 命令），不拉主屏、原地远程操作。 */
+    /** In the full-screen mirror view, user gestures are forwarded into the virtual screen (tap/swipe and other native commands); the main screen is never pulled and the operation happens remotely in place. */
     fun injectNative(nativeArgs: String): Boolean {
         if (!active) return false
         val id = capabilityRegistry.getVirtualDisplayId() ?: return false
@@ -351,10 +351,10 @@ class VirtualSpaceManager @Inject constructor(
         return sidecarBridge.injectNative(binding, nativeArgs).ok
     }
 
-    // ── 人工接管面板专用（§5.4）：全部作用于当前 active session 的 displayId，同屏原地操作。
-    // session/display 失效即返回 false，绝不新建 display，也绝不迁移到主屏。
+    // ── Manual takeover panel only (§5.4): everything operates on the current active session's displayId, in place on the same screen.
+    // If the session/display becomes invalid it returns false; it never creates a new display and never migrates to the main screen.
 
-    /** 拉取当前虚拟屏最新一帧 PNG，供接管面板渲染；无活动 session 或 display 时返回 null。 */
+    /** Pulls the latest PNG frame of the current virtual screen for the takeover panel to render; returns null when there is no active session or display. */
     fun captureLatestPng(): ByteArray? {
         if (!active) return null
         val id = capabilityRegistry.getVirtualDisplayId() ?: return null
@@ -362,7 +362,7 @@ class VirtualSpaceManager @Inject constructor(
         return sidecarBridge.captureLatestPng(id, mode = session.mode)
     }
 
-    /** 接管面板专用轻量帧；与 Agent 的全尺寸观察绑定同一个 sidecar/display。 */
+    /** Lightweight frame for the takeover panel only; bound to the same sidecar/display as the Agent's full-size observation. */
     fun captureLatestPreviewJpeg(): ByteArray? {
         if (!active) return null
         val id = capabilityRegistry.getVirtualDisplayId() ?: return null
@@ -561,9 +561,9 @@ class VirtualSpaceManager @Inject constructor(
     }
 
     /**
-     * 任务开始时唤醒虚拟屏电源组，返回是否确实拿到 interactive。
-     * 唤醒锁 10 分钟超时，任务之间隔久了电源组会 DOZING；此时 am start 会返回 Success 却不
-     * resume 新 activity，截图拿到的是上一个任务的残留帧。必须在任何观察/操作之前调一次。
+     * Wakes the virtual screen's power group when a task starts, and returns whether interactive was actually obtained.
+     * The wake lock times out after 10 minutes, so if too much time passes between tasks the power group goes to DOZING; then am start returns Success without
+     * resuming the new activity, and the screenshot captures a stale frame from the previous task. It must be called once before any observation/action.
      */
     fun ensureDisplayInteractive(): Boolean {
         val session = sidecarSession?.takeIf { active } ?: return false
@@ -589,9 +589,9 @@ class VirtualSpaceManager @Inject constructor(
     }
 
     /**
-     * 重置帧通道：截图连续拿不到内容时，由 harness 主动把 display 的输出面重新挂一次，
-     * 而不是让模型一直空转（真机日志里连续 7 次 FRAME_EMPTY，harness 一次恢复动作都没做）。
-     * 复用与锁屏/解锁相同的重挂路径，返回是否重新拿到可渲染帧。
+     * Resets the frame channel: when screenshots keep coming back empty, the harness actively re-attaches the display's output surface once,
+     * instead of leaving the model spinning idle (in the real-device log there were 7 consecutive FRAME_EMPTY and the harness never took a single recovery action).
+     * Reuses the same re-attach path as screen lock/unlock, and returns whether a renderable frame was obtained again.
      */
     fun resetFrameChannel(): Boolean {
         val session = sidecarSession?.takeIf { active } ?: return false
@@ -605,7 +605,7 @@ class VirtualSpaceManager @Inject constructor(
         return result.ok
     }
 
-    /** 销毁虚拟显示。 */
+    /** Destroys the virtual display. */
     @Synchronized
     fun stop() {
         stopSidecarSession()
@@ -662,7 +662,7 @@ class VirtualSpaceManager @Inject constructor(
         sidecarSession = null
     }
 
-    /** 主屏分辨率/密度，作为后台显示规格。 */
+    /** Main screen resolution/density, used as the background display spec. */
     private fun resolveScreenSpec(): ScreenSpec {
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val size = if (com.pixelvisionlab.pvautoagent.core.device.agent.device.RuntimeProcessRole.isOwner) {

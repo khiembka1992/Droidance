@@ -124,7 +124,7 @@ class AirModePairingManager @Inject constructor(
             shellHealthState == ShellHealthState.READY &&
             activeConnection != null
 
-    // 带超时的 shell 在独立线程跑阻塞的 conn.shell；超时后任务可能仍占用线程，故用可回收的 cached 池
+    // A shell with a timeout runs the blocking conn.shell on a separate thread; after a timeout the task may still be occupying the thread, so use a reclaimable cached pool
     private val shellTimeoutExecutor = Executors.newCachedThreadPool { r ->
         Thread(r, "air-shell-timeout").apply { isDaemon = true }
     }
@@ -485,8 +485,8 @@ class AirModePairingManager @Inject constructor(
     }.getOrNull()
 
     /**
-     * 首次 ADB 连通后已经授予 WRITE_SECURE_SETTINGS；以后 App/保活服务可以在本机恢复无线调试。
-     * 这里只恢复开关，不伪造端口：设备重启后的动态端口仍由 Settings/mDNS 发现。
+     * WRITE_SECURE_SETTINGS was already granted once ADB first connected; afterward the app/keep-alive service can restore wireless debugging locally.
+     * This only restores the toggle and does not fake a port: the dynamic port after a device reboot is still discovered via Settings/mDNS.
      */
     fun ensureWirelessDebuggingEnabled(): Boolean {
         if (!isPreviouslyPaired || !isWifiTransportAvailable() || !hasSecureSettingsPermission() ||
@@ -1071,8 +1071,8 @@ class AirModePairingManager @Inject constructor(
     }
 
     /**
-     * 带硬超时的 shell：ADB over TLS 的 socket 读在弱网/异常页（如反爬验证页）下可能长时间阻塞，
-     * 截图等对时延敏感的调用用此版本兜底，超时返回 [AIR_TIMEOUT]，避免整个执行循环被一次截图挂死几十秒。
+     * Shell with a hard timeout: an ADB over TLS socket read can block for a long time on a weak network/abnormal page (such as an anti-bot verification page),
+     * so latency-sensitive calls such as screenshots use this version as a fallback; on timeout it returns [AIR_TIMEOUT], so the whole execution loop is not hung for tens of seconds by a single screenshot.
      */
     fun shell(command: String, timeoutMs: Long, service: String = "shell"): String {
         if (timeoutMs <= 0) return shell(command, service)

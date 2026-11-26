@@ -26,8 +26,8 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 
 /**
- * 持久化守护 JobService。
- * 系统会周期性唤起它，用来检查常驻前台服务是否仍在运行。
+ * Persistent keep-alive JobService.
+ * The system wakes it up periodically to check whether the always-on foreground service is still running.
  */
 class KeepAliveJobService : JobService() {
 

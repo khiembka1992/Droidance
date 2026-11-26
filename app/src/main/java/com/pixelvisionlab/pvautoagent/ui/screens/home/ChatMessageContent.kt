@@ -1085,7 +1085,7 @@ internal fun formatMessageTimestamp(
 ): String {
     if (timestampMs <= 0L) return fallbackLabel
 
-    // 今天的消息只显示时间，不显示日期；往日的才显示日期+时间。
+    // Messages from today show only the time, not the date; earlier messages show date + time.
     val dayFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     if (dayFmt.format(Date(timestampMs)) == dayFmt.format(Date(nowMs))) {
         return SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(timestampMs))
@@ -1337,7 +1337,7 @@ internal fun ChatBubble(
                     }
                 }
             }
-            // 只在回复完成后(非 streaming)显示时间，执行过程中不显示。
+            // Show the time only after the reply completes (not streaming); it is hidden while execution is in progress.
             if (!isUser && !isThinking && !isStreaming && messageTimeText.isNotBlank()) {
                 Text(
                     text = messageTimeText,

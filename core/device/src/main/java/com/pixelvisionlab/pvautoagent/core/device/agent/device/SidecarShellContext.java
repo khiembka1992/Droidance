@@ -95,8 +95,8 @@ public final class SidecarShellContext extends ContextWrapper {
         return super.createPackageContext(packageName, flags);
     }
 
-    // AttributionSource 自 API 31 起才存在；sidecar 以 app_process 跑在真机真实 API 上，
-    // minSdk 28 只是构建下限，运行期不会在 <31 的系统调用到此方法，故抑制 NewApi。
+    // AttributionSource only exists since API 31; the sidecar runs as app_process on the real device's actual API,
+    // and minSdk 28 is only the build floor, so at runtime it never reaches this method on a system <31, hence NewApi is suppressed.
     @SuppressLint("NewApi")
     @Override
     public android.content.AttributionSource getAttributionSource() {

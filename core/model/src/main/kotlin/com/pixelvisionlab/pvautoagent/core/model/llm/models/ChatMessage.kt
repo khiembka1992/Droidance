@@ -6,47 +6,47 @@ package com.pixelvisionlab.pvautoagent.core.model.llm.models
 import kotlinx.serialization.Serializable
 
 /**
- * 统一聊天消息模型
- * 用于在 Agent 和 LLM Provider 之间传递消息
+ * Unified chat message model
+ * Used to pass messages between the Agent and LLM Providers
  */
 @Serializable
 data class ChatMessage(
     val role: Role,
     val content: String,
-    val toolCalls: List<ToolCall>? = null,    // LLM 返回的工具调用
-    val toolCallId: String? = null,           // 工具执行结果对应的 ID
-    val imageBase64: String? = null,          // 可选的图片内容（截图）
+    val toolCalls: List<ToolCall>? = null,    // Tool calls returned by the LLM
+    val toolCallId: String? = null,           // ID corresponding to the tool execution result
+    val imageBase64: String? = null,          // Optional image content (screenshot)
     val historicalImage: Boolean = false, // Historical evidence, never the current computer frame
-    val imageBase64List: List<String> = emptyList(), // 可选的多图内容
-    val reasoningContent: String? = null,     // Provider 推理内容，多轮协议需要时回传
+    val imageBase64List: List<String> = emptyList(), // Optional multi-image content
+    val reasoningContent: String? = null,     // Provider reasoning content, sent back when the multi-turn protocol requires it
     val timestamp: Long = System.currentTimeMillis(),
     /** Request-local cache eligibility; never persisted as conversation content. */
     @kotlinx.serialization.Transient val cacheablePrefix: Boolean = false
 )
 
 /**
- * 消息角色
+ * Message role
  */
 @Serializable
 enum class Role {
-    SYSTEM,     // 系统提示词（SOUL.md 内容）
-    USER,       // 用户消息
-    ASSISTANT,  // LLM 回复
-    TOOL        // 工具调用结果
+    SYSTEM,     // System prompt (SOUL.md content)
+    USER,       // User message
+    ASSISTANT,  // LLM reply
+    TOOL        // Tool call result
 }
 
 /**
- * 工具调用定义
+ * Tool call definition
  */
 @Serializable
 data class ToolCall(
-    val id: String,            // 工具调用 ID
-    val name: String,          // 工具名称，如 "screenshot", "click"
-    val arguments: String      // JSON 格式的参数
+    val id: String,            // Tool call ID
+    val name: String,          // Tool name, such as "screenshot", "click"
+    val arguments: String      // Arguments in JSON format
 )
 
 /**
- * 工具定义（发送给 LLM 的工具清单）
+ * Tool definition (the tool list sent to the LLM)
  */
 @Serializable
 data class ToolDefinition(
@@ -56,11 +56,11 @@ data class ToolDefinition(
 )
 
 /**
- * 工具参数定义
+ * Tool parameter definition
  */
 @Serializable
 data class ToolParameter(
-    val type: String,           // "string", "integer", "boolean" 等
+    val type: String,           // "string", "integer", "boolean", etc.
     val description: String,
     val required: Boolean = true,
     val enumValues: List<String>? = null,

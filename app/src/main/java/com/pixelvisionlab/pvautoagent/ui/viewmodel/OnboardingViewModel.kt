@@ -71,7 +71,7 @@ class OnboardingViewModel @Inject constructor(
             "Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}) | Battery $battery%"
 
 
-        // 通知权限
+        // Notification access
         val notifStatus = try {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
             if (nm.isNotificationListenerAccessGranted(
@@ -79,8 +79,8 @@ class OnboardingViewModel @Inject constructor(
                 )) "granted" else "not granted"
         } catch (_: Exception) { "unknown" }
 
-        // 已安装用户应用 —— 使用 MATCH_UNINSTALLED_PACKAGES 确保 Android 11+ 能看到全部包
-        // 需要 Manifest 中声明 QUERY_ALL_PACKAGES
+        // Installed user apps — MATCH_UNINSTALLED_PACKAGES ensures Android 11+ can see every package
+        // QUERY_ALL_PACKAGES must be declared in the Manifest
         val pm = context.packageManager
         @Suppress("DEPRECATION")
         val flags = PackageManager.MATCH_UNINSTALLED_PACKAGES
@@ -115,7 +115,7 @@ class OnboardingViewModel @Inject constructor(
         )
     }
 
-    // ====== 权限状态刷新（用户从系统设置返回时调用） ======
+    // ====== Permission status refresh (called when the user returns from system settings) ======
 
     fun refreshPermissionStatus() {
         val current = _scanResult.value ?: return
@@ -148,7 +148,7 @@ class OnboardingViewModel @Inject constructor(
             (airModePairingManager.isPreviouslyPaired && !airModePairingManager.isPairingRequired &&
                 sidecarBridge.isResidentBinderAlive())
 
-    // ====== 完成引导，写入 DEVICE.md ======
+    // ====== Complete onboarding, write DEVICE.md ======
 
     fun completeOnboarding() {
         val scan = _scanResult.value ?: return

@@ -10,8 +10,8 @@ import com.pixelvisionlab.pvautoagent.core.model.llm.models.ToolDefinition
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 面向 Agent 决策循环与上层业务的稳定模型传输接口。
- * 隐藏底层 HTTP 连接池与 Provider 专有网络传输细节。
+ * A stable model transport interface for the Agent decision loop and upper-layer business code.
+ * Hides the underlying HTTP connection pool and Provider-specific network transport details.
  */
 interface ModelClient {
     val modelSwitches: kotlinx.coroutines.flow.SharedFlow<ModelSwitchEvent>

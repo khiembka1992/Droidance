@@ -86,7 +86,7 @@ internal object ResidentSidecarProcessCommands {
             "done"
         val logPath = logPath(requireStorageDirectory(storageDirectory, packageName))
         return buildString {
-            // 不能在同一条 sh -c 里按 mainClass 清进程，否则会匹配当前命令文本并杀掉启动过程。
+            // Do not clear processes by mainClass inside the same sh -c, or it will match the current command text and kill the startup process.
             append("export CLASSPATH=${escape(apkPath)}; ")
             append("export PVAUTOAGENT_SIDECAR_MAIN=${escape(mainClass)}; ")
             append("export PVAUTOAGENT_SIDECAR_PACKAGE=${escape(packageName)}; ")
@@ -94,10 +94,10 @@ internal object ResidentSidecarProcessCommands {
             append("export PVAUTOAGENT_SIDECAR_SOURCE=${escape("pvautoagent-sidecar-source=$apkPath")}; ")
             append("export PVAUTOAGENT_SIDECAR_STORAGE=${escape(storageDirectory)}; ")
             append("mkdir -p ${escape(storageDirectory + "/sidecar")}; ")
-            // setsid 让 sidecar 脱离 AIR/AirAdbClient 的一次性 shell 会话，避免 shell 连接关闭时
-            // SIGHUP 杀掉后台 sidecar 进程（真机 binder timeout 的疑似主因；模拟器手动 adb shell 不复现）。
-            // setsid 脱离一次性 shell 会话 + </dev/null 关闭 stdin 防 SIGPIPE，
-            // 确保 AirAdbClient 连接关闭后 sidecar 仍存活到完成 binder 广播。
+            // setsid detaches the sidecar from the one-shot shell session of AIR/AirAdbClient, so that closing the shell connection
+            // does not SIGHUP the background sidecar process (the suspected main cause of binder timeout on real devices; does not reproduce with a manual adb shell on the emulator).
+            // setsid detaches from the one-shot shell session + </dev/null closes stdin to prevent SIGPIPE,
+            // ensuring the sidecar stays alive after the AirAdbClient connection closes, until the binder broadcast completes.
             // Append so the exit that a restart follows stays readable; a launch rotates a large log.
             append("[ \"\$(wc -c <$logPath 2>/dev/null || echo 0)\" -gt $LOG_ROTATE_BYTES ] && mv -f $logPath $logPath.1; ")
             append("(setsid sh -c ${escape(supervisor)} ")

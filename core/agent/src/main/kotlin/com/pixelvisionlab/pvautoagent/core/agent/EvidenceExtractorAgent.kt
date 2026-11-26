@@ -9,10 +9,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 任务证据抽取器。
+ * Task evidence extractor.
  *
- * 它不是摘要器：输出必须绑定原文片段，且原文片段必须能在工具结果里找到。
- * 这样最终回答可以引用证据，而不是引用模型改写后的“看起来合理”的总结。
+ * It is not a summarizer: its output must be bound to verbatim excerpts, and those excerpts must be findable in the tool result.
+ * That way the final answer can cite evidence instead of a model-rewritten summary that merely "sounds plausible".
  */
 @Singleton
 class EvidenceFactExtractor @Inject constructor() {

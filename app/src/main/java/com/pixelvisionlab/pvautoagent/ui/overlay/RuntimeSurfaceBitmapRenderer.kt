@@ -17,12 +17,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.max
 
-/** App 进程负责排版，sidecar 只合成像素，避免 raw app_process 依赖字体运行时。 */
+/** The App process handles layout and the sidecar only composites pixels, so raw app_process does not depend on a font runtime. */
 @Singleton
 class RuntimeSurfaceBitmapRenderer @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    /** 岛内主按钮的语义：决定画哪个图标（打开镜像 / 接管主屏 / 把控制交回 agent）。 */
+    /** Semantics of the island's main button: determines which icon is drawn (open mirror / take over the main screen / hand control back to the agent). */
     enum class IslandAction { OPEN, TAKEOVER, RESUME, NONE }
 
     data class IslandBitmap(
@@ -219,13 +219,13 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
             if (executing) MascotMotion.loopingDancePose(elapsedMs, !motionEnabled) else MascotPose())
     }
 
-    /** 岛宽定死，只有窄屏才收：左右各留 [RuntimeIslandStyle.SIDE_MIN_MARGIN_DP]。 */
+    /** The island width is fixed and only shrinks on narrow screens: [RuntimeIslandStyle.SIDE_MIN_MARGIN_DP] is left on each side. */
     private fun islandWidthPx(): Int {
         val maxWidth = screenWidthPx() - dp(RuntimeIslandStyle.SIDE_MIN_MARGIN_DP) * 2
         return dp(RuntimeIslandStyle.WIDTH_DP).coerceAtMost(maxWidth)
     }
 
-    /** 圆形图标按钮底座；glyph 拿到中心点与 1dp 单位，自己画线条。 */
+    /** Base for the circular icon button; the glyph receives the center point and the 1dp unit and draws its own lines. */
     private fun drawIconChip(
         canvas: Canvas,
         left: Int,
@@ -249,8 +249,8 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
     }
 
     /**
-     * 主按钮图标：OPEN = 对角展开箭头（打开镜像），TAKEOVER = 暂停条（我来操作），
-     * RESUME = 播放三角（把控制交回 agent）。语义靠形状表达，不再依赖文案长度。
+     * Main button icons: OPEN = diagonal expand arrow (open mirror), TAKEOVER = pause bars (I'll take over),
+     * RESUME = play triangle (hand control back to the agent). The semantics are expressed by shape and no longer depend on label length.
      */
     private fun drawActionGlyph(
         canvas: Canvas,
@@ -269,7 +269,7 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
         }
         when (action) {
             IslandAction.NONE -> {
-                // 驻留态：主按钮无动作，只保留停止按钮。
+                // Resident state: the main button has no action and only the stop button remains.
             }
             IslandAction.OPEN -> {
                 val arm = unit * 4.4f * RuntimeIslandStyle.SCALE
@@ -309,7 +309,7 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
         }
     }
 
-    /** 停止图标：iOS 那种圆角方块。 */
+    /** Stop icon: the rounded square style used by iOS. */
     private fun drawStopGlyph(canvas: Canvas, cx: Float, cy: Float, unit: Float) {
         val half = unit * RuntimeIslandStyle.STOP_GLYPH_SIZE_DP / 2f
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -326,11 +326,11 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
 
     fun pointerBitmapPng(): ByteArray = pointerPng
 
-    /** 主屏小手位图：与虚拟屏预览层共用 [HandCursorBitmap] 的同一张 PNG 素材。 */
+    /** Main-screen hand cursor bitmap: the same PNG asset from [HandCursorBitmap] that the virtual screen preview layer uses. */
     private fun renderPointerBitmap(): ByteArray =
         HandCursorBitmap.of(context, dp(POINTER_SIZE_DP)).toPng()
 
-    // sidecar 贴图用的是物理屏幕坐标，所以取整块屏幕而不是应用可用区域。
+    // sidecar places the bitmap using physical screen coordinates, so the whole screen is used rather than the app's available area.
     internal fun screenBounds(): android.graphics.Rect {
         val display = context.getSystemService(android.hardware.display.DisplayManager::class.java)
             .getDisplay(android.view.Display.DEFAULT_DISPLAY)
@@ -352,7 +352,7 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
     private fun dpFloat(value: Float): Float = value * density
 
     private companion object {
-        /** 主屏小手位图边长；sidecar 按 (0.28w, 0.20h) 当指尖热点贴到落点上。 */
+        /** Edge length of the main-screen hand cursor bitmap; sidecar uses (0.28w, 0.20h) as the fingertip hotspot when placing it at the tap point. */
         const val POINTER_SIZE_DP = 36f
 
         const val ISLAND_SHADOW_PADDING_DP = 12f

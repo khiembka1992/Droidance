@@ -53,7 +53,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-/** 虚拟屏动作的小手线索：由 App 侧镜像预览渲染，虚拟屏本身不合成任何 PVAutoAgent 像素。 */
+/** Hand cue for virtual display actions: rendered by the App-side mirror preview; the virtual display itself composites no PVAutoAgent pixels. */
 data class VirtualSpaceHandCue(
     val actionId: String,
     val displayId: Int,
@@ -149,7 +149,7 @@ class RuntimeSurfaceController @Inject constructor(
     @Volatile private var latestHandCue: VirtualSpaceHandCue? = null
     private val _virtualSpaceHandCue = MutableStateFlow<VirtualSpaceHandCue?>(null)
 
-    /** 虚拟屏动作反馈流；查看页与接管镜像面板订阅它，在预览之上画小手。 */
+    /** Virtual display action feedback stream; the viewer page and the takeover mirror panel subscribe to it and draw the hand above the preview. */
     val virtualSpaceHandCue: StateFlow<VirtualSpaceHandCue?> = _virtualSpaceHandCue.asStateFlow()
     internal fun adoptRuntimeHandCue(cue: VirtualSpaceHandCue?) {
         check(!processClient.isOwner)
@@ -476,8 +476,8 @@ class RuntimeSurfaceController @Inject constructor(
     )
 
     private fun execute(command: Command) {
-        // Binding 切换时 Channel 中可能还排着旧执行空间的命令。全部丢弃，
-        // 避免旧虚拟屏请求淹没主屏运行岛更新。
+        // When the Binding switches, the Channel may still be queued with commands from the old execution space. Discard them all,
+        // so stale virtual display requests do not drown out main display runtime island updates.
         if (!isExecutable(command)) {
             if (command is Command.Suppress) command.completed.completeExceptionally(
                 IllegalStateException("Runtime surface binding changed before suppression"))
@@ -543,11 +543,11 @@ class RuntimeSurfaceController @Inject constructor(
                 )
             }
             if (!result.ok) {
-                debugLogManager.appendEvent("运行浮层 sidecar 调用失败: ${result.detail.take(180)}")
+                debugLogManager.appendEvent("Runtime overlay sidecar call failed: ${result.detail.take(180)}")
             }
         } catch (error: Throwable) {
             if (command is Command.Suppress) command.completed.completeExceptionally(error)
-            debugLogManager.appendEvent("运行浮层 sidecar 异常: ${error.message.orEmpty().take(180)}")
+            debugLogManager.appendEvent("Runtime overlay sidecar error: ${error.message.orEmpty().take(180)}")
         }
     }
 
@@ -819,7 +819,7 @@ class RuntimeSurfaceController @Inject constructor(
     private fun clampIslandOffsetX(offsetX: Int): Int =
         clampIslandLeft(baseLeftPx() + offsetX) - baseLeftPx()
 
-    /** 岛整体必须留在屏幕内，否则拖出去就再也点不回来。 */
+    /** The whole island must stay on screen, otherwise dragging it out means it can never be tapped again. */
     private fun clampIslandTop(topPx: Int): Int {
         val maxTop = (screenHeightPx - lastIslandHeightPx).coerceAtLeast(0)
         return topPx.coerceIn(0, maxTop)

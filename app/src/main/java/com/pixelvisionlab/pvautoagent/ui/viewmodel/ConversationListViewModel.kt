@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
- * 对话列表页 ViewModel
+ * Conversation list page ViewModel
  */
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
@@ -45,7 +45,7 @@ class ConversationListViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000),
             HistorySnapshot<List<ConversationListItem>>(null, HistoryLoadStatus.LOADING))
 
-    /** 当前正在跑任务的会话 ID（用于抽屉显示绿色脉冲点） */
+    /** ID of the conversation currently running a task (used by the drawer to show a green pulsing dot) */
     val runningConversationId: StateFlow<String?> = combine(
         agentRuntime.state,
         agentRuntime.currentConversationId

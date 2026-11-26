@@ -7,11 +7,11 @@ import android.content.Context
 import kotlin.math.roundToInt
 
 /**
- * 用户把运行浮层拖到的高度偏移，跨任务与 App 重启保留——挡住视线的通常是某个 App 的固定
- * 元素，下次还会挡，所以位置值得记住。
+ * The height offset the user dragged the runtime overlay to, retained across tasks and App restarts — what blocks the view is usually some fixed
+ * element of some App that will block again next time, so the position is worth remembering.
  *
- * 主屏运行岛与虚拟空间查看页控制岛记同一份：两处默认落点都从屏幕底部起算，挪一处等于挪
- * 同一个岛，回到另一处它还在同样的高度上。
+ * The main-screen runtime island and the virtual space viewer page's control island share a single record: both default positions are measured from the bottom of the screen, so moving one is moving
+ * the same island, and when you go back to the other place it is still at the same height.
  */
 object RuntimeIslandPosition {
     const val KEY_BOTTOM_OFFSET = "island_bottom_offset_px"

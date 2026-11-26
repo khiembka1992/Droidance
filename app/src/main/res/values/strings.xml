@@ -308,7 +308,6 @@
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">Follow system</string>
-    <string name="settings_language_zh">Simplified Chinese</string>
     <string name="settings_selected">Selected</string>
     <string name="settings_usage_range">Range</string>
     <string name="settings_usage_7_days">7 days</string>
@@ -821,8 +820,8 @@
     <string name="skill_invoke_prompt">Use the “%1$s” skill (@%2$s).</string>
     <string name="skill_trial_prompt">Try the draft of the “%1$s” skill (@%2$s).</string>
     <string name="skill_create_prompt">Create a skill draft from this description:\n\n%1$s</string>
-    <string name="skill_presentation_prompt">Generate Chinese and English titles and summaries for the “%1$s” skill (@%2$s).</string>
-    <string name="skill_draft_presentation_prompt">Generate Chinese and English titles and summaries for the draft of the “%1$s” skill (@%2$s).</string>
+    <string name="skill_presentation_prompt">Generate English and Vietnamese titles and summaries for the “%1$s” skill (@%2$s).</string>
+    <string name="skill_draft_presentation_prompt">Generate English and Vietnamese titles and summaries for the draft of the “%1$s” skill (@%2$s).</string>
     <string name="ui_recovery_request">Help me resolve this failed operation.</string>
     <string name="ui_hour">Hour (0–23)</string>
     <string name="ui_minute">Minute (0–59)</string>

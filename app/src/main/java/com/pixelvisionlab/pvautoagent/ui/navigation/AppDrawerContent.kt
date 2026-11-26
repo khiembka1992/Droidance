@@ -432,7 +432,7 @@ internal fun DrawerConversationItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            // 侧栏只保留对话摘要标题，不再显示时间。
+            // The drawer shows only the conversation summary title and no longer displays the time.
             Text(
                 text = conv.title,
                 style = MaterialTheme.typography.bodyMedium,

@@ -74,11 +74,11 @@ private const val DEVICE_SNAPSHOT_INIT_FAILED = "DEVICE_SNAPSHOT_INIT_FAILED"
 internal const val INTERNAL_SKILL_THREAD_ID = "pvautoagent-internal:skill-drafts"
 
 /**
- * Agent 运行时
- * PVAutoAgent 的大脑，负责：
- * 1. 接收用户指令
- * 2. 将用户目标交给单一 Operator
- * 3. 执行工具调用并记录结果
+ * Agent runtime
+ * The brain of PVAutoAgent, responsible for:
+ * 1. Receiving user instructions
+ * 2. Handing the user goal to a single Operator
+ * 3. Executing tool calls and recording results
  */
 @Singleton
 class AgentRuntime @Inject constructor(
@@ -98,7 +98,7 @@ class AgentRuntime @Inject constructor(
     private val capabilityRegistry: RuntimeCapabilityRegistry,
     private val virtualSpaceManager: VirtualSpaceManager,
     val debugLogManager: DebugLogManager,
-    // ── Operator Agent（UI 自动化执行） ──────────────────────────
+    // ── Operator Agent (UI automation execution) ──────────────────────────
     private val taskCoordinator: TaskCoordinator,
     private val latencyTracker: com.pixelvisionlab.pvautoagent.core.agent.debug.TaskLatencyTracker,
     private val diagnostics: DiagnosticsCollector,
@@ -190,19 +190,19 @@ class AgentRuntime @Inject constructor(
 
     private val pendingUserSteer = java.util.concurrent.atomic.AtomicBoolean(false)
 
-    /** 当前激活的 Agent 名称 */
+    /** Name of the currently active Agent */
     private var activeAgent: String = "default"
 
-    /** 对话历史 */
+    /** Conversation history */
     private val conversationHistory = mutableListOf<ChatMessage>()
 
     /**
-     * 会话上下文代数。显式新对话会递增它；被取消的旧 Turn 即使进入 finally，也不能把取消回执
-     * 追加到新 Turn 的全局历史，避免新任务继承旧任务的最后一句话。
+     * Conversation context epoch. An explicit new conversation increments it; a canceled old Turn, even if it reaches finally, must not append its cancellation receipt
+     * to the new Turn's global history, so the new task does not inherit the old task's last sentence.
      */
     @Volatile private var conversationEpoch: Long = 0L
 
-    /** 当前可恢复 Turn；接管恢复消息必须写入同一 EventStore Turn。 */
+    /** Currently resumable Turn; takeover resume messages must be written to the same EventStore Turn. */
     private val activeTurnClock = MutableStateFlow<AgentTurnLedger.ActiveTurn?>(null)
     @Volatile private var activeDurableTurn: AgentTurnLedger.ActiveTurn? = null
         set(value) {
@@ -226,8 +226,8 @@ class AgentRuntime @Inject constructor(
     }
 
     /**
-     * AgentRuntime 持有宿主会话状态；工具状态由当前任务上下文持有。
-     * 同一进程内一次只允许一个任务进入主循环，避免 UI 会话、定时任务互相污染上下文。
+     * AgentRuntime holds the host session state; tool state is held by the current task context.
+     * Only one task at a time may enter the main loop per process, so UI conversations and scheduled tasks cannot pollute each other's context.
      */
     private val idleWorkScheduler = IdleWorkScheduler(finishScope)
     val skillDraftWorkState = if (!processClient.isOwner) processClient.skillDraftWorkState else kotlinx.coroutines.flow.combine(idleWorkScheduler.state, knowledge.skillReflectionQueue.sources) { state, sources ->
@@ -268,30 +268,30 @@ class AgentRuntime @Inject constructor(
         }
     }
 
-    /** Agent 运行状态 */
+    /** Agent running state */
     private val _state = MutableStateFlow(AgentState.IDLE)
     override val state: StateFlow<AgentState> = if (processClient.isOwner) _state else processClient.state
 
-    /** 当前活动会话 ID；任务入口在执行锁内绑定。 */
+    /** Current active conversation ID; bound at the task entry point inside the execution lock. */
     private val _currentConversationId = MutableStateFlow<String?>(null)
     override val currentConversationId: StateFlow<String?> = if (processClient.isOwner) _currentConversationId else processClient.currentConversationId
     private val _currentTaskExecutionSpace = MutableStateFlow<ExecutionSpace?>(null)
     val currentTaskExecutionSpace: StateFlow<ExecutionSpace?> = if (processClient.isOwner) _currentTaskExecutionSpace else processClient.currentTaskExecutionSpace
 
-    /** 最近一次响应 */
+    /** Most recent response */
     private val _lastResponse = MutableStateFlow<String>("")
     val lastResponse: StateFlow<String> = if (processClient.isOwner) _lastResponse else processClient.lastResponse
 
-    /** 当前正在执行的动作描述（工具名/推理状态），供任务详情显示 */
+    /** Description of the action currently executing (tool name / reasoning state), shown in task details */
     private val _currentAction = MutableStateFlow("")
     val currentAction: StateFlow<String> = if (processClient.isOwner) _currentAction else processClient.currentAction
-    /** 同一 Agent 生成一次的任务短标题，供运行岛显示 */
+    /** Short task title generated once per Agent, shown on the runtime island */
     private val _currentTaskTitle = MutableStateFlow("")
     val currentTaskTitle: StateFlow<String> = if (processClient.isOwner) _currentTaskTitle else processClient.currentTaskTitle
     private val _isMobileUseTaskActive = MutableStateFlow(false)
     val isMobileUseTaskActive: StateFlow<Boolean> = if (processClient.isOwner) _isMobileUseTaskActive else processClient.isMobileUseTaskActive
 
-    /** 持久 App 接管的岛内空闲态；每次唤醒仍创建一个普通 Agent Turn。 */
+    /** Idle-in-island state for persistent App takeover; each wake-up still creates a regular Agent Turn. */
     private val _takeoverResidentStatus = MutableStateFlow<String?>(null)
     val takeoverResidentStatus: StateFlow<String?> = if (processClient.isOwner) _takeoverResidentStatus else processClient.takeoverResidentStatus
     private val _appTakeoverTurnActive = MutableStateFlow(false)
@@ -308,29 +308,29 @@ class AgentRuntime @Inject constructor(
         }
     }
 
-    /** 当前流式输出的最新片段（最多 80 字符），供悬浮窗实时显示 */
+    /** Latest chunk of the current streaming output (at most 80 characters), shown in real time by the overlay */
     private val _streamingOutput = MutableStateFlow("")
     val streamingOutput: StateFlow<String> = if (processClient.isOwner) _streamingOutput else processClient.streamingOutput
 
-    /** 当前工具调用参数摘要，供外部执行悬浮窗展示“正在做什么”和关键入参。 */
+    /** Summary of the current tool call's arguments, used by the external execution overlay to show "what is being done" and the key inputs. */
     private val _currentActionDetail = MutableStateFlow("")
     val currentActionDetail: StateFlow<String> = if (processClient.isOwner) _currentActionDetail else processClient.currentActionDetail
 
-    /** 是否处于暂停状态（用户可接管） */
+    /** Whether the runtime is paused (the user can take over) */
     private val _isPaused = MutableStateFlow(false)
     val isPaused: StateFlow<Boolean> = if (processClient.isOwner) _isPaused else processClient.isPaused
     private val _manualTakeoverState = MutableStateFlow(ManualTakeoverState.RUNNING)
     val manualTakeoverState: StateFlow<ManualTakeoverState> = if (processClient.isOwner) _manualTakeoverState else processClient.manualTakeoverState
 
-    /** 当前是否需要暴露人工接管入口。仅由明确的用户介入请求驱动，不写业务场景规则。 */
+    /** Whether the manual takeover entry point should currently be exposed. Driven only by explicit user intervention requests, not by business scenario rules. */
     private val _manualTakeoverAvailable = MutableStateFlow(false)
     val manualTakeoverAvailable: StateFlow<Boolean> = if (processClient.isOwner) _manualTakeoverAvailable else processClient.manualTakeoverAvailable
     private val _userInteractionRequest = MutableStateFlow<UserInteractionRequest?>(null)
     val userInteractionRequest: StateFlow<UserInteractionRequest?> = if (processClient.isOwner) _userInteractionRequest else processClient.userInteractionRequest
     @Volatile private var manualResumeRequiresObservation = false
     @Volatile private var manualTakeoverResumedAtElapsedMs = 0L
-    /** 用户在接管期间或恢复时补充的上下文。 */
-    /** waitIfPaused 等待超时后置位，供任务收尾时选择"等待接管超时"而非通用"已取消"文案；每次任务结束后消费并复位。 */
+    /** Context the user supplies during takeover or on resume. */
+    /** Set after waitIfPaused times out, so task finalization can pick "takeover wait timed out" instead of the generic "canceled" text; consumed and reset after each task ends. */
     @Volatile private var manualTakeoverWaitTimedOut = false
 
     @Synchronized
@@ -352,7 +352,7 @@ class AgentRuntime @Inject constructor(
         _currentActionDetail.value = reason.trim()
     }
 
-    /** Agent 确实需要用户介入时才发布接管请求；用户主动暂停不走此入口。 */
+    /** Publishes a takeover request only when the Agent genuinely needs user intervention; a user-initiated pause does not go through this entry point. */
     private fun requestManualTakeover(reason: String): Boolean {
         val firstRequest = !_manualTakeoverAvailable.value
         pauseForManualControl(reason)
@@ -587,18 +587,18 @@ class AgentRuntime @Inject constructor(
     private val cancelRequested: Boolean get() = runningTurnJob?.isCancelled == true
     @Volatile private var lastCancellationOrigin: String? = null
 
-    /** 注册当前任务 Job（由应用任务入口调用） */
+    /** Registers the current task Job (called by the app task entry point) */
     fun registerActiveJob(job: Job) {
         registerActiveJob("ui", job)
     }
 
-    /** 注册指定任务 Job，用于本地对话和定时任务按来源定向取消 */
+    /** Registers the Job for the given task, so local conversations and scheduled tasks can be canceled by source */
     override fun registerActiveJob(taskId: String, job: Job) = turnJobs.register(taskId, job)
 
     override fun unregisterActiveJob(taskId: String, expectedJob: Job) =
         turnJobs.release(taskId, expectedJob)
 
-    /** 取消当前正在运行的任务（包括 AI 决策循环） */
+    /** Cancels the task that is currently running (including the AI decision loop) */
     override fun cancelCurrentTask(taskId: String?, origin: String) {
         if (!processClient.isOwner) { processClient.send("cancel", android.os.Bundle().apply { putString("origin", origin); putString("taskId", taskId) }); return }
         finishScope.launch {
@@ -614,7 +614,7 @@ class AgentRuntime @Inject constructor(
 
         val shouldResetUiState = cancelsRunningTurn || (taskId == null && runningTurnJob == null)
         if (shouldResetUiState) {
-            // 立即重置所有状态，确保悬浮窗立刻关闭
+            // Reset all state immediately so the overlay closes right away
             _isPaused.value = false
             _manualTakeoverState.value = ManualTakeoverState.RUNNING
             cancelPendingUserInteraction()
@@ -687,7 +687,7 @@ class AgentRuntime @Inject constructor(
         evidenceLedger.addFacts(facts)
     }
 
-    /** 切换暂停/恢复状态 */
+    /** Toggles the paused / resumed state */
     fun togglePause() {
         if (!processClient.isOwner) { processClient.send("pause", android.os.Bundle()); return }
         if (_isPaused.value) {
@@ -746,9 +746,9 @@ class AgentRuntime @Inject constructor(
 
     fun beginManualTakeoverFromOverlay(): Boolean {
         if (!processClient.isOwner) return processClient.command("takeControl", android.os.Bundle().apply {  }).getBoolean("result")
-        // 同 display 接管（§5.4）：只暂停 Agent，把当前虚拟 display 的画面与输入权临时交给用户。
-        // 绝不再把 App 迁移到主屏 0——那会让人与 Agent 操作在不同 display，恢复后 Agent 又回到旧虚拟
-        // display。接管面板通过 VirtualSpaceManager 直接读写同一 display。
+        // Same-display takeover (§5.4): only pause the Agent, temporarily handing the current virtual display's picture and input control to the user.
+        // Never migrate the App to the main display 0 again -- that would put the human and the Agent on different displays, and after resume the Agent would return to the old virtual
+        // display. The takeover panel reads and writes the same display directly through VirtualSpaceManager.
         val accepted = ManualTakeoverTransitionPolicy.shouldAcceptOverlayTakeover(
             isPaused = _isPaused.value,
             lastResumeElapsedMs = manualTakeoverResumedAtElapsedMs,
@@ -761,7 +761,7 @@ class AgentRuntime @Inject constructor(
     }
 
     /**
-     * 如果处于暂停状态则挂起等待，直到恢复。
+     * Suspends and waits while paused, until resumed.
      * Human takeover ends only through explicit user resume/cancel. No timeout, model call,
      * polling observation or automatic tool retry is allowed while awaiting that response.
      */
@@ -816,8 +816,8 @@ class AgentRuntime @Inject constructor(
     }
 
     /**
-     * 切换当前激活的 Agent
-     * 切换后自动清空对话历史（新 Agent 有不同的人格和记忆）
+     * Switches the currently active Agent
+     * Conversation history is cleared automatically after switching (a new Agent has a different persona and memory)
      */
     fun switchAgent(agentName: String) {
         if (!processClient.isOwner) { processClient.send("switchAgent", android.os.Bundle().apply { putString("name", agentName) }); return }
@@ -826,7 +826,7 @@ class AgentRuntime @Inject constructor(
         conversationHistory.clear()
     }
 
-    /** 获取当前激活的 Agent 名称 */
+    /** Returns the name of the currently active Agent */
     fun getActiveAgent(): String = if (processClient.isOwner) activeAgent else processClient.activeAgent
 
     suspend fun clearLogData() = withContext(Dispatchers.IO) { processClient.command("clearLogs"); Unit }
@@ -921,7 +921,7 @@ class AgentRuntime @Inject constructor(
         val notifyUser: Boolean?
     )
 
-    /** 持久会话只负责触发；每次运行复用普通 AgentRuntime，并与其他设备任务串行。 */
+    /** A persistent session only triggers work; each run reuses the regular AgentRuntime and serializes with other device tasks. */
     suspend fun processAppTakeoverInput(
         userInput: String,
         conversationId: String,
@@ -1289,7 +1289,7 @@ class AgentRuntime @Inject constructor(
                 )
                 ensureTaskActive()
 
-                // 所有普通交互只进入一次 Operator。是否需要设备由同一次模型响应的工具调用决定。
+                // All ordinary interactions enter the Operator exactly once. Whether a device is needed is decided by the tool calls in that same model response.
                 val uiResult = runUiTask(
                     instruction = request.rawText,
                     onStreamContent = onStreamContent,
@@ -1412,9 +1412,9 @@ class AgentRuntime @Inject constructor(
                 }
                 if (!isChatMode && !taskFinalized) {
                     val status = unfinishedTaskStatus
-                    // 任务被取消（如用户点了停止）会以 CancellationException 中断 try 块，永远走不到上面
-                    // 正常完成路径里的对话历史与通知不会执行；这里补一条轻量总结，不再调用 LLM
-                    // （用户已经主动要求停止，不该再等一轮生成），只用已有的运行时状态拼装。
+                    // A canceled task (e.g. the user tapped stop) interrupts the try block with a CancellationException and never reaches the
+                    // conversation history and notifications in the normal completion path above; add a lightweight summary here instead, without calling the LLM
+                    // again (the user already asked to stop, so it should not wait for another generation), assembling it only from existing runtime state.
                     if ((status == ExecutionTerminalStatus.CANCELED || timedOutWaitingForTakeover) && cancelSummary != null) {
                         if (turnEpoch == conversationEpoch) {
                             conversationHistory.add(ChatMessage(role = Role.ASSISTANT, content = cancelSummary))
@@ -1638,9 +1638,9 @@ host = object : com.pixelvisionlab.pvautoagent.core.agent.TurnHost {
 
             val summary = result.summary.trim()
 
-            // 完成判断完全交给显式终态，不再用 completionMode / postconditionVerifier /
-            // validateUiResult / completedWithoutAnyTool 等"完成条件规则"否决。正常结果只接受
-            // 模型公开输出；模型通道失败时只返回本地异常说明，不把证据文本伪造成总结。
+            // Completion decisions are left entirely to the explicit terminal state, with no more vetoes from "completion condition rules" such as completionMode / postconditionVerifier /
+            // validateUiResult / completedWithoutAnyTool. A normal result accepts only the
+            // model's public output; when the model channel fails it returns only a local exception description, never forging evidence text into a summary.
             val outcome = RuntimeUiResultPolicy.outcome(
                 terminal = result.terminal,
                 failureReason = result.failureReason
@@ -1667,7 +1667,7 @@ host = object : com.pixelvisionlab.pvautoagent.core.agent.TurnHost {
                 )
             }
 
-            // 非成功终态只使用模型已给出的公开失败说明，或 Markdown 本地异常文案。
+            // Non-success terminal states use only the public failure explanation the model already gave, or the local Markdown exception text.
             val systemError = outcome == RuntimeUiOutcome.SYSTEM_ERROR
             val rescueTerminal = if (systemError) {
                 TurnTerminal.SYSTEM_ERROR
@@ -1858,13 +1858,13 @@ host = object : com.pixelvisionlab.pvautoagent.core.agent.TurnHost {
         }
     }
 
-    /** 清空对话历史 */
+    /** Clears the conversation history */
     override fun clearConversation() {
         if (!processClient.isOwner) { processClient.send("clearConversation", android.os.Bundle()); return }
         conversationEpoch += 1L
         conversationHistory.clear()
         _currentConversationId.value = null
-        evidenceLedger.clear() // 清空当前任务证据账本
+        evidenceLedger.clear() // Clears the current task's evidence ledger
     }
 
     // Restore only after every runtime field is initialized; IO work can start immediately.

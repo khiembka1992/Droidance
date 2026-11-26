@@ -15,10 +15,10 @@ enum class EvidenceSourceKind {
 }
 
 /**
- * 当前任务的证据账本。
+ * The evidence ledger for the current task.
  *
- * 它只服务本次任务：保存观察帧、结构化事实和原文锚点。长期记忆只沉淀路径/经验，
- * 不把“当前屏幕看到的事实”写成跨会话常识，避免历史事实污染当下判断。
+ * It serves only this task: it stores observation frames, structured facts, and verbatim anchors. Long-term memory distills only paths/experience,
+ * and does not turn "facts seen on the current screen" into cross-session common knowledge, so historical facts do not contaminate the current judgment.
  */
 @Singleton
 class TaskEvidenceLedger @Inject constructor() {

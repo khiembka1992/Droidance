@@ -96,7 +96,7 @@ internal fun PermissionsScreen(
     }
 }
 
-/** 连接只留一行入口，配对全过程在独立向导页完成（初始化页进的是同一页） */
+/** The connection section keeps only a single-row entry; the whole pairing flow happens in a separate wizard page (the initialization page opens the same page) */
 @Composable
 private fun ReadinessSection(
     state: SettingsUiState,
@@ -375,7 +375,7 @@ private fun ExecutionLimitSetting(
     }
 }
 
-/** 轻量图标块：30dp 圆角方形淡灰底 + 单色 outlined 图标，Notion 式行首视觉锚点 */
+/** Lightweight icon tile: 30dp rounded square with a pale gray background + a monochrome outlined icon, a Notion-style visual anchor at the start of each row */
 @Composable
 internal fun SettingsIconTile(icon: ImageVector) {
     Box(

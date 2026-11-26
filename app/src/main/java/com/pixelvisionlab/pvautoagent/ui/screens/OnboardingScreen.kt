@@ -49,7 +49,7 @@ import com.pixelvisionlab.pvautoagent.ui.viewmodel.ScanResult
 import com.pixelvisionlab.pvautoagent.core.device.agent.device.DeviceConnectionMethod
 
 /**
- * 首次启动引导页：品牌 Hero + 一份按依赖排序的极简清单。
+ * First-launch onboarding page: brand Hero + a minimal checklist ordered by dependency.
  * Notification access is requested by the pairing flow when required.
  */
 @Composable
@@ -232,7 +232,7 @@ private fun OnboardingLoading() {
     }
 }
 
-// ====== 权限清单（必需 / 可选） ======
+// ====== Permission checklist (required / optional) ======
 
 @Composable
 private fun PermissionChecklist(
@@ -244,7 +244,7 @@ private fun PermissionChecklist(
     val context = LocalContext.current
     var refreshKey by remember { mutableStateOf(0) }
 
-    // 从系统设置页返回时刷新权限状态
+    // Refresh permission status when returning from the system settings page
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -275,7 +275,7 @@ private fun PermissionChecklist(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissionsRequested = true; refreshKey++ }
 
-    // ── 必需 ──
+    // ── Required ──
     SectionLabel(stringResource(R.string.onboarding_setup_title))
     SettingsCardGroup(modifier = Modifier.fillMaxWidth()) {
         PermissionRow(
@@ -321,7 +321,7 @@ private fun PermissionChecklist(
 
     Spacer(Modifier.height(22.dp))
 
-    // ── 可选 ──
+    // ── Optional ──
     SectionLabel(stringResource(R.string.onboarding_permissions))
     Text(
         stringResource(R.string.onboarding_optional_hint),
@@ -442,7 +442,7 @@ private fun PermissionRow(
     }
 }
 
-// ====== 权限检查辅助 ======
+// ====== Permission check helpers ======
 
 private fun isBatteryOptimizationIgnored(context: Context): Boolean =
     context.getSystemService(android.os.PowerManager::class.java)

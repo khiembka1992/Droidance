@@ -12,19 +12,19 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 /**
- * 通知监听服务
- * 捕获并发布原始通知事件。
+ * Notification listener service
+ * Captures and publishes raw notification events.
  */
 class NotificationWatcher : NotificationListenerService() {
 
     companion object {
         private const val TAG = "NotificationWatcher"
 
-        /** 全局实例引用 */
+        /** Global instance reference */
         var instance: NotificationWatcher? = null
             private set
 
-        /** 通知事件流 */
+        /** Notification event flow */
         private val _notificationFlow = MutableSharedFlow<NotificationInfo>(extraBufferCapacity = 50)
         val notificationFlow: SharedFlow<NotificationInfo> = _notificationFlow
         internal fun publish(info: NotificationInfo) { _notificationFlow.tryEmit(info) }
@@ -33,7 +33,7 @@ class NotificationWatcher : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         instance = this
-        Log.i(TAG, "通知监听服务已连接")
+        Log.i(TAG, "Notification listener service connected")
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -55,25 +55,25 @@ class NotificationWatcher : NotificationListenerService() {
 
         Log.d(TAG, "Notification received; package=${info.packageName}")
 
-        // 发射通知事件
+        // Emit the notification event
         _notificationFlow.tryEmit(info)
 
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        // 通知被清除时的处理（可选）
+        // Handling when a notification is cleared (optional)
     }
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         instance = null
-        Log.i(TAG, "通知监听服务已断开")
+        Log.i(TAG, "Notification listener service disconnected")
     }
 
     /**
-     * 点击通知（触发其 PendingIntent，相当于用户点了通知栏）
-     * @param key 通知的唯一标识
-     * @return 是否成功
+     * Click the notification (triggers its PendingIntent, equivalent to the user tapping the notification shade)
+     * @param key Unique identifier of the notification
+     * @return Whether it succeeded
      */
     fun clickNotification(key: String, displayId: Int? = null): Boolean {
         return try {
@@ -97,8 +97,8 @@ class NotificationWatcher : NotificationListenerService() {
     }
 
     /**
-     * 清除指定通知
-     * @param key 通知的唯一标识
+     * Dismiss the specified notification
+     * @param key Unique identifier of the notification
      */
     fun dismissNotification(key: String) {
         try {
@@ -110,7 +110,7 @@ class NotificationWatcher : NotificationListenerService() {
     }
 
     /**
-     * 读取当前所有活跃通知
+     * Read all currently active notifications
      */
     fun getAllNotifications(): List<NotificationInfo> {
         return try {
@@ -133,14 +133,14 @@ class NotificationWatcher : NotificationListenerService() {
 }
 
 /**
- * 通知信息数据类
+ * Notification info data class
  */
 @kotlinx.serialization.Serializable
 data class NotificationInfo(
-    val packageName: String,   // 来源 App 包名
-    val appName: String,       // 来源 App 名称
-    val title: String,         // 通知标题
-    val content: String,       // 通知内容
-    val timestamp: Long,       // 通知时间
-    val key: String            // 通知唯一标识
+    val packageName: String,   // Package name of the source app
+    val appName: String,       // Name of the source app
+    val title: String,         // Notification title
+    val content: String,       // Notification content
+    val timestamp: Long,       // Notification time
+    val key: String            // Unique notification identifier
 )

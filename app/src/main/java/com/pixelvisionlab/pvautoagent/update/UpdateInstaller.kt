@@ -39,7 +39,7 @@ class UpdateInstaller @Inject constructor(
             return InstallResult.Failed("APK package or signing identity does not match the installed application")
         }
 
-        // 普通用户系统安装器覆盖安装
+        // Overwrite install through the normal user system installer
         if (!canRequestPackageInstalls()) {
             return InstallResult.PermissionRequired
         }

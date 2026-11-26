@@ -33,7 +33,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 /**
- * Provider 编辑页 ViewModel
+ * Provider edit page ViewModel
  */
 @HiltViewModel
 class ProviderEditViewModel @Inject constructor(
@@ -80,7 +80,7 @@ class ProviderEditViewModel @Inject constructor(
         drafts[draftKey()] = AddressDraft(editingConfig, _uiState.value, _customModels.value)
     }
 
-    /** 加载已有 Provider 配置（编辑模式） */
+    /** Load an existing Provider configuration (edit mode) */
     fun loadProvider(id: String?) {
         if (loaded && editingId == id) return
         drafts.clear()
@@ -114,7 +114,7 @@ class ProviderEditViewModel @Inject constructor(
         updateModelSource()
     }
 
-    // ====== 字段更新 ======
+    // ====== Field updates ======
 
     fun selectPreset(id: String?) {
         if (editingId != null) return
@@ -297,7 +297,7 @@ class ProviderEditViewModel @Inject constructor(
         }
     }
 
-    // ====== 保存 ======
+    // ====== Save ======
 
     fun saveProvider(): Boolean {
         val state = _uiState.value
@@ -360,7 +360,7 @@ class ProviderEditViewModel @Inject constructor(
 }
 
 /**
- * Provider 编辑页 UI 状态
+ * Provider edit page UI state
  */
 data class ProviderEditUiState(
     val presetId: String? = null,

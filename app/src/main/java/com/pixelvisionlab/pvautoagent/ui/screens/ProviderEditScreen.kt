@@ -40,17 +40,17 @@ import com.pixelvisionlab.pvautoagent.ui.theme.*
 import com.pixelvisionlab.pvautoagent.ui.viewmodel.ProviderEditViewModel
 
 /**
- * Provider 编辑/新建子页面
+ * Provider edit/new sub-page
  * Provider connection and model editor.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderEditScreen(
-    providerId: String?,  // null = 新建
+    providerId: String?,  // null = new
     onNavigateBack: () -> Unit,
     viewModel: ProviderEditViewModel = hiltViewModel()
 ) {
-    // 加载已有配置
+    // Load the existing configuration
     LaunchedEffect(providerId) {
         viewModel.loadProvider(providerId)
     }
@@ -109,7 +109,7 @@ fun ProviderEditScreen(
             )
         },
         bottomBar = {
-            // 底部按钮栏：顶部一条 hairline，取消 + 保存
+            // Bottom button bar: a hairline on top, Cancel + Save
             Column(modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding()) {
                 // Every field is required; the next missing one is named only after editing starts.
                 val formMessage = when {
@@ -216,7 +216,7 @@ fun ProviderEditScreen(
                     }
                 }
             }
-            // ====== Provider 名称 ======
+            // ====== Provider name ======
             SectionField(label = stringResource(R.string.provider_name)) {
                 OutlinedTextField(
                     value = uiState.name,
@@ -229,7 +229,7 @@ fun ProviderEditScreen(
                 )
             }
 
-            // ====== API 地址 ======
+            // ====== API address ======
             SectionField(label = stringResource(R.string.provider_api_address)) {
                 val addresses = viewModel.addressPresets
                 if (addresses.isNotEmpty()) {
@@ -259,7 +259,7 @@ fun ProviderEditScreen(
                 }
             }
 
-            // ====== API 协议 ======
+            // ====== API protocol ======
             SectionField(label = stringResource(R.string.provider_protocol)) {
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
@@ -329,7 +329,7 @@ fun ProviderEditScreen(
                 )
             }
 
-            // ====== 模型 ======
+            // ====== Model ======
             SectionField(label = stringResource(R.string.provider_model)) {
                 if (uiState.models.isNotEmpty()) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -385,7 +385,7 @@ fun ProviderEditScreen(
     }
 }
 
-// ====== 子组件 ======
+// ====== Subcomponents ======
 
 @androidx.annotation.StringRes
 private fun ModelTransport.protocolLabelRes(): Int = when (this) {
@@ -540,7 +540,7 @@ private fun addressLabel(endpoint: ProviderPreset, groupName: String): String = 
 }
 
 /**
- * 表单字段容器
+ * Form field container
  */
 @Composable
 private fun SectionField(

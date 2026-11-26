@@ -112,7 +112,7 @@ class PVAutoAgentApp : Application(), Configuration.Provider {
             applicationScope.launch(Dispatchers.IO) { installedAppsManager.init() }
             return
         }
-        // 追踪自身 Activity 前台状态，用于悬浮窗可见性判断
+        // Track our own Activity foreground state, used to decide overlay visibility
         val foregroundActivities = RuntimeForegroundActivities<Activity>()
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityResumed(activity: Activity) {
@@ -242,7 +242,7 @@ class PVAutoAgentApp : Application(), Configuration.Provider {
                 wifiNetworkCallback = wifiCallback
                 scheduleAirWifiTransportRefresh("registered")
             } catch (e: Exception) {
-                Log.w("PVAutoAgentApp", "注册 WiFi 监听失败: ${e.message}")
+                Log.w("PVAutoAgentApp", "Failed to register the Wi-Fi listener: ${e.message}")
             }
         }
     }

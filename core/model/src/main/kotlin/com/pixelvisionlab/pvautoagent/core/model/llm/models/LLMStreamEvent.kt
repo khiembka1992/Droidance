@@ -4,7 +4,7 @@
 package com.pixelvisionlab.pvautoagent.core.model.llm.models
 
 /**
- * 流式输出事件
+ * Streaming output event
  */
 sealed class LLMStreamEvent {
     /** Local transport facts, not provider activity or proof of the model's internal effort. */
@@ -29,18 +29,18 @@ sealed class LLMStreamEvent {
         val cacheWriteTokens: Int? = null
     ) : LLMStreamEvent()
 
-    /** 文本内容分块 */
+    /** Text content chunk */
     data class Content(val text: String) : LLMStreamEvent()
 
-    /** 工具调用分块 */
+    /** Tool call chunk */
     data class ToolCallChunk(
-        val index: Int,          // 工具列表中的索引
-        val id: String? = null,  // 工具调用 ID（只有第一次块有）
-        val name: String? = null,// 工具名称（只有第一次块有）
-        val arguments: String    // 参数的增量部分
+        val index: Int,          // Index in the tool list
+        val id: String? = null,  // Tool call ID (present only in the first chunk)
+        val name: String? = null,// Tool name (present only in the first chunk)
+        val arguments: String    // Incremental part of the arguments
     ) : LLMStreamEvent()
 
-    /** Provider 推理内容分块，仅用于协议回传，不显示给用户。 */
+    /** Provider reasoning content chunk, used only for the protocol round-trip and never shown to the user. */
     data class ReasoningChunk(val text: String) : LLMStreamEvent()
 
     /** Transport activity without retaining or publishing provider reasoning text. */

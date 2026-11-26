@@ -41,13 +41,13 @@ import com.pixelvisionlab.pvautoagent.ui.theme.*
 import com.pixelvisionlab.pvautoagent.ui.viewmodel.ProviderListViewModel
 
 /**
- * AI Provider 列表页面
- * 展示所有已配置的 Provider，支持添加、编辑、删除、启用/禁用
+ * AI Provider list page
+ * Shows all configured Providers and supports add, edit, delete, enable/disable
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderListScreen(
-    onNavigateToEdit: (String?) -> Unit, // null = 新建, id = 编辑
+    onNavigateToEdit: (String?) -> Unit, // null = new, id = edit
     onNavigateBack: () -> Unit,
     viewModel: ProviderListViewModel = hiltViewModel()
 ) {
@@ -92,7 +92,7 @@ fun ProviderListScreen(
             )
         },
         floatingActionButton = {
-            // 添加新 Provider 按钮
+            // Add-new-Provider button
             FloatingActionButton(
                 onClick = { onNavigateToEdit(null) },
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -104,7 +104,7 @@ fun ProviderListScreen(
         }
     ) { paddingValues ->
         if (providers.isEmpty()) {
-            // 空状态
+            // Empty state
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -160,14 +160,14 @@ fun ProviderListScreen(
                     )
                 }
 
-                // 底部留白（FAB 不挡住最后一项）
+                // Bottom padding (keeps the FAB from covering the last item)
                 item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
     }
 }
 /**
- * 单个 Provider 卡片
+ * A single Provider card
  */
 @Composable
 private fun ProviderCard(
@@ -199,12 +199,12 @@ private fun ProviderCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // 顶部行：名称 + 状态 + 开关
+            // Top row: name + status + toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 优先按 API 域名和 Provider 名称匹配本地品牌图标；未知服务保留首字母兜底。
+                // Match local brand icons by API domain and Provider name first; unknown services fall back to the first letter.
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -231,7 +231,7 @@ private fun ProviderCard(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                // 名称 + API 地址
+                // Name + API address
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = config.name,
@@ -250,7 +250,7 @@ private fun ProviderCard(
                     )
                 }
 
-                // 启用/禁用开关
+                // Enable/disable toggle
                 Switch(
                     checked = config.isEnabled,
                     onCheckedChange = { onToggle() },
@@ -267,7 +267,7 @@ private fun ProviderCard(
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 模型选择器：点击切换当前生效模型
+            // Model selector: tap to switch the currently effective model
             if (config.models.isNotEmpty()) {
                 var expanded by remember { mutableStateOf(false) }
                 val current = config.defaultModel.ifBlank { config.models.first() }
@@ -352,14 +352,14 @@ private fun ProviderCard(
                 }
             }
 
-            // API Key 状态 + 操作按钮
+            // API Key status + action buttons
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // API Key 状态：已配置 = 中性灰勾（完成态不抢戏），缺失 = 琥珀点提醒
+                // API Key status: configured = neutral gray check (a completed state that does not steal focus), missing = amber dot reminder
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val keyReady = config.apiKey.isNotBlank()
                     if (keyReady) {
@@ -409,7 +409,7 @@ private fun ProviderCard(
         }
     }
 
-    // 删除确认对话框
+    // Delete confirmation dialog
     if (showDeleteDialog) {
         GlassAlertDialog(
             onDismissRequest = { showDeleteDialog = false },

@@ -18,13 +18,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 远程任务执行守护。
+ * Remote task execution guard.
  *
- * 定时任务可能在后台、息屏、锁屏时到达。执行 UI 自动化前先做一次轻量准备：
- * - 确保前台服务处于待命/保活
- * - 拿短时 WakeLock + WifiLock，避免任务期间 CPU / 网络休眠
- * - 虚拟空间保持 sidecar/VirtualDisplay，不唤醒、不解锁实体屏
- * - 任务结束后释放锁
+ * Scheduled tasks may arrive in the background, with the screen off, or while the device is locked. Before running UI automation, do a lightweight preparation:
+ * - Make sure the foreground service is standing by / kept alive
+ * - Take a short-lived WakeLock + WifiLock so the CPU / network do not sleep during the task
+ * - The virtual space keeps the sidecar/VirtualDisplay, without waking or unlocking the physical screen
+ * - Release the locks after the task ends
  */
 enum class DevicePreparationFailure(val requiresUser: Boolean, val messageResource: Int) {
     BACKEND_UNAVAILABLE(false, com.pixelvisionlab.pvautoagent.R.string.automation_backend_unavailable)
@@ -115,9 +115,9 @@ class DeviceExecutionGuard @Inject constructor(
             acquireWifiLock()
 
 
-                // 顺序不能反：虚拟屏电源组独立于主屏，任务之间隔超过唤醒锁超时就会 DOZING。
-                // 先唤醒再重挂 surface——反过来的话，DOZING 的屏上没有窗口在绘，重挂等不到新帧，
-                // 会把虚拟空间自己判成不可用，任务第一步就失败。
+                // The order cannot be reversed: the virtual display's power group is independent of the main screen, and if the gap between tasks exceeds the wake lock timeout it goes DOZING.
+                // Wake it first, then re-attach the surface — the other way around, no window is drawing on a DOZING display, re-attaching never gets a new frame,
+                // and the virtual space judges itself unavailable, so the first step of the task fails.
                 val interactive = virtualSpaceManager.ensureDisplayInteractive()
                 if (wasLocked || !wasInteractive) {
                     virtualSpaceManager.onScreenLocked()
@@ -150,7 +150,7 @@ class DeviceExecutionGuard @Inject constructor(
     private fun acquireWakeLock() {
         try {
             if (!executionWakeLock.isHeld) {
-                // 任务时长由墙钟协议决定，唤醒锁跟随任务生命周期，由 finish 释放。
+                // The task duration is determined by the wall-clock protocol; the wake lock follows the task lifecycle and is released by finish.
                 executionWakeLock.acquire()
             }
         } catch (e: Exception) {

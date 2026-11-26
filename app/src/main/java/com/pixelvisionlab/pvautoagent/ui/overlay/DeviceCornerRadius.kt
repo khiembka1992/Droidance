@@ -10,9 +10,9 @@ import android.view.WindowInsets
 import android.view.WindowManager
 
 /**
- * 屏幕物理四角 R 角（圆角半径）参数模型。
+ * Parameter model for the physical corner radii (R corners) of the screen.
  *
- * 坐标系与 Android Path 一致：顺时针依次为左上、右上、右下、左下。
+ * The coordinate system matches Android's Path: clockwise in the order top-left, top-right, bottom-right, bottom-left.
  */
 data class DeviceCornerRadii(
     val topLeft: Float,
@@ -21,8 +21,8 @@ data class DeviceCornerRadii(
     val bottomLeft: Float
 ) {
     /**
-     * 生成供 [android.graphics.Path.addRoundRect] 使用的 8 元素半径数组：
-     * [tlX, tlY, trX, trY, brX, brY, blX, blY]。
+     * Builds the 8-element radius array used by [android.graphics.Path.addRoundRect]:
+     * [tlX, tlY, trX, trY, brX, brY, blX, blY].
      */
     fun toPathRadii(): FloatArray = floatArrayOf(
         topLeft, topLeft,
@@ -43,18 +43,18 @@ data class DeviceCornerRadii(
 }
 
 object DeviceCornerRadius {
-    /** 默认保底圆角（38dp），与原有视觉规范保持一致 */
+    /** Default fallback corner radius (38dp), consistent with the existing visual spec */
     const val DEFAULT_FALLBACK_RADIUS_DP = 38f
 
     /**
-     * 解析当前设备的屏幕物理四角 R 角。
+     * Resolves the physical corner radii (R corners) of the current device's screen.
      *
-     * 策略：
-     * 1. 优先使用 Android 12+ (API 31+) 官方 [WindowInsets.getRoundedCorner] 提取各角像素半径；
-     * 2. 低版本或 Insets 无圆角信息时，尝试读取系统内部资源（rounded_corner_radius / top / bottom）；
-     * 3. 若均未获取到有效信息，回退到 [fallbackRadiusPx]（默认 38dp）。
+     * Strategy:
+     * 1. Prefer the official Android 12+ (API 31+) [WindowInsets.getRoundedCorner] to extract the per-corner pixel radius;
+     * 2. On older versions, or when Insets carry no corner information, try reading the system-internal resources (rounded_corner_radius / top / bottom);
+     * 3. If neither yields valid information, fall back to [fallbackRadiusPx] (38dp by default).
      *
-     * 如果设备明确为直角屏（API 31+ 提供了 Insets 且各角 radius 为 0），将忠实返回 0f 直角。
+     * If the device is explicitly a square-corner screen (API 31+ provides Insets and every corner radius is 0), this faithfully returns 0f square corners.
      */
     fun resolve(
         context: Context,
@@ -63,7 +63,7 @@ object DeviceCornerRadius {
     ): DeviceCornerRadii {
         val windowInsets = insets ?: resolveWindowInsetsFromContext(context)
 
-        // 1. Android 12+ (API 31+) 官方 WindowInsets.getRoundedCorner
+        // 1. Official Android 12+ (API 31+) WindowInsets.getRoundedCorner
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && windowInsets != null) {
             val tl = windowInsets.getRoundedCorner(RoundedCorner.POSITION_TOP_LEFT)
             val tr = windowInsets.getRoundedCorner(RoundedCorner.POSITION_TOP_RIGHT)
@@ -80,7 +80,7 @@ object DeviceCornerRadius {
             }
         }
 
-        // 2. 尝试读取系统内部资源 dimen
+        // 2. Try reading the system-internal dimen resources
         val topDimen = getSystemDimenPx(context, "rounded_corner_radius_top")
         val bottomDimen = getSystemDimenPx(context, "rounded_corner_radius_bottom")
         val generalDimen = getSystemDimenPx(context, "rounded_corner_radius")
@@ -98,7 +98,7 @@ object DeviceCornerRadius {
             }
         }
 
-        // 3. 保底
+        // 3. Fallback
         return DeviceCornerRadii.uniform(fallbackRadiusPx)
     }
 

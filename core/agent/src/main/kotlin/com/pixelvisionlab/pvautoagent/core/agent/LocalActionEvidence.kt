@@ -81,17 +81,17 @@ object LocalActionEvidence {
             parts += "state=$progressState"
             parts += "reason=$reason"
             parts += "raw_changed=$rawChanged"
-            // 语义不可观测时不输出 semantic_changed：没有文字指纹时，
-            // 语义比较只剩包名/Activity，而把所有页面塞进一个 Activity 的 App（QQ 的
-            // SplashActivity 承载消息列表/聊天窗口/表情面板）里页面身份恒等，这个字段
-            // 物理上只会是 false。报出去等于把每一次点击都喂成"无进展"，连点四下必被
-            // 无进展守卫杀掉。判不了就不报，让无进展判定回落到工具结果，重复动作交给
-            // 屏幕无关的空间计数兜底。
+            // When semantics are unobservable, semantic_changed is not emitted: without a text fingerprint,
+            // the semantic comparison is left with only the package/Activity, and in an App that stuffs every page into one Activity (QQ's
+            // SplashActivity hosts the message list/chat window/emoji panel) page identity is constant, so this field
+            // is physically always false. Emitting it would feed every click in as "no progress", and four clicks in a row would inevitably be
+            // killed by the no-progress guard. If it cannot be judged, do not report it; let the no-progress decision fall back to the tool result, and leave repeated actions to
+            // the screen-independent spatial counter as a backstop.
             if (semanticObservable) parts += "semantic_changed=$semanticChanged"
             if (runtimeProgress) parts += "runtime_progress=true"
-            // 不输出 goal_progress 布尔字段：state=GOAL_PROGRESS 已经表达"本页内容被大面积替换"
-            // 这一可观察事实，而"用户目标是否已达成"仍由证据账本和 done gate 判定，本地验证器
-            // 不做这个断言。
+            // The goal_progress boolean field is not emitted: state=GOAL_PROGRESS already expresses "this page's content was largely replaced"
+            // as an observable fact, while "whether the user's goal has been achieved" is still decided by the evidence ledger and the done gate; the local validator
+            // does not make that assertion.
             if (!foregroundPackage.isNullOrBlank()) parts += "foreground=$foregroundPackage"
             if (!expectedPackage.isNullOrBlank()) parts += "target=$expectedPackage"
             if (noProgressCount > 0) parts += "noProgress=$noProgressCount"

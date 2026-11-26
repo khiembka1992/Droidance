@@ -68,8 +68,8 @@ import java.util.UUID
 import javax.inject.Inject
 
 /**
- * 对话界面 ViewModel
- * 管理消息列表、与 AgentRuntime 交互、对话持久化
+ * Conversation screen ViewModel
+ * Manages the message list, interacts with AgentRuntime, and persists the conversation
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -96,14 +96,14 @@ class HomeViewModel @Inject constructor(
     private val displayGeneration = displayCache.generation()
     val runtimeConnection = runtimeClient.connectionState
 
-    /** 当前对话 ID —— 持久化到 SavedStateHandle，跨 ViewModel 重建（屏幕旋转/低内存）保持稳定 */
+    /** Current conversation ID — persisted to SavedStateHandle so it stays stable across ViewModel recreation (screen rotation/low memory) */
     val conversationId: String = run {
         val existing = savedStateHandle.get<String>("conversationId")
             ?: savedStateHandle.get<String>("threadId")?.takeIf { it.isNotBlank() }
         if (existing != null) existing
         else {
             val newId = UUID.randomUUID().toString()
-            savedStateHandle["conversationId"] = newId  // 写回，重建后能恢复
+            savedStateHandle["conversationId"] = newId  // Write it back so it can be restored after recreation
             newId
         }
     }
@@ -174,7 +174,7 @@ class HomeViewModel @Inject constructor(
     private val _historyStatus = MutableStateFlow(HistoryLoadStatus.LOADING)
     val historyStatus: StateFlow<HistoryLoadStatus> = _historyStatus
 
-    /** 消息列表 */
+    /** Message list */
     private val _messages = MutableStateFlow<List<UIMessage>>(emptyList())
     val messages: StateFlow<List<UIMessage>> = _messages
 
@@ -190,7 +190,7 @@ class HomeViewModel @Inject constructor(
     val threadProjectionFailure: StateFlow<AgentEventProjectionFailureSnapshot?> =
         _threadProjectionFailure
 
-    /** 是否正在处理中 */
+    /** Whether processing is currently in progress */
     private val _isProcessing = MutableStateFlow(false)
     val isProcessing: StateFlow<Boolean> = _isProcessing
     private val _activeTurnIds = MutableStateFlow<Set<String>>(emptySet())
@@ -198,15 +198,15 @@ class HomeViewModel @Inject constructor(
     private val _queuedTurnIds = MutableStateFlow<Set<String>>(emptySet())
     val queuedTurnIds: StateFlow<Set<String>> = _queuedTurnIds
 
-    /** 是否有前台任务正在运行（显示发光边框） */
+    /** Whether a foreground task is running (shows a glowing border) */
     private val _isTaskRunning = MutableStateFlow(false)
     val isTaskRunning: StateFlow<Boolean> = _isTaskRunning
 
-    /** 当前 LLM 动作文字（只展示本会话的动作，防止跨会话污染） */
+    /** Current LLM action text (shows only this conversation's actions, preventing cross-conversation contamination) */
     private val _currentAction = MutableStateFlow("")
     val currentAction: StateFlow<String> = _currentAction
 
-    /** 是否处于暂停状态（只反映本会话） */
+    /** Whether it is in the paused state (reflects only this conversation) */
     private val _isPaused = MutableStateFlow(false)
     val isPaused: StateFlow<Boolean> = _isPaused
     private val _userInteraction = MutableStateFlow<UserInteractionRequest?>(null)
@@ -221,7 +221,7 @@ class HomeViewModel @Inject constructor(
     private val _appTakeoverTurnPresentations =
         MutableStateFlow<List<TurnPresentationUiState>>(emptyList())
 
-    /** 切换暂停/恢复（只操作本会话） */
+    /** Toggle pause/resume (affects only this conversation) */
     fun togglePause() {
         if (agentRuntime.currentConversationId.value == conversationId) {
             agentRuntime.togglePause()
@@ -249,7 +249,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /** 停止当前任务。 */
+    /** Stop the current task. */
     fun stopTask() {
         conversationTasks.stop(conversationId, origin = "chat_stop")
     }
@@ -268,7 +268,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /** 错误通知事件（不写入聊天，用 Snackbar 显示） */
+    /** Error notification event (not written into the chat, shown via Snackbar) */
     private val _errorEvent = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val errorEvent: SharedFlow<String> = _errorEvent.asSharedFlow()
 
@@ -360,7 +360,7 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
-        // 监听 Agent 状态变化，只响应本会话（防止跨会话状态污染）
+        // Listen for Agent state changes, but respond only to this conversation (to prevent cross-conversation state contamination)
         viewModelScope.launch {
             combine(agentRuntime.state, agentRuntime.currentConversationId, conversationTasks.activeTasks) { state, currentId, tasks ->
                 Triple(state, currentId, tasks[conversationId].orEmpty())
@@ -462,7 +462,7 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-    /** 由 AppNavigation 的 LaunchedEffect 调用，用于 startDestination 场景的自动发送（nav args 无法传递时） */
+    /** Called by AppNavigation's LaunchedEffect, used for auto-send in the startDestination case (when nav args cannot be passed) */
     fun triggerAutoSend(prompt: String) {
         android.util.Log.d("PVAutoAgent", "triggerAutoSend called: consumed=$initialPromptConsumed")
         if (initialPromptConsumed) return
@@ -479,7 +479,7 @@ class HomeViewModel @Inject constructor(
         sendMessage(prompt)
     }
 
-    /** 发送用户消息。每个用户请求只进入一次 AgentRuntime。 */
+    /** Send a user message. Each user request enters AgentRuntime only once. */
     fun sendMessageWithImage(text: String, imageUri: Uri) {
         sendMessageWithImages(text, listOf(imageUri))
     }
@@ -701,7 +701,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /** 保留接管说明等模型公开文本。 */
+    /** Preserve public model text such as the takeover explanation. */
     private fun preservePublicAssistantText(text: String): String {
         return PublicAssistantText.sanitize(text)
     }
@@ -731,7 +731,7 @@ class HomeViewModel @Inject constructor(
 }
 
 /**
- * UI 消息数据类
+ * UI message data class
  */
 data class UIMessage(
     val text: String,

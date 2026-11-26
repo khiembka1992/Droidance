@@ -33,8 +33,8 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 /**
- * Hilt 依赖注入模块
- * 提供全局单例依赖
+ * Hilt dependency injection module
+ * Provides global singleton dependencies
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -165,14 +165,14 @@ object AppModule {
         context.getString(com.pixelvisionlab.pvautoagent.R.string.execution_interrupted_result)
     }
 
-    /** 提供 OkHttpClient 单例 */
+    /** Provides the OkHttpClient singleton */
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
         // Keep provider credentials and request contents out of logcat.
         return com.pixelvisionlab.pvautoagent.core.model.llm.CleartextNetworkPolicy.configure(OkHttpClient.Builder())
             .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(120, TimeUnit.SECONDS)     // LLM 响应可能较慢
+            .readTimeout(120, TimeUnit.SECONDS)     // LLM responses can be slow
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }

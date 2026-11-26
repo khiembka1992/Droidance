@@ -21,8 +21,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Provider 配置管理器
- * 负责 Provider 配置的 CRUD 和 JSON 持久化
+ * Provider configuration manager
+ * Handles CRUD and JSON persistence for Provider configuration
  */
 @Singleton
 class ProviderConfigManager @Inject constructor(
@@ -48,14 +48,14 @@ class ProviderConfigManager @Inject constructor(
         }
     }
 
-    /** 内存缓存 */
+    /** In-memory cache */
     private var _configs = mutableListOf<ProviderConfig>()
     private var imageDetailCapabilities = mutableListOf<PersistedImageDetailCapability>()
 
     /**
-     * 同 Provider 内模型降级记录
-     * key = providerId, value = 当前使用的模型索引（从 0 开始）
-     * 当某个模型调用出错时，索引 +1 切换到下一个模型
+     * Model fallback record within the same Provider
+     * key = providerId, value = index of the model currently in use (starting from 0)
+     * When a call to some model fails, the index is incremented by 1 to switch to the next model
      */
     private val _modelFallbackIndex = mutableMapOf<String, Int>()
 
@@ -84,18 +84,18 @@ class ProviderConfigManager @Inject constructor(
         }
     }
 
-    /** 获取所有 Provider 配置 */
+    /** Gets all Provider configurations */
     @Synchronized fun getAllConfigs(): List<ProviderConfig> = _configs.toList()
 
-    /** 获取所有启用的 Provider 配置 */
+    /** Gets all enabled Provider configurations */
     @Synchronized fun getEnabledConfigs(): List<ProviderConfig> = _configs.filter {
         it.isAvailableForRequests()
     }
 
-    /** 根据 ID 获取配置 */
+    /** Gets the configuration by ID */
     @Synchronized fun getConfig(id: String): ProviderConfig? = _configs.find { it.id == id }
 
-    /** 添加新 Provider */
+    /** Adds a new Provider */
     @Synchronized fun addConfig(config: ProviderConfig) {
         require(!config.isEnabled || config.isTransportConfigured()) {
             "Enabled Provider must have a confirmed transport"
@@ -104,7 +104,7 @@ class ProviderConfigManager @Inject constructor(
         saveConfigsSafe()
     }
 
-    /** 更新 Provider */
+    /** Updates the Provider */
     @Synchronized fun updateConfig(config: ProviderConfig) {
         require(!config.isEnabled || config.isTransportConfigured()) {
             "Enabled Provider must have a confirmed transport"
@@ -181,7 +181,7 @@ class ProviderConfigManager @Inject constructor(
         ids.forEach(::invalidateImageDetailCapability)
     }
 
-    /** 删除 Provider */
+    /** Deletes the Provider */
     @Synchronized fun deleteConfig(id: String) {
         _configs.removeAll { it.id == id }
         invalidateImageDetailCapability(id)
@@ -208,15 +208,15 @@ class ProviderConfigManager @Inject constructor(
     /** One configured default Provider is selected and then frozen by LLMRouter for the Turn. */
     @Synchronized fun resolveProvider(): ProviderConfig? = getDefaultConfig()
 
-    // ====== 同 Provider 模型自动降级 ======
+    // ====== Automatic model fallback within the same Provider ======
 
     /**
-     * 获取当前应使用的模型（考虑降级状态）
-     * 优先返回 defaultModel，如果已降级则返回 models 列表中的下一个
+     * Gets the model that should currently be used (taking the fallback state into account)
+     * Returns defaultModel first; if a fallback has already been applied, returns the next one in the models list
      */
     @Synchronized fun getCurrentModel(config: ProviderConfig): String {
         if (config.models.isEmpty()) return config.defaultModel
-        // 手动选中的模型（defaultModel）作为基准，自动降级在其后偏移
+        // The manually selected model (defaultModel) is the baseline, and automatic fallback offsets from it
         val baseIndex = config.models.indexOf(config.defaultModel).coerceAtLeast(0)
         val offset = _modelFallbackIndex[config.id] ?: 0
         val index = baseIndex + offset
@@ -228,8 +228,8 @@ class ProviderConfigManager @Inject constructor(
     }
 
     /**
-     * 模型调用失败时，切换到下一个模型
-     * @return 下一个模型名称，如果所有模型都用完了返回 null
+     * When a model call fails, switches to the next model
+     * @return the next model name, or null if all models have been exhausted
      */
     @Synchronized fun advanceToNextModel(config: ProviderConfig): String? {
         if (config.models.isEmpty()) return null
@@ -244,7 +244,7 @@ class ProviderConfigManager @Inject constructor(
         }
     }
 
-    /** 重置模型降级状态（调用成功后或新对话开始时） */
+    /** Resets the model fallback state (after a successful call or when a new conversation starts) */
     @Synchronized fun resetModelFallback(configId: String) {
         _modelFallbackIndex.remove(configId)
     }
@@ -346,7 +346,7 @@ class ProviderConfigManager @Inject constructor(
         )
     }
 
-    // ====== 持久化 ======
+    // ====== Persistence ======
 
     private fun saveConfigs() {
         if (RuntimeProcessRole.isOwner) return

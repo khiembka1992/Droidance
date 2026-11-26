@@ -200,11 +200,12 @@ private data class MemoryCandidateStepSignature(
 
 object MemorySecretRedactor {
     private val bearerPattern = Regex("(?i)\\bbearer\\s+[a-z0-9._~+\\-/]+=*")
+    // Secret labels are matched in English and Vietnamese, the two languages the app supports.
     private val secretAssignmentPattern = Regex(
-        "(?i)(api[_ -]?key|access[_ -]?token|refresh[_ -]?token|authorization|password|passwd|secret|cookie|otp|pairing[_ -]?code|sms[_ -]?code|verification[_ -]?code|验证码|短信验证码|提取码|密码|令牌|密钥)(\\s*[:=＝]\\s*)([^\\s,;，。]+)"
+        "(?iu)(api[_ -]?key|access[_ -]?token|refresh[_ -]?token|authorization|password|passwd|secret|cookie|otp|pairing[_ -]?code|sms[_ -]?code|verification[_ -]?code|mật[_ -]?khẩu|mã[_ -]?xác[_ -]?(?:minh|thực|nhận)|khóa[_ -]?(?:bí[_ -]?mật|riêng)|token)(\\s*[:=]\\s*)([^\\s,;]+)"
     )
     private val verificationCodePattern = Regex(
-        "(?i)(verification\\s+code|otp|sms\\s+code|验证码|动态码|校验码)[\\s:：是为]+([0-9]{4,8})\\b"
+        "(?iu)(verification\\s+code|otp|sms\\s+code|mã[_ -]?xác[_ -]?(?:minh|thực|nhận)|mã[_ -]?dự[_ -]?phòng|mã[_ -]?otp)[\\s:]+([0-9]{4,8})\\b"
     )
 
     fun redact(value: String): String = value

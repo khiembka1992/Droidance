@@ -129,7 +129,7 @@ class UpdateRepository internal constructor(
             metadata.tag != "v${metadata.versionName}" || metadata.packageName != packageName ||
             !isReleaseAsset(url, metadata.apk, repository) || metadata.sizeBytes <= 0 ||
             !metadata.sha256.matches(Regex("[a-fA-F0-9]{64}")) ||
-            listOf("en", "zh").any { metadata.releaseNotes[it].isNullOrBlank() }) {
+            listOf("en", "vi").any { metadata.releaseNotes[it].isNullOrBlank() }) {
             throw SerializationException("Invalid release identity, APK checksum, size or localized notes")
         }
     }

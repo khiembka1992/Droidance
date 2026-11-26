@@ -15,8 +15,8 @@ import android.os.Bundle
 import android.view.View
 
 /**
- * 探针实际落点记录：探活失败时用来区分
- * "探针被系统重定向到主屏(display=0)" 和 "探针在虚拟屏上但渲染黑帧"。
+ * Probe actual landing record: used on a failed liveness check to distinguish
+ * "the probe was redirected by the system to the main screen (display=0)" from "the probe is on the virtual screen but renders a black frame".
  */
 object VirtualSpaceProbeLanding {
     @Volatile var displayId: Int? = null
@@ -32,9 +32,9 @@ object VirtualSpaceProbeLanding {
     }
 
     /**
-     * 就绪自检做完后由 readiness 主动调用，销毁探针 Activity。探针只用来验证虚拟屏能出帧+能注入，
-     * 用完必须关：否则它的白屏会一直留在虚拟屏上，被截成 PVAutoAgent 自身的纯白帧。
-     * 销毁后目标 App 落到一块干净的虚拟屏上，从第一帧起就是它自己。
+     * Called actively by readiness after the readiness self-check completes, to destroy the probe Activity. The probe only exists to verify that the virtual screen can produce frames and accept injection,
+     * and it must be closed when done: otherwise its white screen stays on the virtual screen and gets captured as a pure white frame of PVAutoAgent itself.
+     * After destruction the target App lands on a clean virtual screen and is itself from the very first frame.
      */
     fun finishActive() {
         val activity = active?.get() ?: return

@@ -59,7 +59,7 @@ internal fun UsageRangeSelector(
     }
 }
 
-/** 每日总用量柱形图：上方为总用量实心柱，下方为缓存命中率斜线网格。 */
+/** Daily total usage bar chart: solid bars for total usage on top, a hatched grid for cache hit rate below. */
 @Composable
 internal fun UsageBarChart(
     daily: List<com.pixelvisionlab.pvautoagent.ui.viewmodel.DailyTokenUsage>,
@@ -74,7 +74,7 @@ internal fun UsageBarChart(
     val labelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
 
     Column(modifier = modifier) {
-        // 图例 + 峰值
+        // Legend + peak
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically

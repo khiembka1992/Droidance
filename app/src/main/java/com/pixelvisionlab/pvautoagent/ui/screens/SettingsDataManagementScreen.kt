@@ -27,7 +27,7 @@ import com.pixelvisionlab.pvautoagent.R
 import com.pixelvisionlab.pvautoagent.ui.viewmodel.SettingsViewModel
 import com.pixelvisionlab.pvautoagent.ui.viewmodel.UsageRange
 
-// ── 数据管理（用量 + 导出 + 清理）───────────────────────────────────────────────
+// ── Data management (usage + export + cleanup)───────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -24,9 +24,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Markdown 文件管理器
- * 负责 PVAutoAgent 本地记忆系统的文件读写操作
- * 所有记忆数据以 Markdown 文件存储（File-First 理念）
+ * Markdown file manager
+ * Handles file reads and writes for PVAutoAgent's local memory system
+ * All memory data is stored as Markdown files (File-First philosophy)
  */
 @Singleton
 class MarkdownFileManager @Inject constructor(
@@ -36,7 +36,7 @@ class MarkdownFileManager @Inject constructor(
     private val remote get() = runtimeClient?.get()?.takeIf { !it.isOwner && it.managedStorageEnabled && it.storageTransferred }
     private val ioLock = ReentrantReadWriteLock()
 
-    // 数据根目录：权威位置收敛至内部私有目录（noBackupFilesDir）
+    // Data root: the authoritative location lives in the internal private directory (noBackupFilesDir)
     private val dataDir: File by lazy {
         val baseDir = context.noBackupFilesDir ?: context.filesDir
         val internalRoot = File(baseDir, "pvautoagent-data")
@@ -70,7 +70,7 @@ class MarkdownFileManager @Inject constructor(
         return file
     }
 
-    /** 读取指定路径的 Markdown 文件 */
+    /** Reads the Markdown file at the given path */
     override fun readFile(relativePath: String): String? {
         remote?.let { return it.file("read", relativePath).getString("text") }
         return ioLock.read {
@@ -99,7 +99,7 @@ class MarkdownFileManager @Inject constructor(
 
     }
 
-    /** 写入/覆盖指定路径的 Markdown 文件 */
+    /** Writes / overwrites the Markdown file at the given path */
     // Readers and atomic replacements share the lock. In-place and directory mutations
     // take the exclusive lock, so they cannot race staged replacements.
     override fun writeFile(relativePath: String, content: String) {
@@ -143,7 +143,7 @@ class MarkdownFileManager @Inject constructor(
         }
     }
 
-    /** 追加内容到指定文件 */
+    /** Appends content to the given file */
     fun appendFile(relativePath: String, content: String) {
         remote?.let { it.file("append", relativePath, android.os.Bundle().apply { putString("text", content) }); return }
         ioLock.write {
@@ -153,13 +153,13 @@ class MarkdownFileManager @Inject constructor(
         }
     }
 
-    /** 检查文件是否存在 */
+    /** Checks whether the file exists */
     override fun exists(relativePath: String): Boolean {
         remote?.let { return it.file("exists", relativePath).getBoolean("result") }
         return ioLock.read { resolve(relativePath).exists() }
     }
 
-    /** 返回文件 mtime；不存在时返回 -1。 */
+    /** Returns the file's mtime; returns -1 if it does not exist. */
     fun lastModified(relativePath: String): Long {
         remote?.let { return it.file("modified", relativePath).getLong("time") }
         return ioLock.read {
@@ -168,7 +168,7 @@ class MarkdownFileManager @Inject constructor(
         }
     }
 
-    /** 列出目录下的所有文件 */
+    /** Lists all files in the directory */
     override fun listFiles(directoryPath: String): List<String> {
         remote?.let { return it.file("list", directoryPath).getStringArrayList("names").orEmpty() }
         return ioLock.read {
@@ -181,7 +181,7 @@ class MarkdownFileManager @Inject constructor(
         }
     }
 
-    /** 删除文件 */
+    /** Deletes the file */
     fun deleteFile(relativePath: String): Boolean {
         remote?.let { return it.file("delete", relativePath).getBoolean("result") }
         return ioLock.write { Files.deleteIfExists(resolve(relativePath).toPath()) }
@@ -228,7 +228,7 @@ class MarkdownFileManager @Inject constructor(
         }
     }
 
-    /** 获取数据根目录的绝对路径 */
+    /** Returns the absolute path of the data root directory */
     fun getDataDirPath(): String {
         val client = remote ?: return dataDir.absolutePath
         val export = File(context.cacheDir, "runtime-export-${java.util.UUID.randomUUID()}").apply { mkdirs() }

@@ -28,10 +28,10 @@ import kotlinx.coroutines.channels.Channel
 import javax.inject.Inject
 
 /**
- * 前台常驻服务
- * 双重职责：
- * 1. 保活 — 常驻通知栏，防止系统杀掉进程
- * 2. 任务执行 — 执行自动化任务时更新通知显示当前状态
+ * Resident foreground service
+ * Dual responsibility:
+ * 1. Keep-alive — stays in the notification shade so the system does not kill the process
+ * 2. Task execution — updates the notification to show the current state while running automation tasks
  */
 @AndroidEntryPoint
 class TaskExecutionService : Service() {
@@ -40,24 +40,24 @@ class TaskExecutionService : Service() {
         const val CHANNEL_ID = "pvautoagent_task_channel"
         const val NOTIFICATION_ID = 1001
 
-        /** Intent action：更新通知文本 */
+        /** Intent action: update the notification text */
 
-        /** Intent action：切换到待命模式 */
+        /** Intent action: switch to standby mode */
         const val ACTION_STANDBY = "com.pixelvisionlab.pvautoagent.STANDBY"
         const val ACTION_RESTORE = "com.pixelvisionlab.pvautoagent.RESTORE"
 
-        /** Intent action：开始执行任务（进入前台服务） */
+        /** Intent action: start executing a task (enter the foreground service) */
         const val ACTION_START_EXECUTION = "com.pixelvisionlab.pvautoagent.START_EXECUTION"
-        /** Intent action：停止执行任务（退出前台服务） */
+        /** Intent action: stop executing the task (leave the foreground service) */
         const val ACTION_STOP_EXECUTION = "com.pixelvisionlab.pvautoagent.STOP_EXECUTION"
         const val EXTRA_TASK_TITLE = "task_title"
 
-        /** 静态实例引用，供其他组件检查服务是否在运行 */
+        /** Static instance reference so other components can check whether the service is running */
         @Volatile
         var instance: TaskExecutionService? = null
             private set
 
-        /** 便捷方法：启动常驻服务（待命模式） */
+        /** Convenience method: start the resident service (standby mode) */
         fun startStandby(context: Context, restoreSchedules: Boolean = false) {
             if (com.pixelvisionlab.pvautoagent.core.device.agent.device.RuntimeProcessRole.isOwner) return
             if (BackgroundRunState.isPaused(context)) return
@@ -69,11 +69,11 @@ class TaskExecutionService : Service() {
             try {
                 appContext.startForegroundService(intent)
             } catch (e: Exception) {
-                Log.w("TaskExecutionService", "启动常驻服务失败: ${e.message}")
+                Log.w("TaskExecutionService", "Failed to start the resident service: ${e.message}")
             }
         }
 
-        /** 便捷方法：开始前台任务执行（按需前台服务） */
+        /** Convenience method: start foreground task execution (on-demand foreground service) */
         fun startExecution(context: Context, taskTitle: String? = null) {
             if (com.pixelvisionlab.pvautoagent.core.device.agent.device.RuntimeProcessRole.isOwner) {
                 com.pixelvisionlab.pvautoagent.runtime.RuntimeNotifications.post(context, NOTIFICATION_ID, R.string.app_name, taskTitle.orEmpty(), true)
@@ -90,11 +90,11 @@ class TaskExecutionService : Service() {
             try {
                 appContext.startForegroundService(intent)
             } catch (e: Exception) {
-                Log.w("TaskExecutionService", "启动任务执行前台服务失败: ${e.message}")
+                Log.w("TaskExecutionService", "Failed to start the task execution foreground service: ${e.message}")
             }
         }
 
-        /** 便捷方法：停止前台任务执行并清除常驻通知 */
+        /** Convenience method: stop foreground task execution and clear the resident notification */
         fun stopExecution(context: Context) {
             if (com.pixelvisionlab.pvautoagent.core.device.agent.device.RuntimeProcessRole.isOwner) {
                 com.pixelvisionlab.pvautoagent.runtime.RuntimeNotifications.cancel(context, NOTIFICATION_ID)
@@ -108,11 +108,11 @@ class TaskExecutionService : Service() {
             try {
                 appContext.startService(intent)
             } catch (e: Exception) {
-                Log.w("TaskExecutionService", "停止任务执行前台服务失败: ${e.message}")
+                Log.w("TaskExecutionService", "Failed to stop the task execution foreground service: ${e.message}")
             }
         }
 
-        /** 任务完成通知 ID（独立于常驻通知，可被用户划掉） */
+        /** Task completion notification ID (independent of the resident notification, can be swiped away by the user) */
         const val TASK_DONE_NOTIFICATION_ID = 1002
         // Use a result-alert channel so an earlier ordinary-priority channel cannot
         // keep completion notices from appearing as heads-up alerts.
@@ -158,9 +158,9 @@ class TaskExecutionService : Service() {
             ContextCompat.getContextForLanguage(context)
 
         /**
-         * 通知发送结果之前被静默吞掉(SecurityException 直接 catch 忽略)，真机上通知到底有没有
-         * 发出去完全不可见。这里把结果(含"通知总开关是否关闭"这个比异常更常见的沉默失败原因)
-         * 记进 debugLogManager，让下次 debug 导出能直接看到。
+         * The notification send result used to be swallowed silently (SecurityException was caught and ignored outright), so on real devices there was
+         * no way to see whether a notification actually went out. This records the result (including "the master notification toggle is off", a silent failure cause
+         * more common than an exception) into debugLogManager, so the next debug export shows it directly.
          */
         private fun logNotifyResult(context: Context, kind: String, result: Result<Unit>) {
             runCatching {
@@ -174,7 +174,7 @@ class TaskExecutionService : Service() {
             }
         }
 
-        /** 发送定时任务启动通知（场景 b） */
+        /** Send the scheduled task start notification (scenario b) */
         fun notifyAutomationStarted(context: Context, taskTitle: String): Boolean {
             if (com.pixelvisionlab.pvautoagent.core.device.agent.device.RuntimeProcessRole.isOwner)
                 return com.pixelvisionlab.pvautoagent.runtime.RuntimeNotifications.post(context, TASK_STARTED_NOTIFICATION_ID, R.string.automation_started_notification_title, taskTitle)
@@ -220,7 +220,7 @@ class TaskExecutionService : Service() {
             return result.isSuccess && nm.areNotificationsEnabled()
         }
 
-        /** 发送任务完成通知（场景 e） */
+        /** Send the task completed notification (scenario e) */
         fun notifyTaskCompleted(context: Context, taskTitle: String? = null, summary: String): Boolean {
             if (com.pixelvisionlab.pvautoagent.core.device.agent.device.RuntimeProcessRole.isOwner)
                 return com.pixelvisionlab.pvautoagent.runtime.RuntimeNotifications.post(context, TASK_DONE_NOTIFICATION_ID, R.string.task_completed_notification_title, summary)
@@ -264,7 +264,7 @@ class TaskExecutionService : Service() {
             return result.isSuccess && nm.areNotificationsEnabled()
         }
 
-        /** 发送任务中断/失败通知（场景 c） */
+        /** Send the task interrupted/failed notification (scenario c) */
         fun notifyTaskInterrupted(context: Context, taskTitle: String? = null, reason: String): Boolean {
             if (com.pixelvisionlab.pvautoagent.core.device.agent.device.RuntimeProcessRole.isOwner)
                 return com.pixelvisionlab.pvautoagent.runtime.RuntimeNotifications.post(context, TASK_DONE_NOTIFICATION_ID, R.string.task_interrupted_notification_title, reason)
@@ -326,19 +326,19 @@ class TaskExecutionService : Service() {
         }
 
         /**
-         * 发送任务结束通知（独立通知，非常驻）。
+         * Send the task finished notification (a standalone notification, not the resident one).
          *
-         * 任务完成时：若应用在界面前台（即在对话窗口）已显示在应用界面里，不用再弹窗通知；
-         * 若应用不在前台（即在应用外面），才需要弹窗通知。
+         * When the task completes: if the app is in the foreground (that is, in the conversation window) and already displayed in the app UI, there is no need to post a pop-up notification;
+         * only if the app is not in the foreground (that is, outside the app) does a pop-up notification become necessary.
          *
-         * 正文就是模型最终给用户的那段话本身：不带成败标题、不加前缀，展开即全文。
+         * The body is the final message the model gives the user itself: no success/failure title, no prefix, expanding shows the full text.
          */
         fun notifyTaskDone(context: Context, text: String): Boolean {
             if (com.pixelvisionlab.pvautoagent.core.device.agent.device.RuntimeProcessRole.isOwner)
                 return com.pixelvisionlab.pvautoagent.runtime.RuntimeNotifications.post(context, TASK_DONE_NOTIFICATION_ID, R.string.task_completed_notification_title, text)
             if (suppressForegroundNotification(context, "task_complete")) return true
             val l10n = localizedContext(context)
-            // 创建通知渠道（高优先级，有声音）
+            // Create the notification channel (high priority, with sound)
             val channel = NotificationChannelCompat.Builder(
                 TASK_DONE_CHANNEL_ID,
                 NotificationManagerCompat.IMPORTANCE_HIGH
@@ -349,7 +349,7 @@ class TaskExecutionService : Service() {
             val nm = NotificationManagerCompat.from(context)
             nm.createNotificationChannel(channel)
 
-            // 点击跳回主界面
+            // Tap to jump back to the main screen
             val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
             val pendingIntent = if (launchIntent != null) {
                 PendingIntent.getActivity(
@@ -480,7 +480,7 @@ class TaskExecutionService : Service() {
             try {
                 NotificationManagerCompat.from(context).cancel(MANUAL_TAKEOVER_NOTIFICATION_ID)
             } catch (_: SecurityException) {
-                // 通知权限被拒
+                // Notification permission denied
             }
         }
     }
@@ -591,7 +591,7 @@ class TaskExecutionService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun buildNotification(l10n: Context, @StringRes statusResource: Int, vararg arguments: String): android.app.Notification {
-        // 点击通知跳回主界面
+        // Tap the notification to jump back to the main screen
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
         val pendingIntent = if (launchIntent != null) {
             PendingIntent.getActivity(

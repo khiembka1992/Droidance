@@ -63,20 +63,20 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     private static final String DISPLAY_NAME = "Wireless Display";
     private static final String CLIP_LABEL = "text";
     private static final int WAKE_REASON_APPLICATION = 2;
-    // PowerManager.SCREEN_BRIGHT_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP：唯一能把虚拟屏所在
-    // power group 拉成 interactive 的等级（真机 dumpsys 验证，见 keepDisplayInteractive）。
+    // PowerManager.SCREEN_BRIGHT_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP: the only level that can make the power group the virtual display belongs to
+    // interactive (verified by dumpsys on a real device, see keepDisplayInteractive).
     private static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
     private static final int ACQUIRE_CAUSES_WAKEUP = 0x10000000;
     private static final String DISPLAY_WAKE_LOCK_TAG = "WindowManager-Display";
     private static final String VIEWER_WAKE_LOCK_TAG = "PVAutoAgent:VirtualSpaceViewer";
-    // 带超时持锁：任务里每个动作都会刷新它，任务结束后自动过期，避免空闲期一直吊着电源组耗电。
+    // Hold the lock with a timeout: every action in a task refreshes it, and it expires automatically after the task ends, so the power group is not kept awake and draining battery during idle periods.
     private static final long DISPLAY_WAKE_LOCK_TIMEOUT_MS = 10 * 60 * 1000L;
     private static final long DISPLAY_INTERACTIVE_SETTLE_MS = 120L;
     private static final int DISPLAY_INTERACTIVE_ATTEMPTS = 3;
     private static final long DISPLAY_INTERACTIVE_REUSE_MS = 800L;
     private static final String INPUT_PATH_REFLECTION = "reflection";
     private static final String INPUT_PATH_INPUT_COMMAND = "input_cmd";
-    // 虚拟屏窗口就绪前 injectInputEvent 可能返回 false，做有界重试吸收时序竞态。
+    // injectInputEvent may return false before the virtual display window is ready; bounded retries absorb the timing race.
     private static final int INJECT_MAX_ATTEMPTS = 4;
     private static final long INJECT_RETRY_DELAY_MS = 120L;
     private static final long TEXT_CLIPBOARD_HANDOFF_MS = 350L;
@@ -117,8 +117,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     private final SidecarViewerMirror viewerMirror = new SidecarViewerMirror(this::holdViewerDisplayAwake);
     private SidecarViewerIme viewerIme;
     private boolean manualTouchActive;
-    // 每次注入记录走了哪条通道：反射成功和"反射失败静默回退 input 命令"对外消息完全一样，
-    // 没有这条证据时 debug 包无法区分"注入到了但被忽略"和"通道降级了"。
+    // Records which channel each injection went through: a successful reflection and a "reflection failure silently falling back to the input command" produce an identical outward-facing message,
+    // and without this evidence a debug build cannot distinguish "the injection arrived but was ignored" from "the channel was downgraded".
     private volatile String lastInputEvidence = "";
     private volatile String lastReflectionFailure = "";
     private volatile String displayWakeEvidence = "";
@@ -321,13 +321,13 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 主动把虚拟屏电源组唤醒，供任务开始时调用。
+     * Actively wakes the virtual display's power group, intended to be called when a task starts.
      *
-     * keepDisplayInteractive 原本只有注入路径（acceptsInteractiveDisplay）会顺带触发，
-     * 而 DeepLink / 开应用走的是 execShellCommand 转发的 `am start --display N`——sidecar 只是
-     * fork 一个 sh，看不懂命令内容，没有任何机会插入唤醒。唤醒锁 10 分钟超时，任务间隔一长
-     * 电源组必然 DOZING，于是任务第一步的 am start 返回 Success 却不 resume，harness 截到的
-     * 还是上一个任务的残留帧，模型基于过期画面推理并脱靶。锁屏场景必现（设备闲置远超 10 分钟）。
+     * keepDisplayInteractive originally was only triggered incidentally by the injection path (acceptsInteractiveDisplay),
+     * whereas DeepLink / app launching goes through `am start --display N` forwarded by execShellCommand -- the sidecar merely
+     * forks a sh, cannot read the command content, and has no chance to insert a wake. The wake lock times out after 10 minutes, so once the gap between tasks grows long
+     * the power group is inevitably DOZING; the first am start of the task then returns Success without resuming, and what the harness captures
+     * is still a leftover frame from the previous task, so the model reasons from an outdated screen and misses. This happens every time in the locked-screen scenario (the device is idle well over 10 minutes).
      */
     @Override
     public synchronized boolean ensureDisplayInteractive(int targetDisplayId) {
@@ -390,7 +390,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         if (!acceptsInteractiveDisplay(targetDisplayId)) return false;
         beginRuntimeInputDispatch();
         try {
-            // 20260722-V6/V7 的真机日志已验证这条路径可在虚拟屏产生真实画面变化。
+            // Real-device logs from 20260722-V6/V7 have verified that this path produces a real screen change on the virtual display.
             int dur = 55 + (int) (Math.random() * 25);
             if (injectTapSafely(targetDisplayId, x, y, dur)) return true;
             boolean ok = runInputCommand(targetDisplayId, "tap", Integer.toString(x), Integer.toString(y));
@@ -543,7 +543,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     public boolean key(int targetDisplayId, int keycode) {
         if (!acceptsInteractiveDisplay(targetDisplayId)) return false;
         claimInputFocus();
-        // 反射注入为主(与阿拉丁一致)；失败再退 input 命令兜底。
+        // Reflection injection is primary (consistent with aladdin); fall back to the input command only on failure.
         try {
             injectKey(targetDisplayId, keycode);
             noteInputEvidence("key", INPUT_PATH_REFLECTION, true, "");
@@ -1427,10 +1427,10 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 本机执行一条 shell 命令（用于 am start 打开 App，绕开 ADB/AIR 实时连接依赖，WiFi 关闭也能用）。
-     * 走 /system/bin/sh -c 而不是进程内 startActivity：sidecar 是 shell 身份(uid=2000)进程，
-     * 进程内 startActivity 的 callingPackage 会取自 base context(=android)，被 AMS 拒绝；
-     * 真正 fork 一个 sh 子进程运行 am，calling package 才会正确解析成 com.android.shell。
+     * Executes one shell command locally (used for am start to open an app, bypassing the dependency on a live ADB/AIR connection, so it also works with WiFi off).
+     * Goes through /system/bin/sh -c instead of an in-process startActivity: the sidecar is a shell-identity (uid=2000) process, and the callingPackage of an
+     * in-process startActivity is taken from the base context (=android), which AMS rejects;
+     * only by actually forking an sh child process to run am is the calling package correctly resolved as com.android.shell.
      * Returns a typed Bundle; arbitrary command output cannot alter the transport fields.
      */
     private final ManagedShellCommands shellCommands = new ManagedShellCommands();
@@ -1559,7 +1559,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         return releaseDisplay();
     }
 
-    /** 只回收虚拟屏本身（含唤醒锁与帧通道），不动主屏的运行时浮层。 */
+    /** Reclaims only the virtual display itself (including the wake lock and frame channel); leaves the main screen's runtime overlay untouched. */
     private synchronized boolean releaseDisplay() {
         if (viewerIme != null) {
             try { viewerIme.close(); }
@@ -1733,7 +1733,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         }
     }
 
-    /** 注入证据：op + 实际通道 + 成败 + 细节，供 App 侧写进任务诊断，让通道降级不再无声。 */
+    /** Injection evidence: op + actual channel + success or failure + detail, for the App side to write into task diagnostics so channel downgrades are no longer silent. */
     private void noteInputEvidence(String op, String path, boolean ok, String detail) {
         StringBuilder evidence = new StringBuilder()
                 .append(op)
@@ -1767,24 +1767,24 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 让虚拟屏所在的电源组保持 interactive，这是注入能否被系统派发的**唯一前置条件**。
+     * Keeps the power group the virtual display belongs to interactive; this is the **sole prerequisite** for whether injection can be dispatched by the system.
      *
-     * OWN_DISPLAY_GROUP 让虚拟屏独占一个 power group，而这个组和主屏一样受息屏超时管辖：
-     * 建屏时唤醒一次之后，没有任何"用户活动"再喂给它，几十秒后就 DOZING。真机 dumpsys 实证：
+     * OWN_DISPLAY_GROUP gives the virtual display a dedicated power group, and that group, like the main screen's, is subject to the screen-off timeout:
+     * after a single wake at display creation, no "user activity" is ever fed to it again, so it goes DOZING after tens of seconds. Verified with dumpsys on a real device:
      *
      *   dumpsys power  -> Power Group 1: wakefulness=3(DOZING), mIsInteractive=false
      *   dumpsys input  -> Display not interactive: {14, 15}
-     *   注入触摸        -> TouchStatesByDisplay: <no displays touched>   // 被 InputDispatcher 丢弃
+     *   inject touch   -> TouchStatesByDisplay: <no displays touched>   // dropped by InputDispatcher
      *
-     * 后果是两个症状同源：agent 与人工接管一起点不动/滑不动；并且 ActivityTaskManager 不会在
-     * 非 interactive 的屏上 resume 新 activity，深链 am start 返回 Success 却永远不渲染，
-     * 屏上仍是上一任务最后一帧，于是"新任务里出现上一次的 App"。
+     * The consequence is that two symptoms share the same root cause: the agent and manual takeover both cannot tap/swipe; and ActivityTaskManager will not
+     * resume a new activity on a non-interactive display, so a deep-link am start returns Success yet never renders,
+     * and the screen still shows the last frame of the previous task, hence "the previous app shows up in a new task".
      *
-     * 修法（同一台真机验证通过）：以 displayId 为作用域持一把 SCREEN_BRIGHT 唤醒锁。
-     *   acquire 后 dumpsys power -> wakefulness=1(AWAKE)；dumpsys input -> not interactive: {}
-     *   注入触摸 -> TouchStatesByDisplay: 15 -> 目标窗口 touchingPointers=[FINGER]
-     * 执行锁带超时，每个动作刷新一次，任务结束后自动过期。
-     * 可见查看页另持一把随镜像生命周期释放的锁，静止查看不受执行锁超时影响。
+     * The fix (verified on the same real device): hold a SCREEN_BRIGHT wake lock scoped to displayId.
+     *   after acquire, dumpsys power -> wakefulness=1(AWAKE); dumpsys input -> not interactive: {}
+     *   inject touch -> TouchStatesByDisplay: 15 -> target window touchingPointers=[FINGER]
+     * The execution lock has a timeout and is refreshed by every action, expiring automatically after the task ends.
+     * The visible viewer page holds a separate lock released with the mirror's lifecycle, so static viewing is unaffected by the execution lock's timeout.
      */
     private boolean keepDisplayInteractive(String reason) {
         if (displayId < 0) return false;
@@ -1827,7 +1827,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         return false;
     }
 
-    /** 持锁/续期。锁的作用域是 displayId 所在的 power group；带超时，靠动作反复刷新。 */
+    /** Acquire/renew the lock. The lock is scoped to the power group that displayId belongs to; it has a timeout and is refreshed repeatedly by actions. */
     private boolean refreshDisplayWakeLock(Object powerManager) {
         try {
             if (displayWakeLock == null) {
@@ -1889,7 +1889,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
             Method isInteractive = powerManager.getClass().getMethod("isInteractive", int.class);
             return (Boolean) isInteractive.invoke(powerManager, displayId);
         } catch (Throwable ignored) {
-            // 拿不到按 display 的查询能力时不阻断注入：让动作照常执行，由上层的画面比对判定结果。
+            // When the per-display query capability is unavailable, do not block injection: let the action run as usual and let the upper layer's frame comparison judge the result.
             return null;
         }
     }
@@ -1912,7 +1912,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         }
     }
 
-    /** 喂一次"用户活动"，让电源组的息屏计时从现在重新开始算。 */
+    /** Feeds one "user activity" so the power group's screen-off timer restarts from now. */
     private void reportUserActivity() {
         int targetDisplayId = displayId;
         if (targetDisplayId <= Display.DEFAULT_DISPLAY) return;
@@ -1956,8 +1956,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 注入前置：目标是虚拟屏时，先确认它 interactive。做不到就**明确失败**，不能报"点击成功"
-     * ——系统丢弃触摸时注入侧看不出任何异常，无声成功会让 agent 在死屏上空转整轮预算。
+     * Injection prerequisite: when the target is the virtual display, first confirm that it is interactive. If that cannot be done, **fail explicitly**; never report "tap succeeded"
+     * -- when the system drops a touch, the injection side sees no anomaly at all, and a silent success would make the agent spin through an entire round's budget on a dead screen.
      */
     private boolean acceptsInteractiveDisplay(int targetDisplayId) {
         if (!acceptsDisplay(targetDisplayId)) return false;
@@ -2138,8 +2138,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         int holdDuration = 25 + (int) (Math.random() * 20);
         KeyEvent down = new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN, keycode, 0);
         KeyEvent up = new KeyEvent(downTime, downTime + holdDuration, KeyEvent.ACTION_UP, keycode, 0);
-        // 必须显式声明键盘来源：source 为 UNKNOWN 的按键事件会被输入框/IME 丢弃，
-        // 导致文本注入的 KEYCODE_PASTE 无声失效（粘贴不进字段）。与 injectKeyCombo 对齐。
+        // The keyboard source must be declared explicitly: a key event whose source is UNKNOWN is dropped by the input field/IME,
+        // which makes the text injection's KEYCODE_PASTE silently fail (the text never pastes into the field). Aligned with injectKeyCombo.
         down.setSource(InputDevice.SOURCE_KEYBOARD);
         up.setSource(InputDevice.SOURCE_KEYBOARD);
         setInputEventDisplayId(down, targetDisplayId);
@@ -2208,8 +2208,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
             return evidence;
         }
 
-        // 剪贴板回退保持原子校验：写入 → 同身份回读 → 精确比较 → 只有相等才粘贴。
-        // 厂商系统可能静默拒绝后台剪贴板写入，退出码和无异常都不能代表写入成功。
+        // The clipboard fallback keeps atomic verification: write → read back as the same identity → exact compare → paste only if equal.
+        // Vendor systems may silently reject background clipboard writes, so neither the exit code nor the absence of an exception proves the write succeeded.
         ClipboardManager clipboard = shellClipboardManager();
         if (clipboard == null) {
             Bundle evidence = emptyTextEvidence();
@@ -2373,12 +2373,12 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         }
     }
 
-    /** 原始剪贴板快照：readable=false 时 failureDetail 携带 write_failed 诊断。 */
+    /** Raw clipboard snapshot: when readable=false, failureDetail carries the write_failed diagnostic. */
     private static final class OriginalClipboard {
         final boolean readable;
-        final String text;          // 剪贴板文本；可读且剪贴板为空时为 null
-        final String failureDetail; // readable=false 时的失败证据
-        final ClipData clipData;    // shell 直读时保留完整原始剪贴板，恢复用
+        final String text;          // clipboard text; null when readable and the clipboard is empty
+        final String failureDetail; // failure evidence when readable=false
+        final ClipData clipData;    // keeps the full original clipboard when read directly as shell, for restoration
 
         OriginalClipboard(boolean readable, String text, String failureDetail, ClipData clipData) {
             this.readable = readable;
@@ -2389,8 +2389,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 读取原始剪贴板：shell 身份直读并保留完整 ClipData。
-     * readable=false 表示剪贴板不可读（写入前置检查失败，必须中止，不能盲粘）。
+     * Reads the original clipboard: read directly as the shell identity and keep the full ClipData.
+     * readable=false means the clipboard is unreadable (the pre-write check failed, so we must abort and never paste blindly).
      */
     private static OriginalClipboard readOriginalClipboard(ClipboardManager clipboard) {
         if (clipboard == null) {
@@ -2431,7 +2431,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         return evidence;
     }
 
-    /** shell 身份 ClipboardManager：SidecarShellContext.getSystemService 已把其 mContext 换成 shell 身份。 */
+    /** shell-identity ClipboardManager: SidecarShellContext.getSystemService has already swapped its mContext to the shell identity. */
     private ClipboardManager shellClipboardManager() {
         try {
             return (ClipboardManager) resolveContext().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -2447,7 +2447,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         try {
             clipboard.setPrimaryClip(ClipData.newPlainText(CLIP_LABEL, target));
         } catch (Throwable ignored) {
-            // 写异常时回读会拿到旧值 → matches 失败 → 触发兜底或 readback_mismatch，不会盲粘。
+            // When the write throws, the read-back returns the old value → matches fails → triggers the fallback or readback_mismatch, so it never pastes blindly.
         }
         return ClipboardTextVerifier.awaitMatch(target, () -> readPrimaryClipText(clipboard),
                 SystemClock::elapsedRealtime, SystemClock::sleep, TEXT_CLIPBOARD_HANDOFF_MS);
@@ -2511,9 +2511,9 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 用 shell input 命令注入到指定 display（sidecar 是 shell uid，可直接 exec，WiFi 无关）。
-     * 反射 injectInputEvent 是 20260722-V6/V7 真机验证过的首选路径；
-     * 只有反射返回 false 或抛出时才用带 displayId 的系统 input 命令兜底。
+     * Injects into the specified display via the shell input command (the sidecar is shell uid, so it can exec directly, independent of WiFi).
+     * Reflection injectInputEvent is the preferred path, verified on real devices for 20260722-V6/V7;
+     * only when reflection returns false or throws is the system input command with displayId used as a fallback.
      */
     private static boolean runInputCommand(int targetDisplayId, String... args) {
         java.lang.Process proc = null;
@@ -2614,8 +2614,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     private static void injectInputEventWithRetry(InputEvent event, int mode) throws Exception {
-        // Agent 的离散 tap/swipe 等待系统处理完整事件，避免异步 DOWN/UP 被厂商系统无声丢弃；
-        // 人工接管的连续 DOWN/MOVE 保持异步，仅在 UP/CANCEL 等待队列完成。
+        // The agent's discrete tap/swipe waits for the system to finish processing the whole event, so asynchronous DOWN/UP is not silently dropped by vendor systems;
+        // manual takeover's continuous DOWN/MOVE stays asynchronous, waiting for queue completion only on UP/CANCEL.
         Exception lastError = null;
         for (int attempt = 0; attempt < INJECT_MAX_ATTEMPTS; attempt++) {
             try {

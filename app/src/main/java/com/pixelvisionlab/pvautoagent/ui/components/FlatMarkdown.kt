@@ -489,8 +489,8 @@ private fun MarkdownTableRow(
 }
 
 /**
- * 库默认按列表内位置重排序号（index + 1），有序列表一旦被无序列表或段落打断就会拆成多个
- * ORDERED_LIST 节点，第二段重新从 1 开始。解析器保留了原文序号，这里直接沿用。
+ * By default the library renumbers items by position within the list (index + 1), so once an ordered list is interrupted by an unordered list or a paragraph it splits into multiple
+ * ORDERED_LIST nodes and the second segment restarts from 1. The parser preserved the original numbers, so they are reused directly here.
  */
 private val OriginalNumberBulletHandler = BulletHandler { _, bullet, index ->
     val raw = bullet?.trimEnd()
@@ -498,9 +498,9 @@ private val OriginalNumberBulletHandler = BulletHandler { _, bullet, index ->
 }
 
 /**
- * multiplatform-markdown-renderer 库在 buildMarkdownAnnotatedString 中只枚举了少数几个 Token，
- * 未枚举的 AST 叶子 Token（如 GFMTokenTypes.TILDE、DOLLAR、HTML_TAG、CHECK_BOX 等）会被静默丢弃。
- * 这里定义通用兜底回退：未被样式容器消费的叶子 Token，一律提取原始切片文本追加到输出流中。
+ * In buildMarkdownAnnotatedString, the multiplatform-markdown-renderer library only enumerates a few Tokens,
+ * and AST leaf Tokens that are not enumerated (such as GFMTokenTypes.TILDE, DOLLAR, HTML_TAG, CHECK_BOX, etc.) are silently dropped.
+ * This defines a generic fallback: any leaf Token not consumed by a style container has its raw slice text extracted and appended to the output stream.
  */
 private val LIBRARY_HANDLED_TYPES = setOf(
     MarkdownElementTypes.PARAGRAPH,

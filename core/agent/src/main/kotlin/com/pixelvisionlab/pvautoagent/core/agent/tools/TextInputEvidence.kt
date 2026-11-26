@@ -24,7 +24,7 @@ data class TextInputEvidence(
     val injectionDurationMs: Long? = null,
     val readbackDurationMs: Long? = null
 ) {
-    /** 输入通道已接受动作；它与目标输入框内容是否已被读回确认是两类证据。 */
+    /** The input channel has accepted the action; this and whether the target input box content was read back and confirmed are two different kinds of evidence. */
     val accepted: Boolean
         get() = focusConfirmed && payloadConfirmed && eventInjected
 

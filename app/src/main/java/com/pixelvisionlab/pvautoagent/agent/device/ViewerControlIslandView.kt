@@ -152,7 +152,7 @@ internal class ViewerControlIslandView(
         gravity = Gravity.CENTER_VERTICAL
         setPadding(0, 0, dp(RuntimeIslandStyle.EDGE_PADDING_DP), 0)
 
-        // 透明点击区覆盖收起标识和吉祥物；拖动仍由父容器在超过阈值后接管。
+        // A transparent hit area covers the collapse icon and the mascot; dragging is still taken over by the parent container once the threshold is exceeded.
         addView(View(context).apply {
             contentDescription = context.getString(R.string.takeover_close_viewer)
             isFocusable = true

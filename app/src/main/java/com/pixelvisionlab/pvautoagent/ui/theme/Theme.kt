@@ -22,9 +22,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// 深色配色方案：近黑底 + 近白主操作（按钮）+ 蓝色功能强调
+// Dark color scheme: near-black background + near-white primary action (buttons) + blue functional accent
 private val DarkColorScheme = darkColorScheme(
-    primary = Neutral50,          // 主按钮/Material 填充：深色下用近白，文字深色
+    primary = Neutral50,          // Primary button/Material fill: near-white in dark mode, with dark text
     onPrimary = Neutral950,
     primaryContainer = Neutral800,
     onPrimaryContainer = Neutral50,
@@ -32,7 +32,7 @@ private val DarkColorScheme = darkColorScheme(
     onSecondary = Neutral900,
     secondaryContainer = Neutral800,
     onSecondaryContainer = Neutral300,
-    tertiary = AccentBlue,        // 功能强调蓝
+    tertiary = AccentBlue,        // Functional accent blue
     onTertiary = Neutral0,
     tertiaryContainer = AccentBlueContainerDark,
     onTertiaryContainer = AccentBlue,
@@ -58,9 +58,9 @@ private val DarkColorScheme = darkColorScheme(
     onErrorContainer = StatusOnErrorContainerDark,
 )
 
-// 浅色配色方案：极简浅底 + 石墨黑主操作（按钮）+ 蓝色功能强调
+// Light color scheme: minimal light background + graphite-black primary action (buttons) + blue functional accent
 private val LightColorScheme = lightColorScheme(
-    primary = Neutral900,         // 主按钮/强调：石墨黑
+    primary = Neutral900,         // Primary button/accent: graphite black
     onPrimary = Neutral0,
     primaryContainer = Neutral200,
     onPrimaryContainer = Neutral900,
@@ -68,11 +68,11 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = Neutral0,
     secondaryContainer = Neutral100,
     onSecondaryContainer = Neutral700,
-    tertiary = AccentBlue,        // 功能强调蓝
+    tertiary = AccentBlue,        // Functional accent blue
     onTertiary = Neutral0,
     tertiaryContainer = AccentBlueContainerLight,
     onTertiaryContainer = AccentBlueVariant,
-    // 画布 < 卡片 < 浮层逐级只亮一小步；浮层 LightFloating 见 pvautoagentFloatingSurfaceColor。
+    // Canvas < card < floating layer each step up only slightly; for the LightFloating floating layer see pvautoagentFloatingSurfaceColor.
     background = LightCanvas,
     surface = LightCard,
     surfaceVariant = LightContainerHigh,
@@ -94,12 +94,12 @@ private val LightColorScheme = lightColorScheme(
 )
 
 /**
- * 让子组件感知当前是否深色模式（用于玻璃效果等）
+ * Lets child components know whether dark mode is currently active (used for glass effects and similar)
  */
 val LocalAppIsDark = staticCompositionLocalOf { false }
 
 /**
- * PVAutoAgent 主题
+ * PVAutoAgent theme
  * Consumes the theme mode supplied by the settings repository.
  */
 @Composable
@@ -115,7 +115,7 @@ fun PVAutoAgentTheme(
 
     val colorScheme = if (isDark) DarkColorScheme else LightColorScheme
 
-    // 设置状态栏样式
+    // Configure the status bar style
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -125,9 +125,9 @@ fun PVAutoAgentTheme(
         }
     }
 
-    // Material3 未覆盖时，文字选中高亮默认继承 colorScheme.primary——浅色主题下 primary 是石墨黑
-    // (见上方 LightColorScheme)，选中文字会像被涂了一块深黑色，又深又难看。选中本就是 AccentBlue
-    // 注释里写明的用途之一，这里显式覆盖成蓝色半透明高亮，深浅主题都统一好看。
+    // When Material3 does not override it, the text selection highlight defaults to colorScheme.primary — in the light theme primary is graphite black
+    // (see LightColorScheme above), so selected text looks like a block of deep black was painted over it — both dark and ugly. Selection is in fact already named as
+    // one of the intended uses of AccentBlue in its comment, so here it is explicitly overridden to a blue semi-transparent highlight that looks consistent and good in both dark and light themes.
     val selectionColors = TextSelectionColors(
         handleColor = AccentBlue,
         backgroundColor = AccentBlue.copy(alpha = 0.35f)

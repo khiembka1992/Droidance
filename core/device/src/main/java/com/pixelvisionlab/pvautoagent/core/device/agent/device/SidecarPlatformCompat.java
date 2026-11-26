@@ -38,16 +38,16 @@ final class SidecarPlatformCompat {
         int flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC | OWN_CONTENT_ONLY | DESTROY_CONTENT_ON_REMOVAL;
         // Shell holds ADD_TRUSTED_DISPLAY and ADD_ALWAYS_UNLOCKED_DISPLAY from Android 13 only;
         // Android 12 rejects the whole display when TRUSTED or OWN_DISPLAY_GROUP is requested.
-        // 这几个 flag 是**互相依赖的一组，不要单独摘任何一个**：
-        //   ALWAYS_UNLOCKED 只对"不在默认显示组"的虚拟屏合法 -> 必须与 OWN_DISPLAY_GROUP 同在，
-        //     单独摘掉 OWN_DISPLAY_GROUP 会让 createVirtualDisplay 直接抛参数异常、虚拟空间连屏都建不起来；
-        //   OWN_FOCUS 要求该屏是 TRUSTED。
-        //   OWN_DISPLAY_GROUP 带来的独立电源组默认是 Asleep，必须由 wakeDisplayGroup() 唤醒，
-        //     否则系统判该屏 not interactive 并丢弃全部注入触摸。
+        // These flags are **a mutually dependent set; do not drop any one of them on its own**:
+        //   ALWAYS_UNLOCKED is only valid for a virtual display that is "not in the default display group" -> it must be present together with OWN_DISPLAY_GROUP,
+        //     dropping OWN_DISPLAY_GROUP on its own makes createVirtualDisplay throw a parameter exception and the virtual space cannot even create a display;
+        //   OWN_FOCUS requires the display to be TRUSTED.
+        //   The independent power group that OWN_DISPLAY_GROUP brings is Asleep by default and must be woken by wakeDisplayGroup(),
+        //     otherwise the system judges the display not interactive and drops all injected touches.
         if (sdk >= Build.VERSION_CODES.TIRAMISU) flags |= TRUSTED | OWN_DISPLAY_GROUP | ALWAYS_UNLOCKED;
-        // OWN_FOCUS 是注入能否生效的前提：App 自己的查看页/接管面板长期在主屏前台持有焦点，
-        // 没有这个 flag 时虚拟屏不维护自己的焦点与触摸模式，注入的 tap/swipe 会被系统丢弃
-        // （agent 和人工接管同时"点不动、滑不动"）。该 flag 要求同屏已置 TRUSTED。
+        // OWN_FOCUS is the prerequisite for injection to take effect: the app's own viewer page/takeover panel holds focus in the foreground of the main screen for long periods,
+        // and without this flag the virtual display does not maintain its own focus and touch mode, so injected tap/swipe is dropped by the system
+        // (the agent and manual takeover are both "can't tap, can't swipe" at the same time). This flag requires the same display to already be TRUSTED.
         // OWN_FOCUS keeps input events scoped to this display. Background text uses
         // display-scoped keys/clipboard without selecting the user's system IME.
         // A background display needs its own focus without taking the physical screen's

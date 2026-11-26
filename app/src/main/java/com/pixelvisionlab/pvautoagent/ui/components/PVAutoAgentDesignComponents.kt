@@ -102,7 +102,7 @@ fun pvautoagentFieldColors(): TextFieldColors {
     )
 }
 
-/** 全局开关配色：开启 = 当前主题主色，未开启 = 可见的中性灰轨道。 */
+/** Global switch colors: on = the current theme's primary color, off = a visible neutral gray track. */
 @Composable
 fun pvautoagentSwitchColors(): SwitchColors = SwitchDefaults.colors(
     checkedThumbColor = MaterialTheme.colorScheme.onPrimary,

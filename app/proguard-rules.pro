@@ -1,6 +1,6 @@
-# PVAutoAgent ProGuard 规则
+# PVAutoAgent ProGuard rules
 
-# ADB shell app_process 通过完整类名启动后台虚拟空间 sidecar，发布构建不能混淆入口类。
+# The ADB shell app_process starts the background virtual-space sidecar by fully qualified class name, so release builds must not obfuscate the entry class.
 -keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.VirtualSpaceSidecarMain { *; }
 -keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.ShizukuShellService { *; }
 -keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.IShizukuShellService$Stub { *; }
@@ -10,7 +10,7 @@
 -keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.IVirtualSpaceSidecar$Stub { *; }
 -keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.IVirtualSpaceSidecar$Stub$Proxy { *; }
 
-# 保留 kotlinx.serialization 相关类
+# Keep kotlinx.serialization classes
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt
 -keepclassmembers class kotlinx.serialization.json.** {

@@ -27,9 +27,9 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.coroutineContext
 
 /**
- * LLM 路由器（重构版）
- * 直接从 ProviderConfigManager 获取动态配置，
- * 使用 OpenAI 兼容格式发起 HTTP 调用
+ * LLM router (refactored version)
+ * Fetches dynamic configuration directly from ProviderConfigManager,
+ * and issues HTTP calls using the OpenAI-compatible format
  */
 class LLMRouter(
     private val httpClient: OkHttpClient,
@@ -41,7 +41,7 @@ class LLMRouter(
         const val FINAL_USAGE_GRACE_MS = 1_000L
     }
 
-    /** 模型切换事件回调（供 UI 监听，显示切换通知） */
+    /** Model switch event callback (for the UI to listen to and show switch notifications) */
     private val switchEvents = kotlinx.coroutines.flow.MutableSharedFlow<ModelSwitchEvent>(extraBufferCapacity = 16)
     override val modelSwitches: kotlinx.coroutines.flow.SharedFlow<ModelSwitchEvent> = switchEvents
 
@@ -277,7 +277,7 @@ class LLMRouter(
         return isVisionEnabled(config, configManager.getCurrentModel(config))
     }
 
-    /** 当前操作 Provider 的上下文窗口（token），供自动压缩按 60% 阈值判断。 */
+    /** Context window (tokens) of the currently operating Provider, used by automatic compaction to judge against the 60% threshold. */
     override fun currentContextWindowTokens(): Int {
         synchronized(turnPlanLock) {
             frozenTurnPlan?.contextWindowTokens?.let { return it.coerceAtLeast(8_000) }
@@ -311,9 +311,9 @@ class LLMRouter(
     }
 
     /**
-     * 流式聊天（支持同 Provider 内模型自动降级）
-     * 当流式调用失败且错误为额度/模型不可用时，自动切换到下一个模型重试
-     * 降级逻辑在 Flow 内部完成（因为 SSE 错误在 collect 时才触发）
+     * Streaming chat (supports automatic model fallback within the same Provider)
+     * When a streaming call fails and the error is quota/model unavailable, automatically switch to the next model and retry
+     * The fallback logic is done inside the Flow (because SSE errors only trigger at collect time)
      */
     override suspend fun streamChat(
         messages: List<ChatMessage>,
@@ -474,7 +474,7 @@ class LLMRouter(
                             config, currentModel, imageDetail, returnedModel
                         )
                     }
-                    // 流完整结束，调用成功，重置降级状态
+                    // The stream finished completely and the call succeeded, so reset the fallback state
                     configManager.resetModelFallback(config.id)
                     return@flow
                 } catch (e: Exception) {
@@ -549,7 +549,7 @@ class LLMRouter(
                             }
                             imageDetailIndex = 0
                             switchEvents.emit(ModelSwitchEvent(oldModel, nextModel, errMsg.take(80)))
-                            continue // 用下一个模型重试
+                            continue // Retry with the next model
                         }
                     }
                     val boundedRequestTimeout = requestTimeoutMs != null &&
@@ -562,7 +562,7 @@ class LLMRouter(
                         delay(250)
                         continue
                     }
-                    // 不是额度错误 或 所有模型都试完了
+                    // Not a quota error, or all models have been tried
                     throw lastError
                 }
             }
@@ -638,10 +638,10 @@ class LLMRouter(
             ProviderErrorCategory.PREVIOUS_RESPONSE_NOT_FOUND
     }
 
-    // ====== OpenAI 兼容 HTTP 调用 ======
+    // ====== OpenAI-compatible HTTP call ======
 
     /**
-     * 流式调用 OpenAI 兼容 API（SSE）
+     * Stream-call an OpenAI-compatible API (SSE)
      */
     private fun streamOpenAICompatible(
         endpointUrl: String,
@@ -748,14 +748,14 @@ class LLMRouter(
                         break
                     }
 
-                    // 先解析 JSON，JSON 格式错误才静默跳过
+                    // Parse JSON first; only skip silently when the JSON format is invalid
                     val json = try {
                         Json.parseToJsonElement(data).jsonObject
                     } catch (_: Exception) {
-                        continue  // 非 JSON 行，跳过
+                        continue  // Not a JSON line, skip it
                     }
 
-                    // 检查 stream body 中的错误字段，通过 ProviderHttpException 保留状态码与结构化分类供瞬态重试
+                    // Check the error field in the stream body, preserving the status code and structured classification via ProviderHttpException for transient retries
                     (json["error"] as? JsonObject)?.let { errObj ->
                         val codeRaw = errObj["code"]?.jsonPrimitive?.contentOrNull
                         val codeInt = (errObj["code"] as? JsonPrimitive)?.intOrNull ?: codeRaw?.toIntOrNull()
@@ -763,7 +763,7 @@ class LLMRouter(
                         throw ProviderHttpException.fromResponse(statusCode, providerName, data, redactor = redactor)
                     }
 
-                    // 解析 usage（出现在最后一个有效 chunk，需 stream_options.include_usage=true）
+                    // Parse usage (appears in the last valid chunk; requires stream_options.include_usage=true)
                     val usage = json["usage"] as? JsonObject
                     val choice = (json["choices"] as? JsonArray)?.firstOrNull() as? JsonObject
                     val reportedFinishReason = (choice?.get("finish_reason") as? JsonPrimitive)?.contentOrNull
@@ -1040,10 +1040,10 @@ class LLMRouter(
         "LLM request cancelled before registration"
     )
 
-    // ====== JSON 构建 ======
+    // ====== JSON construction ======
 
     /**
-     * 构建 OpenAI 兼容格式的请求体
+     * Build an OpenAI-compatible request body
      */
     private fun buildRequestJson(
         messages: List<ChatMessage>,
@@ -1062,7 +1062,7 @@ class LLMRouter(
             reasoningEffort.wireValue?.let { put("reasoning_effort", it) }
             putJsonObject("stream_options") { put("include_usage", true) }
             putJsonArray("messages") {
-                // 系统提示词
+                // System prompt
                 systemPrompt?.let {
                     addJsonObject {
                         put("role", "system")
@@ -1081,7 +1081,7 @@ class LLMRouter(
                         val images = msg.imageBase64List.ifEmpty {
                             msg.imageBase64?.let { listOf(it) } ?: emptyList()
                         }
-                        // 带图片的 user 消息用 content array 格式（仅当 Provider 支持视觉时）
+                        // A user message with images uses the content array format (only when the Provider supports vision)
                         if (images.isNotEmpty() && msg.role == Role.USER && supportsVision) {
                             putJsonArray("content") {
                                 if (msg.content.isNotBlank()) {
@@ -1131,7 +1131,7 @@ class LLMRouter(
                 }
             }
 
-            // 工具定义
+            // Tool definitions
             if (tools.isNotEmpty()) {
                 putJsonArray("tools") {
                     tools.forEach { tool ->

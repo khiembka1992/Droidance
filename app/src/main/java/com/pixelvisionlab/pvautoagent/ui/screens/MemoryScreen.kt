@@ -139,7 +139,7 @@ private fun String.toSettingsPreview(emptyLabel: String): String =
         ?.take(56)
         ?: emptyLabel
 
-// ====== 全屏编辑器 ======
+// ====== Full-screen editor ======
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

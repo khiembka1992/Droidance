@@ -23,11 +23,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Deep Link 知识库。
+ * Deep Link knowledge base.
  *
- * 内置资产放在 assets/deeplinks，启动后导入 pvautoagent-data/deeplinks。
- * Agent 只拿第三方 App URI 目录索引，具体 URI 由 android_act(open) 按需解析。
- * Android 平台 Intent 不属于 Deep Link，由 android_act(open, intent_action=...) 的 native 路径执行。
+ * Built-in assets live in assets/deeplinks and are imported into pvautoagent-data/deeplinks at startup.
+ * The Agent only gets a URI catalog index of third-party Apps; specific URIs are resolved on demand by android_act(open).
+ * Android platform Intents are not Deep Links; they are executed by android_act(open, intent_action=...)'s native path.
  */
 @Singleton
 class DeepLinkKnowledgeStore @Inject constructor(
@@ -456,8 +456,8 @@ class DeepLinkKnowledgeStore @Inject constructor(
                 if (normalizedAction != null && route.depth != "app_home") {
                     score += 40
                 }
-                // 深度策略：deep_entry > app_home > search_results
-                // 官方路由的 search_results 已验证可用，不扣分
+                // Depth policy: deep_entry > app_home > search_results
+                // search_results on official routes is verified to work, so no score penalty
                 score += when {
                     route.depth == "deep_entry" -> 60
                     route.depth == "app_home" -> 30
@@ -467,7 +467,7 @@ class DeepLinkKnowledgeStore @Inject constructor(
                 }
                 score += reliabilityScore(route)
                 score += route.successCount * 15
-                // failureCount 超过 5 次后额外加速衰减，确保多次失败路由被过滤
+                // Beyond 5 failures, decay extra fast so repeatedly failing routes get filtered out
                 score -= route.failureCount * 18
                 if (route.failureCount >= 5) score -= (route.failureCount - 5) * 30
                 DeepLinkResolution(route, materialize(route, keyword, cleanParams), score)
@@ -698,7 +698,7 @@ class DeepLinkKnowledgeStore @Inject constructor(
                 resolved = resolved.replace("{$name}", URLEncoder.encode(value, "UTF-8"))
             }
         }
-        // 如果还有未解析的占位符，返回空串让调用层跳过这条路由
+        // If unresolved placeholders remain, return an empty string so the caller skips this route
         if (Regex("""\{[A-Za-z_][A-Za-z0-9_]*\}""").containsMatchIn(resolved)) return ""
         return resolved
     }

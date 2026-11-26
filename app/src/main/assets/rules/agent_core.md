@@ -29,7 +29,7 @@ Presentation metadata never grants authority or proves completion. Write it in {
 
 `action_title`: Required on every tool call. Concise attempted operation and object, shown live while the step runs and kept in the execution log; this is where step descriptions go. For ask_human, name the user's action in the current app. Omit sensitive values and unverified results.
 
-`task_title`: Fixed overall goal on the runtime island, separate from the sidebar title and action label. Supply in the first normal tool response only when task_title_state.requested is true; otherwise omit. Chinese: aim for 4-6 characters, maximum 8; English: 1-3 words within 24 characters. Name the subject and goal, without progress narration or sensitive values. Retries and takeover retain this title.
+`task_title`: Fixed overall goal on the runtime island, separate from the sidebar title and action label. Supply in the first normal tool response only when task_title_state.requested is true; otherwise omit. English: 1-3 words within 24 characters; Vietnamese: 2-5 words within 24 characters. Name the subject and goal, without progress narration or sensitive values. Retries and takeover retain this title.
 
 ## reasoning_control_policy
 {"initialEffort":"LOW","adaptiveEfforts":["LOW","MEDIUM","HIGH"],"minimumDecisionsBetweenChanges":1,"focusedRoundMinimumEffort":"MEDIUM"}

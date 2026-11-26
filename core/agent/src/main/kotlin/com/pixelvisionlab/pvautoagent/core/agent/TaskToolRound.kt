@@ -635,8 +635,8 @@ internal suspend fun TaskTurnSession.runToolRound(modelRound: ModelRoundOutput):
 
         suspend fun processToolCalls(): ToolRoundOutcome {
             /**
-             * 完成类调用的证据守卫：终态观察引用、完成证据、目标复核三项判定彼此耦合，
-             * 但只有两个结果被守卫链下游使用，集中在这里让主链保持可读。
+             * Evidence guards for completion-type calls: the terminal observation reference, the completion evidence, and the goal recheck are three judgments coupled to each other,
+             * but only two results are used downstream of the guard chain, so they are gathered here to keep the main chain readable.
              */
             fun evaluateCompletionEvidenceGuards(
                 tc: ToolCall,
@@ -1366,8 +1366,8 @@ internal suspend fun TaskTurnSession.runToolRound(modelRound: ModelRoundOutput):
                 return ToolRoundOutcome.Terminal(groundedGuardStop("OBSERVATION_RECOVERY_BUDGET_EXHAUSTED"))
             }
             if (planRejectionCode != null) {
-                // 参数协议错误不会执行设备动作；下一轮不能继续相信旧截图，
-                // 否则模型会在同一帧上重复生成越界/过期坐标。
+                // An argument protocol error does not execute a device action; the next round must not keep trusting the old screenshot,
+                // otherwise the model will keep generating out-of-bounds/stale coordinates on the same frame.
                 if (planRejectionCode != com.pixelvisionlab.pvautoagent.core.agent.harness.RoundDiagnosticCode.QUERY_RESULT_REQUIRED &&
                     tc.name in ToolCatalog.screenDependentActionToolNames && hadScreenObservation
                 ) {
@@ -1454,8 +1454,8 @@ internal suspend fun TaskTurnSession.runToolRound(modelRound: ModelRoundOutput):
                     ToolResultStatus.isSuccess(result) &&
                     resultCard != null
                 ) {
-                    // 结果卡已经是结构化的用户可见终态。继续请求模型只会让它重复提交
-                    // 同一张卡，既浪费一轮又可能把已完成任务拖入无进展循环。
+                    // The result card is already a structured, user-visible terminal state. Asking the model again would only make it resubmit
+                    // the same card, wasting a round and possibly dragging a finished task into a no-progress loop.
                     finalOutput = resultCard.toUserFacingText()
                     finalTerminal = TurnTerminal.DONE
                     break

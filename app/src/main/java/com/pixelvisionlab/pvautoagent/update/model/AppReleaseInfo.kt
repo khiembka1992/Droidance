@@ -7,7 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * 远程发布版本信息
+ * Remote release version information
  */
 data class AppReleaseInfo(
     val tagName: String,

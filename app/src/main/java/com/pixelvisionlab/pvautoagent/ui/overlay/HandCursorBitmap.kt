@@ -9,11 +9,11 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 
 /**
- * 机器人小手指针的位图素材（`robot_hand_pointer.png`）。沿用原小手的黑底素材加载方式，
- * 把接近纯黑的背景转成透明，
- * 再按目标尺寸缩放，解码结果按尺寸缓存。
+ * Bitmap asset for the robot hand pointer (`robot_hand_pointer.png`). It follows the original hand asset's loading approach with a black background,
+ * turning the near-pure-black background into transparency,
+ * then scales to the target size; decode results are cached per size.
  *
- * 主屏由 sidecar 合成位图、虚拟屏预览层由 View 直接绘制，两处共用这里的同一张图，长相一致。
+ * The main display composited by the sidecar and the virtual display preview layer drawn directly by the View share this same image here, so they look identical.
  */
 internal object HandCursorBitmap {
     const val ASSET = "robot_hand_pointer.png"
@@ -21,7 +21,7 @@ internal object HandCursorBitmap {
 
     private val cache = HashMap<Int, Bitmap>()
 
-    /** 返回 [sizePx] 见方的小手位图；同一尺寸只解码一次。 */
+    /** Returns the hand bitmap that is [sizePx] square; each size is decoded only once. */
     @Synchronized
     fun of(context: Context, sizePx: Int): Bitmap {
         val size = sizePx.coerceAtLeast(1)

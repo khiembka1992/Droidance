@@ -1110,9 +1110,9 @@ object AgentEventReadModelProjector {
             if (payload.name != ResultCardToolArguments.TOOL_NAME) return null
             val result = finished?.second?.result ?: return null
             if (!result.isVerifiedSuccess) return null
-            // 结果卡片只是展示数据：参数不合法时跳过该卡片，而不是让整个线程投影失败。
-            // 否则历史里任何一条参数不完整的 present_result_card 都会让后续任务在
-            // 回放该线程时启动即崩（曾表现为通知接管任务 44ms 内自动终止）。
+            // A result card is only display data: when its arguments are invalid, skip that card instead of letting the whole thread projection fail.
+            // Otherwise any present_result_card with incomplete arguments in the history would make later tasks
+            // crash on startup when replaying that thread (it once showed up as a notification-takeover task terminating on its own within 44ms).
             val card = try {
                 ResultCardToolArguments.parse(payload.argumentsJson)
             } catch (_: IllegalArgumentException) {

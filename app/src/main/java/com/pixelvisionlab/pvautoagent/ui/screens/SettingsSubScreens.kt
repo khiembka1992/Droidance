@@ -18,7 +18,7 @@ import com.pixelvisionlab.pvautoagent.R
 import com.pixelvisionlab.pvautoagent.ui.icons.PVAutoAgentIcons
 import com.pixelvisionlab.pvautoagent.ui.viewmodel.SettingsViewModel
 
-// ── 设备与执行 ──────────────────────────────────────────────────────────────
+// ── Device and execution ──────────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +67,7 @@ fun SettingsPermissionsScreen(
     )
 }
 
-/** 从系统设置页返回时自动刷新权限/服务状态，不需要用户手动刷新 */
+/** Automatically refresh permission/service status on returning from the system settings page, with no manual refresh needed from the user */
 @Composable
 private fun RefreshStatusOnResume(viewModel: SettingsViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -77,7 +77,7 @@ private fun RefreshStatusOnResume(viewModel: SettingsViewModel) {
     }
 }
 
-// ── 私有共用组件 ──────────────────────────────────────────────────────────────
+// ── Private shared components ──────────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

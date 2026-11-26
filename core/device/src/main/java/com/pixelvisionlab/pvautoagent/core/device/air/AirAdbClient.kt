@@ -27,9 +27,9 @@ class AirAdbClient(
     private lateinit var outputStream: DataOutputStream
     private val nextLocalId = AtomicInteger(1)
     @Volatile private var connected = false
-    // 整条 ADB socket 是单连接复用，多线程同时 shell() 会让 header/payload 在 stream 上交错，
-    // 导致一个命令读到另一个命令的 stdout（典型表现：base64 输出里夹着 dumpsys 输出和
-    // __PVAUTOAGENT_EXIT_ marker）。这把锁让 shell() 调用一次只跑一个，避免命令交错。
+    // The whole ADB socket is a single reused connection; concurrent shell() from multiple threads would interleave header/payload on the stream,
+    // causing one command to read another command's stdout (a typical symptom: base64 output laced with dumpsys output and the
+    // __PVAUTOAGENT_EXIT_ marker). This lock lets shell() calls run only one at a time, avoiding command interleaving.
     private val shellLock = Any()
 
     fun connect() {
@@ -37,11 +37,11 @@ class AirAdbClient(
         val tcpSocket = Socket().also {
             it.tcpNoDelay = true
             it.connect(InetSocketAddress(host, port), CONNECT_TIMEOUT_MS)
-            // 关键修复：给 socket 设读超时。半开连接(对端 wifi 掉线/睡眠且未发 RST)下，
-            // readFully 没有读超时会一直阻塞到 OS 级 TCP 超时(数分钟)——这是后台任务
-            // "执行得非常慢、基本不成功"的真凶(一次截图/注入卡死 6 分钟直到 wall 超时)。
-            // 设了 soTimeout 后任何卡死的读会在秒级抛 SocketTimeoutException，上层据此
-            // markShellDown + 重连，循环不再被一次读永久挂死。
+            // Key fix: set a read timeout on the socket. On a half-open connection (the peer's WiFi dropped/slept without sending an RST),
+            // readFully without a read timeout blocks until the OS-level TCP timeout (several minutes) -- this was the real culprit behind background tasks
+            // "running very slowly, basically never succeeding" (a single screenshot/injection hanging for 6 minutes until the wall timeout).
+            // With soTimeout set, any stalled read throws SocketTimeoutException within seconds, and the upper layer uses that to
+            // markShellDown + reconnect, so the loop is no longer hung permanently by one read.
             it.soTimeout = READ_TIMEOUT_MS
             socket = it
         }
@@ -106,10 +106,10 @@ class AirAdbClient(
 
         while (true) {
             val message = readMessage()
-            // ADB 协议中 server → client 的所有响应包 arg1 = client 的 local-id。
-            // 如果不是我们这条流的消息，说明是上一次 shell() 留在 socket 缓冲里的
-            // 残留 A_WRTE / A_CLSE（典型表现：dumpsys 的输出泄漏到 screencap+base64 里）。
-            // 直接跳过，不要拌进 output；不需要 ACK，server 那边的流早已关闭。
+            // In the ADB protocol, arg1 of every server → client response packet = the client's local-id.
+            // If the message is not for this stream of ours, it is a leftover A_WRTE / A_CLSE
+            // from a previous shell() still sitting in the socket buffer (a typical symptom: dumpsys output leaking into screencap+base64).
+            // Skip it directly and do not mix it into output; no ACK is needed because the stream on the server side has long been closed.
             if (message.arg1 != localId) continue
             when (message.command) {
                 A_OKAY -> accepted = true
@@ -235,9 +235,9 @@ class AirAdbClient(
         const val ADB_AUTH_SIGNATURE = 2
         const val ADB_AUTH_RSAPUBLICKEY = 3
         const val CONNECT_TIMEOUT_MS = 5_000
-        // 单次 socket 读的硬上限。正常 screencap 首字节 ~1-2s、健康检查近乎瞬时，
-        // 10s 足以覆盖任何合法读，又能把半死连接的卡死收敛到秒级而非数分钟。
-        // 截图/注入等热路径另有更紧的 wrapper 超时(8s/15s)，此值是覆盖全部读路径的兜底地板。
+        // Hard upper bound for a single socket read. Normally the first screencap byte arrives in ~1-2s and a health check is nearly instant,
+        // so 10s covers any legitimate read while still converging a half-dead connection's hang to seconds instead of minutes.
+        // Hot paths such as screenshot/injection have their own tighter wrapper timeouts (8s/15s); this value is the fallback floor covering all read paths.
         const val READ_TIMEOUT_MS = 10_000
 
         fun String.adbPayload(): ByteArray = toByteArray(Charsets.UTF_8) + 0.toByte()

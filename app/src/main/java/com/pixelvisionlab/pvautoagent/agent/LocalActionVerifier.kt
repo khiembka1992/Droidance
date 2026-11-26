@@ -28,13 +28,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
- * 本地轻量动作验证器。
+ * Lightweight local action verifier.
  *
- * 只使用设备本地信号判断动作是否有进展，不调用 LLM：
+ * Determines whether an action made progress using only device-local signals, without calling the LLM:
  * - virtual-display screenshot hash
- * - 前台包名
- * - 可见文字指纹
- * - 连续无进展计数
+ * - foreground package name
+ * - visible text fingerprint
+ * - consecutive no-progress count
  */
 @Singleton
 class LocalActionVerifier @Inject constructor(
@@ -135,9 +135,9 @@ class LocalActionVerifier @Inject constructor(
                 return@awaitRouteTransition latest
             }
             if (canUseForegroundFastPath) {
-                // 普通显式启动只确认目标包；Deep Link 还会在目标包出现后取一帧新的
-                // 渲染结果，页面语义仍由下一轮 observe_screen 读取。只有需要新帧时
-                // 才触发昂贵的截图，避免普通启动被 Binder/sidecar 放大。
+                // A plain explicit launch only confirms the target package; a Deep Link additionally captures a new
+                // render result after the target package appears, and the page semantics are still read by the next observe_screen. Only when a new frame is needed
+                // is the expensive screenshot triggered, so that a plain launch is not amplified by Binder/sidecar.
                 val foregroundPackage = runCatching {
                     currentForegroundPackageForContext()
                 }.getOrNull()
@@ -168,13 +168,13 @@ class LocalActionVerifier @Inject constructor(
                     !foregroundPackage.isNullOrBlank() &&
                     foregroundPackage != targetPackage
                 ) {
-                    // 只在最后一次仍是其它前台包时返回失败证据；短暂的旧页面不应
-                    // 抢在目标 Activity 完成切换前触发 GUI fallback。
+                    // Only return failure evidence on the last attempt if it is still some other foreground package; a brief stale page should not
+                    // trigger the GUI fallback ahead of the target Activity completing its switch.
                     return@awaitRouteTransition packageObservation(before, foregroundPackage)
                 }
             } else {
                 if (attempt == attempts - 1) {
-                    // 没有目标包时保留原有的最后一帧诊断；此类 Intent 仍保持未验证语义。
+                    // When there is no target package, keep the existing last-frame diagnostic; such Intents still keep unverified semantics.
                     latest = runCatching { capture(forceFresh = true) }.getOrNull()
                     val current = latest
                     if (current != null && routeTransitionObserved(before, current, expectedPackage)) {

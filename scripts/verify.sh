@@ -23,5 +23,5 @@ if [[ "$mode" == release ]]; then
     python3 scripts/verify_native.py app/build/outputs/apk/release/app-release-unsigned.apk
 fi
 if [[ "$mode" == platform ]]; then
-    ./gradlew connectedDebugAndroidTest -PdroidanceTestRunner=com.droidance.settings.SettingsRegressionTestRunner
+    ./gradlew connectedDebugAndroidTest -PpvautoagentTestRunner=com.pixelvisionlab.pvautoagent.settings.SettingsRegressionTestRunner
 fi

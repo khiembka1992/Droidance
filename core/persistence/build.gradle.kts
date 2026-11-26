@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 plugins {
-    id("droidance.android.library")
+    id("pvautoagent.android.library")
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
 android {
-    namespace = "com.droidance.core.persistence"
+    namespace = "com.pixelvisionlab.pvautoagent.core.persistence"
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
     }

@@ -1,6 +1,6 @@
-# Droidance Built-in Deep Link Catalog
+# PV AutoAgent Built-in Deep Link Catalog
 
-This directory contains built-in route knowledge imported into `droidance-data/deeplinks` and retrieved on demand. The catalog currently contains 104 routes, 47 app names, and 47 Android packages. `routes.jsonl` is the authoritative route inventory.
+This directory contains built-in route knowledge imported into `pvautoagent-data/deeplinks` and retrieved on demand. The catalog currently contains 104 routes, 47 app names, and 47 Android packages. `routes.jsonl` is the authoritative route inventory.
 
 ## Route selection
 

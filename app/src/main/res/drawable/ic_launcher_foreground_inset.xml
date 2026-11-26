@@ -10,6 +10,6 @@
     android:insetRight="12dp"
     android:insetBottom="12dp">
     <bitmap
-        android:src="@drawable/droidance_launcher_icon"
+        android:src="@drawable/pvautoagent_launcher_icon"
         android:gravity="fill" />
 </inset>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1223" viewBox="0 0 2400 1223" role="img" aria-label="Droidance architecture: wireless debugging or Root starts a shared shell Sidecar for virtual-space control">
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1223" viewBox="0 0 2400 1223" role="img" aria-label="PV AutoAgent architecture: wireless debugging or Root starts a shared shell Sidecar for virtual-space control">
 <rect width="2400" height="1223" fill="#ffffff"/>
 <style>text{font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;}</style>
 <rect x="60" y="60" width="360" height="130" rx="20" fill="#f4f6f8" stroke="#d7dde4" stroke-width="2"/>
@@ -12,7 +12,7 @@
 <text x="100" y="290" font-size="34" font-weight="700" fill="#161c24" text-anchor="start">你的 Android 手机</text>
 <text x="440" y="290" font-size="27" font-weight="650" fill="#13a970" text-anchor="start">无需电脑 · Root 可选 · 无需无障碍</text>
 <rect x="100" y="330" width="455" height="650" rx="26" fill="#f4f6f8" stroke="#d7dde4" stroke-width="2"/>
-<text x="125" y="390" font-size="33" font-weight="700" fill="#161c24" text-anchor="start">Droidance App</text>
+<text x="125" y="390" font-size="33" font-weight="700" fill="#161c24" text-anchor="start">PV AutoAgent App</text>
 <text x="125" y="435" font-size="24" font-weight="400" fill="#657181" text-anchor="start">普通应用身份</text>
 <rect x="125" y="465" width="405" height="108" rx="17" fill="#ffffff" stroke="#d7dde4" stroke-width="1.5"/>
 <text x="144" y="508" font-size="28" font-weight="650" fill="#161c24" text-anchor="start">单智能体循环</text>

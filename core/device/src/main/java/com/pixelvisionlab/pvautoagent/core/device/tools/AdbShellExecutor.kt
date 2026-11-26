@@ -1,0 +1,66 @@
+// SPDX-FileCopyrightText: 2026 YBBLab
+// SPDX-License-Identifier: Apache-2.0
+
+package com.pixelvisionlab.pvautoagent.core.device.tools
+
+import com.pixelvisionlab.pvautoagent.core.agent.tools.*
+
+import com.pixelvisionlab.pvautoagent.core.device.tools.*
+
+import com.pixelvisionlab.pvautoagent.core.device.agent.device.PrivilegedShellRunner
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/** ADB bootstrap and diagnostic commands. Committed device calls use their frozen Sidecar. */
+@Singleton
+class AdbShellExecutor @Inject constructor(
+    private val latencyTracker: com.pixelvisionlab.pvautoagent.core.agent.debug.TaskLatencyTracker,
+    private val shellRunner: PrivilegedShellRunner
+) {
+    data class Result(val stdout: String, val stderr: String, val exitCode: Int,
+        val executionStatus: com.pixelvisionlab.pvautoagent.core.agent.event.ToolExecutionStatus = if (exitCode == 0)
+            com.pixelvisionlab.pvautoagent.core.agent.event.ToolExecutionStatus.SUCCEEDED else com.pixelvisionlab.pvautoagent.core.agent.event.ToolExecutionStatus.FAILED,
+        val diagnosticCode: String? = null,
+        val stdoutTruncated: Boolean = false, val stderrTruncated: Boolean = false,
+        val stdoutBytes: Long = stdout.toByteArray().size.toLong(), val stderrBytes: Long = stderr.toByteArray().size.toLong(),
+        val executionUid: Int? = null) {
+        val success: Boolean get() = executionStatus == com.pixelvisionlab.pvautoagent.core.agent.event.ToolExecutionStatus.SUCCEEDED
+        val output: String get() = stdout.ifBlank { stderr }
+    }
+    fun isAvailable(): Boolean = shellRunner.isAvailable()
+    fun escapeForShell(text: String): String = "'" + text.replace("'", "'\\''") + "'"
+
+    fun exec(command: String, timeoutMs: Long = 15_000): Result {
+        if (com.pixelvisionlab.pvautoagent.core.device.agent.device.RuntimeProcessRole.isOwner) {
+            val binder = requireNotNull(com.pixelvisionlab.pvautoagent.core.device.agent.device.SidecarBinderRegistry.get(2000))
+            val reply = com.pixelvisionlab.pvautoagent.core.device.agent.device.IVirtualSpaceSidecar.Stub.asInterface(binder)
+                .execShellCommand(command, timeoutMs, java.util.UUID.randomUUID().toString())
+            return Result(reply.getString("stdout").orEmpty(), reply.getString("stderr").orEmpty(),
+                reply.getInt("exit_code", -1),
+                executionStatus = com.pixelvisionlab.pvautoagent.core.agent.event.ToolExecutionStatus.valueOf(reply.getString("execution_status")!!),
+                diagnosticCode = reply.getString("diagnostic_code"),
+                stdoutTruncated = reply.getBoolean("stdout_truncated"), stderrTruncated = reply.getBoolean("stderr_truncated"),
+                stdoutBytes = reply.getLong("stdout_bytes"), stderrBytes = reply.getLong("stderr_bytes"),
+                executionUid = reply.getInt("uid"))
+        }
+        latencyTracker.airShellCommands.incrementAndGet()
+        val marker = "__PVAUTOAGENT_EXIT_${System.nanoTime()}__"
+        val script = "$command\nrc=\$?\necho $marker\$rc"
+        val output = shellRunner.shell("sh -c ${escapeForShell(script)}", timeoutMs)
+        val failed = shellRunner.isFailure(output)
+        if (failed) return Result("", output, -1)
+
+        val lines = output.lineSequence().toList()
+        val markerIndex = lines.indexOfLast { it.startsWith(marker) }
+        if (markerIndex < 0) return Result(output.trim(), "", 0)
+
+        val exitCode = lines[markerIndex].removePrefix(marker).trim().toIntOrNull() ?: 0
+        val body = lines.take(markerIndex).joinToString("\n").trim()
+        return Result(
+            stdout = if (exitCode == 0) body else "",
+            stderr = if (exitCode == 0) "" else body,
+            exitCode = exitCode
+        )
+    }
+
+}

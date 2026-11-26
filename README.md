@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="app/src/main/res/drawable-nodpi/droidance_launcher_icon.png" alt="Droidance" width="120" />
+<img src="app/src/main/res/drawable-nodpi/pvautoagent_launcher_icon.png" alt="PV AutoAgent" width="120" />
 
-# Droidance
+# PV AutoAgent
 
 ### Let your Droid dance.
 
@@ -14,17 +14,17 @@
 
 <br>
 
-<a href="https://github.com/YbbLab/Droidance/releases/latest">
-  <img src="https://img.shields.io/github/v/release/YbbLab/Droidance?include_prereleases&label=%E4%B8%8B%E8%BD%BD%20APK&style=for-the-badge&logo=android&logoColor=white&color=3DDC84" alt="下载 APK" height="40" />
+<a href="https://github.com/khiembka1992/PV-AutoAgent/releases/latest">
+  <img src="https://img.shields.io/github/v/release/khiembka1992/PV-AutoAgent?include_prereleases&label=%E4%B8%8B%E8%BD%BD%20APK&style=for-the-badge&logo=android&logoColor=white&color=3DDC84" alt="下载 APK" height="40" />
 </a>
 
 <br><br>
 
 [![Android 11+](https://img.shields.io/badge/Android-11%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](#-下载与上手)
-[![CI](https://img.shields.io/github/actions/workflow/status/YbbLab/Droidance/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/YbbLab/Droidance/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/khiembka1992/PV-AutoAgent/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/khiembka1992/PV-AutoAgent/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat-square)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/YbbLab/Droidance?style=flat-square&logo=github)](https://github.com/YbbLab/Droidance/stargazers)
-[![Last Commit](https://img.shields.io/github/last-commit/YbbLab/Droidance?style=flat-square)](https://github.com/YbbLab/Droidance/commits)
+[![Stars](https://img.shields.io/github/stars/khiembka1992/PV-AutoAgent?style=flat-square&logo=github)](https://github.com/khiembka1992/PV-AutoAgent/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/khiembka1992/PV-AutoAgent?style=flat-square)](https://github.com/khiembka1992/PV-AutoAgent/commits)
 
 </div>
 
@@ -32,9 +32,9 @@
 
 ## 📖 项目介绍
 
-**Droidance 是一个运行在安卓手机上的开源 AI 智能体。** 你只需要说一句话，它就会像人一样「看屏幕、想下一步、动手点」，在 App 里替你把事情做完：比价、点单、查询、预约、整理信息、定时执行……
+**PV AutoAgent 是一个运行在安卓手机上的开源 AI 智能体。** 你只需要说一句话，它就会像人一样「看屏幕、想下一步、动手点」，在 App 里替你把事情做完：比价、点单、查询、预约、整理信息、定时执行……
 
-Droidance **只靠一个多模态大模型 API Key 就能跑起来**：不用 Root，不用连电脑，也不用开无障碍服务。任务在手机的**虚拟空间**里后台执行，你照常聊天、刷视频、接电话，它在另一块"看不见的屏幕"上安静干活。它**依靠截图理解界面**，不读取 UI 层级、不依赖无障碍树，人能看懂的界面，它就能尝试操作。
+PV AutoAgent **只靠一个多模态大模型 API Key 就能跑起来**：不用 Root，不用连电脑，也不用开无障碍服务。任务在手机的**虚拟空间**里后台执行，你照常聊天、刷视频、接电话，它在另一块"看不见的屏幕"上安静干活。它**依靠截图理解界面**，不读取 UI 层级、不依赖无障碍树，人能看懂的界面，它就能尝试操作。
 
 <table>
 <tr>
@@ -69,14 +69,14 @@ Droidance **只靠一个多模态大模型 API Key 就能跑起来**：不用 Ro
 **准备：**
 
 - 一部 Android 11 及以上的手机。低内存设备和 Android Go 不支持。
-- 无线调试连接无需 Root，配对时需要 Wi‑Fi；Root 连接需要设备已 Root 并授予 Droidance Root 权限。模型服务仍需要可用的网络连接。
+- 无线调试连接无需 Root，配对时需要 Wi‑Fi；Root 连接需要设备已 Root 并授予 PV AutoAgent Root 权限。模型服务仍需要可用的网络连接。
 - Android 11–13 为实验性支持：系统没有虚拟屏独立焦点，按键和文字输入时会短暂占用主屏焦点；Android 11、12 锁屏后任务无法继续。
 - 如果 Agent 提示系统拦截输入，小米系请在开发者选项开启“USB 调试（安全设置）”，OPPO、一加、realme 请关闭“权限监控”，然后重新连接设备。
 - 一个支持图像输入和工具调用的多模态大模型 API Key。
 
 | 步骤 | 操作 |
 | :---: | :--- |
-| **1** | 前往 [Releases](https://github.com/YbbLab/Droidance/releases/latest) 下载最新 APK 并安装 |
+| **1** | 前往 [Releases](https://github.com/khiembka1992/PV-AutoAgent/releases/latest) 下载最新 APK 并安装 |
 | **2** | 在「连接设备」选择无线调试，按引导打开「开发者选项 → 无线调试」并输入配对码；已 Root 的设备也可以选择 Root 并授权；已启动 Shizuku 的用户可选择 Shizuku 并允许授权。**全程不需要电脑** |
 | **3** | 添加模型服务商的服务地址、API Key 和模型，用一句话说出你的任务 |
 
@@ -94,8 +94,8 @@ Droidance **只靠一个多模态大模型 API Key 就能跑起来**：不用 Ro
 需要 JDK 17 与 Android SDK 35。在仓库根目录的 `local.properties` 中配置 `sdk.dir`（该文件已被 Git 忽略），然后：
 
 ```bash
-git clone https://github.com/YbbLab/Droidance.git
-cd Droidance
+git clone https://github.com/khiembka1992/PV-AutoAgent.git
+cd PV-AutoAgent
 ./gradlew :app:assembleDebug
 ```
 
@@ -140,7 +140,7 @@ scripts/verify.sh
 
 **和常见方案对比**
 
-| | 电脑端 ADB 控制方案 | 基于无障碍服务的 Agent | **Droidance** |
+| | 电脑端 ADB 控制方案 | 基于无障碍服务的 Agent | **PV AutoAgent** |
 | :--- | :---: | :---: | :---: |
 | 不需要电脑 / USB | ❌ | ✅ | ✅ |
 | 不需要 Root | ✅ | ✅ | ✅ |
@@ -154,7 +154,7 @@ scripts/verify.sh
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/architecture/architecture-zh-dark.png" />
-  <img src="assets/architecture/architecture-zh-light.png" alt="Droidance 技术架构" />
+  <img src="assets/architecture/architecture-zh-light.png" alt="PV AutoAgent 技术架构" />
 </picture>
 
 ### 它是怎么在安卓手机上跑起来的
@@ -185,7 +185,7 @@ scripts/verify.sh
 **数据去向**
 
 - **本地优先**：会话、技能与执行记录只保存在你的设备上，没有任何第三方统计或遥测。
-- **模型请求**：任务指令、上下文与屏幕截图会发送给**你自己配置的模型服务商**，请求直连该端点，不经过 Droidance 的服务器。请了解对应服务商的隐私政策。
+- **模型请求**：任务指令、上下文与屏幕截图会发送给**你自己配置的模型服务商**，请求直连该端点，不经过 PV AutoAgent 的服务器。请了解对应服务商的隐私政策。
 - **凭证自持**：API Key 保存在应用私有存储中，并在运行时传入 Shell 身份进程的内存。运行数据和历史记录存放在设备上由 Shell 持有的目录中，卸载应用不会自动删除该目录；旧版卸载后遗留的目录可能仍含凭证副本。详情见 [SECURITY](SECURITY.md)。
 - **本地诊断**：应用为排障自动保存模型请求、响应和截图；其中仍可能包含个人信息。诊断记录以 7 天及 512 MiB 为清理目标，但清理只在后续请求时尽力执行，当前任务不参与清理，因此这不是严格的保存期限或容量上限。可在「设置 → 数据管理 → 清理运行日志」删除诊断记录；对话、回放附件和记忆需分别管理。导出诊断可能包含这些内容，分享前请检查。
 - **应用更新**：检查更新时访问 GitHub API；直连下载失败时会回退到 `ghproxy.net` 镜像，安装包校验值始终来自 GitHub API。
@@ -199,7 +199,7 @@ scripts/verify.sh
 | Shizuku 授权（可选） | 通过已运行的 Shizuku 启动同一设备控制进程 |
 | 日历、联系人、短信、通话记录 | 你授权后，作为系统能力供智能体按任务读写 |
 | 通知使用权 | 读取通知内容，供任务与自动化使用 |
-| Droidance 输入法 | 在虚拟屏中输入文字 |
+| PV AutoAgent 输入法 | 在虚拟屏中输入文字 |
 | 查询应用列表 | 按名称找到并启动目标 App |
 | 精确闹钟、开机启动、电池优化豁免 | 定时任务按时执行与恢复 |
 | 安装未知应用 | 安装应用内下载的更新 |
@@ -216,9 +216,9 @@ scripts/verify.sh
 ## 📱 兼容性与已知限制
 
 - 无线调试配对和重启手机后恢复连接需要 Wi‑Fi；部分系统会在断网、重启或长时间闲置后关闭无线调试，需要时重新开启。
-- Shizuku 需要单独安装并通过 ADB 或无线调试启动；手机重启后需重新启动。Root 启动的 Shizuku 请改用 Droidance 的 Root 连接。Shizuku 停止时，只要已有设备通道仍可用，任务就可以继续。
+- Shizuku 需要单独安装并通过 ADB 或无线调试启动；手机重启后需重新启动。Root 启动的 Shizuku 请改用 PV AutoAgent 的 Root 连接。Shizuku 停止时，只要已有设备通道仍可用，任务就可以继续。
 - Root 连接已在 Android 16 和 SukiSU 上完成真机验证；其他 Root 管理器或设备的行为可能不同。
-- 部分厂商系统会限制后台运行，建议在系统设置中允许 Droidance 后台运行并关闭电池优化。
+- 部分厂商系统会限制后台运行，建议在系统设置中允许 PV AutoAgent 后台运行并关闭电池优化。
 - 部分 App 会检测开发者选项或无线调试是否开启，可能拒绝运行或限制功能。
 - 任务完成率与耗时取决于所用模型的视觉与推理能力；智能体报告"完成"不等于业务结果一定正确，重要结果请自行核对。
 
@@ -233,7 +233,7 @@ scripts/verify.sh
 
 ## 🤝 参与贡献
 
-欢迎通过 [Issue](https://github.com/YbbLab/Droidance/issues) 反馈问题、提出建议，或直接提交 Pull Request。开始之前请阅读：
+欢迎通过 [Issue](https://github.com/khiembka1992/PV-AutoAgent/issues) 反馈问题、提出建议，或直接提交 Pull Request。开始之前请阅读：
 
 - [贡献指南](CONTRIBUTING.md)：开发环境、架构约定与验证方式
 - [行为准则](CODE_OF_CONDUCT.md)
@@ -241,8 +241,8 @@ scripts/verify.sh
 
 关注我们：[X](https://x.com/ybblab2026) · [YouTube](https://www.youtube.com/@ybblab) · [哔哩哔哩](https://space.bilibili.com/3706972849310516) · [小红书](https://www.xiaohongshu.com/user/profile/69cb432b0000000032025c5e)
 
-<a href="https://github.com/YbbLab/Droidance/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=YbbLab/Droidance" alt="Contributors" />
+<a href="https://github.com/khiembka1992/PV-AutoAgent/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=khiembka1992/PV-AutoAgent" alt="Contributors" />
 </a>
 
 ---
@@ -253,7 +253,7 @@ scripts/verify.sh
 
 - **保留声明**：分发源码或二进制时，请保留原有的版权声明、[LICENSE](LICENSE) 与 [NOTICE](NOTICE) 文件。
 - **标注修改**：如果修改了源文件，请在修改过的文件中注明。
-- **不得冒用名义**：协议不授予 Droidance 名称与 Logo 的商标使用权，基于本项目的衍生作品请勿以官方名义发布或宣传。
+- **不得冒用名义**：协议不授予 PV AutoAgent 名称与 Logo 的商标使用权，基于本项目的衍生作品请勿以官方名义发布或宣传。
 - **第三方组件**：项目包含的第三方组件遵循各自的许可证，详见 [NOTICE](NOTICE) 及 [随源码保留的许可证](app/src/main/assets/licenses/)。
 
 ### 免责声明
@@ -272,15 +272,15 @@ scripts/verify.sh
 
 ## 📈 项目动态
 
-<a href="https://star-history.com/#YbbLab/Droidance&Date">
+<a href="https://star-history.com/#khiembka1992/PV-AutoAgent&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=YbbLab/Droidance&type=Date&theme=dark" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=YbbLab/Droidance&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=khiembka1992/PV-AutoAgent&type=Date&theme=dark" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=khiembka1992/PV-AutoAgent&type=Date" />
   </picture>
 </a>
 
 <div align="center">
 
-**如果 Droidance 让你的手机"跳"起来了，请点一个 ⭐ 支持我们。**
+**如果 PV AutoAgent 让你的手机"跳"起来了，请点一个 ⭐ 支持我们。**
 
 </div>

@@ -5,7 +5,7 @@
 
 # Security Policy
 
-Droidance runs with broad device permissions (SMS, contacts, call log, a shell-identity
+PV AutoAgent runs with broad device permissions (SMS, contacts, call log, a shell-identity
 sidecar process, and an AI agent that can operate other apps). Security reports are taken
 seriously.
 

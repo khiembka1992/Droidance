@@ -33,15 +33,15 @@ for config in network.findall("domain-config"):
             assert domain.attrib["includeSubdomains"] == "false"
 
 # Dynamic LAN destinations are enforced by the shared HTTP client, not by a fixed XML allowlist.
-policy = (root / "core/model/src/main/kotlin/com/droidance/core/model/llm/CleartextNetworkPolicy.kt").read_text()
+policy = (root / "core/model/src/main/kotlin/com/pixelvisionlab/pvautoagent/core/model/llm/CleartextNetworkPolicy.kt").read_text()
 assert "addInterceptor(DestinationCheck(client.dns))" in policy
 assert "addNetworkInterceptor(ConnectionCheck(client.dns))" in policy
 assert "requireLocal(url.host, dns)" in policy
 assert "route.proxy.type() != Proxy.Type.DIRECT" in policy
 assert "route.socketAddress.address?.let(::isLocal) != true" in policy
 assert "response.isRedirect" in policy and "requireLocal(target.host, dns)" in policy
-app_module = (root / "app/src/main/java/com/droidance/di/AppModule.kt").read_text()
-router = (root / "core/model/src/main/kotlin/com/droidance/core/model/llm/LLMRouter.kt").read_text()
+app_module = (root / "app/src/main/java/com/pixelvisionlab/pvautoagent/di/AppModule.kt").read_text()
+router = (root / "core/model/src/main/kotlin/com/pixelvisionlab/pvautoagent/core/model/llm/LLMRouter.kt").read_text()
 assert "CleartextNetworkPolicy.configure(OkHttpClient.Builder())" in app_module
 assert "CleartextNetworkPolicy.configure(httpClient.newBuilder())" in router
 

@@ -1,14 +1,14 @@
-# Droidance ProGuard 规则
+# PVAutoAgent ProGuard 规则
 
 # ADB shell app_process 通过完整类名启动后台虚拟空间 sidecar，发布构建不能混淆入口类。
--keep class com.droidance.core.device.agent.device.VirtualSpaceSidecarMain { *; }
--keep class com.droidance.core.device.agent.device.ShizukuShellService { *; }
--keep class com.droidance.core.device.agent.device.IShizukuShellService$Stub { *; }
--keep class com.droidance.core.device.agent.device.IShizukuShellService$Stub$Proxy { *; }
--keep class com.droidance.core.device.agent.device.VirtualSpaceSidecarService { *; }
--keep class com.droidance.core.device.agent.device.IVirtualSpaceSidecar { *; }
--keep class com.droidance.core.device.agent.device.IVirtualSpaceSidecar$Stub { *; }
--keep class com.droidance.core.device.agent.device.IVirtualSpaceSidecar$Stub$Proxy { *; }
+-keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.VirtualSpaceSidecarMain { *; }
+-keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.ShizukuShellService { *; }
+-keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.IShizukuShellService$Stub { *; }
+-keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.IShizukuShellService$Stub$Proxy { *; }
+-keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.VirtualSpaceSidecarService { *; }
+-keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.IVirtualSpaceSidecar { *; }
+-keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.IVirtualSpaceSidecar$Stub { *; }
+-keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.IVirtualSpaceSidecar$Stub$Proxy { *; }
 
 # 保留 kotlinx.serialization 相关类
 -keepattributes *Annotation*, InnerClasses
@@ -19,20 +19,20 @@
 -keepclasseswithmembers class kotlinx.serialization.json.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
--keep,includedescriptorclasses class com.droidance.**$$serializer { *; }
--keepclassmembers class com.droidance.** {
+-keep,includedescriptorclasses class com.pixelvisionlab.pvautoagent.**$$serializer { *; }
+-keepclassmembers class com.pixelvisionlab.pvautoagent.** {
     *** Companion;
 }
--keepclasseswithmembers class com.droidance.** {
+-keepclasseswithmembers class com.pixelvisionlab.pvautoagent.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
 
 
 # Resident Agent entrypoint invoked by the shell service.
--keep class com.droidance.runtime.RuntimeProcessHost { public static android.os.IBinder start(...); }
--keep class com.droidance.core.device.agent.device.IAgentRuntimeOwner$Stub { *; }
--keep class com.droidance.core.device.agent.device.IAgentRuntimeOwner$Stub$Proxy { *; }
--keep class com.droidance.agent.device.RuntimeDriverBinderReceiver { *; }
+-keep class com.pixelvisionlab.pvautoagent.runtime.RuntimeProcessHost { public static android.os.IBinder start(...); }
+-keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.IAgentRuntimeOwner$Stub { *; }
+-keep class com.pixelvisionlab.pvautoagent.core.device.agent.device.IAgentRuntimeOwner$Stub$Proxy { *; }
+-keep class com.pixelvisionlab.pvautoagent.agent.device.RuntimeDriverBinderReceiver { *; }
 
 # OkHttp
 

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable user-visible changes to Droidance are recorded in this file.
+All notable user-visible changes to PV AutoAgent are recorded in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/), and public releases use [Semantic Versioning](https://semver.org/).
 
@@ -29,7 +29,7 @@ Record a notable change in `Unreleased` within the same pull request that implem
 - Show Shizuku service and authorization status, with device connection recovery.
 - Keep existing device control available when Shizuku stops, while the resident connection remains active.
 
-Install and start Shizuku before connecting, and restart it after rebooting your phone. If Shizuku is started with root, use Droidance's Root connection.
+Install and start Shizuku before connecting, and restart it after rebooting your phone. If Shizuku is started with root, use PV AutoAgent's Root connection.
 
 ## [0.2.3] - 2026-11-12
 
@@ -65,7 +65,7 @@ Known issue: Text replacement can intermittently retain previous text when editi
 - Move existing data into app storage during upgrade; uninstalling or clearing data removes app data.
 - Fix startup with incompatible rule overrides, default persona updates, and provider list positioning.
 
-**Breaking:** Install over the existing app, then open Droidance and connect the device service to migrate your data. Downgrading to 0.1.x is not supported. Before uninstalling, save a backup outside the app's storage and keep its password safe.
+**Breaking:** Install over the existing app, then open PV AutoAgent and connect the device service to migrate your data. Downgrading to 0.1.x is not supported. Before uninstalling, save a backup outside the app's storage and keep its password safe.
 
 ## [0.1.10] - 2026-11-06
 
@@ -109,7 +109,7 @@ Known issue: Text replacement can intermittently retain previous text when editi
 ### Fixed
 
 - Wait for settings-based permissions and resume the same task after authorization.
-- Improve task notifications and open Droidance when the virtual screen is empty.
+- Improve task notifications and open PV AutoAgent when the virtual screen is empty.
 
 ## [0.1.6] - 2026-11-03
 
@@ -199,16 +199,16 @@ Known issue: Text replacement can intermittently retain previous text when editi
 
 First public release.
 
-[Unreleased]: https://github.com/YbbLab/Droidance/compare/v0.3.2...HEAD
-[0.3.2]: https://github.com/YbbLab/Droidance/compare/v0.3.1...v0.3.2
-[0.3.1]: https://github.com/YbbLab/Droidance/compare/v0.3.0...v0.3.1
-[0.1.10]: https://github.com/YbbLab/Droidance/compare/v0.1.9...v0.1.10
-[0.1.9]: https://github.com/YbbLab/Droidance/compare/v0.1.8...v0.1.9
-[0.1.8]: https://github.com/YbbLab/Droidance/compare/v0.1.7...v0.1.8
-[0.1.7]: https://github.com/YbbLab/Droidance/compare/v0.1.6...v0.1.7
-[0.1.6]: https://github.com/YbbLab/Droidance/compare/v0.1.5...v0.1.6
-[0.1.5]: https://github.com/YbbLab/Droidance/compare/v0.1.4...v0.1.5
-[0.1.4]: https://github.com/YbbLab/Droidance/compare/v0.1.3...v0.1.4
-[0.1.3]: https://github.com/YbbLab/Droidance/compare/v0.1.1...v0.1.3
-[0.1.1]: https://github.com/YbbLab/Droidance/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/YbbLab/Droidance/releases/tag/v0.1.0
+[Unreleased]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.3.0...v0.3.1
+[0.1.10]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.1.9...v0.1.10
+[0.1.9]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.1.8...v0.1.9
+[0.1.8]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.1.7...v0.1.8
+[0.1.7]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.1.6...v0.1.7
+[0.1.6]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.1.5...v0.1.6
+[0.1.5]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.1.4...v0.1.5
+[0.1.4]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.1.1...v0.1.3
+[0.1.1]: https://github.com/khiembka1992/PV-AutoAgent/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/khiembka1992/PV-AutoAgent/releases/tag/v0.1.0

@@ -91,7 +91,7 @@
     <string name="drawer_no_conversations">No thoại chưa có lịch sử đối thoại</string>
     <string name="drawer_settings">Settings dụng</string>
     <string name="drawer_exit">Exit</string>
-    <string name="exit_title">Exity Droidance?</string>
+    <string name="exit_title">Exity PV AutoAgent?</string>
     <string name="exit_message">tasks hoạt động hiện thời sẽ dừng lại. Việc tự động hoá nền sẽ tiếp tục lại lần tới khi bạn mở tiến trình này.</string>
     <string name="exit_in_progress">Exit Thoát...</string>
     <string name="exit_failed">notance không thoát được. Hãy thử lại.</string>
@@ -501,7 +501,7 @@
     <string name="runtime_permission_granted_action">Permission phép được chấp nhận; tiếp tục công việc</string>
     <string name="runtime_permission_denied_action">not phép không được chấp thuận; trở về nhiệm vụ</string>
     <string name="runtime_permission_notification_title">anceyance đang đợi sự cho phép của steroid.</string>
-    <string name="runtime_permission_notification_text">tasky Droidance và trợ cấp hoặc từ chối hộp thoại cho phép của người máy.</string>
+    <string name="runtime_permission_notification_text">tasky PV AutoAgent và trợ cấp hoặc từ chối hộp thoại cho phép của người máy.</string>
     <string name="execution_action_crop_zoom">Zoom</string>
     <string name="execution_action_click">Click</string>
     <string name="execution_action_swipe">Scroll trang</string>
@@ -562,7 +562,7 @@
     <string name="settings_limit_minutes">minutes</string>
     <string name="settings_limit_value">%1$d %2$s3* Sửa</string>
     <string name="automation_next_preview">NextPH0ZZ (Z%2$s)</string>
-    <string name="settings_repository_url" translatable="false">https://github.com/ybblab/DroidanceZ</string>
+    <string name="settings_repository_url" translatable="false">https://github.com/khiembka1992/PV-AutoAgent</string>
     <string name="connection_unpaired_title">Device thiết bị chưa kết nối</string>
     <string name="connection_unpaired_description">Choosei lỗi không dây, Root, hoặc Shizuku để kết nối thiết bị này.</string>
     <string name="connection_pairing_required_title">required phân loại</string>

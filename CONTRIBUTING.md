@@ -1,6 +1,6 @@
-# Contributing to Droidance
+# Contributing to PV AutoAgent
 
-Droidance is a general-purpose Android mobile-use agent. Read the [security policy](SECURITY.md) before making changes. Keep user-facing strings in localized Android resources (English defaults and complete Simplified Chinese translations); write Agent rules and reusable Skills in English.
+PV AutoAgent is a general-purpose Android mobile-use agent. Read the [security policy](SECURITY.md) before making changes. Keep user-facing strings in localized Android resources (English defaults and complete Simplified Chinese translations); write Agent rules and reusable Skills in English.
 
 ## Development
 

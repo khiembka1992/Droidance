@@ -1,6 +1,6 @@
 # Code of Conduct
 
-Everyone participating in Droidance is expected to help maintain a respectful, inclusive community.
+Everyone participating in PV AutoAgent is expected to help maintain a respectful, inclusive community.
 
 Be considerate, discuss technical disagreements constructively, and respect privacy and consent. Harassment, discrimination, threats, sexualized conduct, targeted abuse and publication of private information are unacceptable.
 

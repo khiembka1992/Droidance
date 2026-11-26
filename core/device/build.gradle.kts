@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 plugins {
-    id("droidance.android.library")
+    id("pvautoagent.android.library")
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
@@ -13,8 +13,8 @@ val verifyNativeInputs = tasks.register<Exec>("verifyNativeInputs") {
 }
 tasks.named("preBuild") { dependsOn(verifyNativeInputs) }
 android {
-    namespace = "com.droidance.core.device"
-    ndkVersion = providers.gradleProperty("droidanceNdkVersion").get()
+    namespace = "com.pixelvisionlab.pvautoagent.core.device"
+    ndkVersion = providers.gradleProperty("pvautoagentNdkVersion").get()
     buildFeatures {
         aidl = true
     }

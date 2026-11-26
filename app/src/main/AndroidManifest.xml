@@ -91,7 +91,7 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
-        android:name=".DroidanceApp"
+        android:name=".PVAutoAgentApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
@@ -99,7 +99,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:theme="@style/Theme.Droidance"
+        android:theme="@style/Theme.PVAutoAgent"
         tools:targetApi="35">
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
@@ -117,7 +117,7 @@
         </service>
         <receiver android:name=".agent.device.RuntimeDriverBinderReceiver" android:process=":input_driver"
             android:permission="android.permission.DUMP" android:exported="true" />
-        <service android:name="com.droidance.core.device.program.ProgramWorkerService"
+        <service android:name="com.pixelvisionlab.pvautoagent.core.device.program.ProgramWorkerService"
             android:process=":program_worker" android:isolatedProcess="true" android:exported="false" />
 
 
@@ -131,7 +131,7 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
             android:taskAffinity="${applicationId}.virtualspace"
-            android:theme="@style/Theme.Droidance" />
+            android:theme="@style/Theme.PVAutoAgent" />
 
         <activity
             android:name=".agent.device.InputFocusHandoffActivity"
@@ -156,7 +156,7 @@
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="uiMode|orientation|screenSize|screenLayout|keyboard|keyboardHidden|navigation|fontScale|density|smallestScreenSize"
-            android:theme="@style/Theme.Droidance">
+            android:theme="@style/Theme.PVAutoAgent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -208,16 +208,16 @@
 
         <!-- AIR 模式无线配对码接收器 -->
         <receiver
-            android:name="com.droidance.core.device.air.AirModePairingReceiver"
+            android:name="com.pixelvisionlab.pvautoagent.core.device.air.AirModePairingReceiver"
             android:exported="false" />
 
         <!-- Sidecar binder 接收器：shell 身份的 app_process server 通过广播推送 binder（绕过 ServiceManager） -->
         <receiver
-            android:name="com.droidance.core.device.agent.device.SidecarBinderReceiver"
+            android:name="com.pixelvisionlab.pvautoagent.core.device.agent.device.SidecarBinderReceiver"
             android:exported="true"
             android:permission="android.permission.DUMP">
             <intent-filter>
-                <action android:name="com.droidance.action.SIDECAR_BINDER_READY" />
+                <action android:name="com.pixelvisionlab.pvautoagent.action.SIDECAR_BINDER_READY" />
             </intent-filter>
         </receiver>
 

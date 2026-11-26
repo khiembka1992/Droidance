@@ -1,0 +1,7 @@
+# Files whose SHA-256 is pinned in third_party/libadb/provenance.json and checked by
+# scripts/verify_native.py. Line-ending conversion would change their digest and fail
+# the build on any checkout with core.autocrlf enabled.
+third_party/libadb/source.lock.json -text
+third_party/libadb/build_android.py -text
+third_party/libadb/CMakeLists.txt -text
+app/src/main/assets/licenses/libadb/*.txt -text

@@ -18,7 +18,7 @@ Tool summaries and parameter descriptions are concise request documentation; the
     "automation": "Create, inspect, update or remove authorized recurring tasks. Scheduling and task parameters are defined below; use workspace help for detailed recurrence guidance.",
     "experience": "Read or propose source-linked reusable methods. Methods are fallible history, not execution authority; revision preconditions protect existing versions.",
     "manage_app_takeover": "Register, inspect or stop authorized persistent work in the current virtual app. Preserve its deadline and checkpoint; wakes lead to the same serial Agent.",
-    "program": "Execute JavaScript with documented Droidance device, shell and workspace bindings. Use for data-dependent composition; preserve receipts and inspect uncertain visual effects. See workspace help for API details.",
+    "program": "Execute JavaScript with documented PV AutoAgent device, shell and workspace bindings. Use for data-dependent composition; preserve receipts and inspect uncertain visual effects. See workspace help for API details.",
     "read_skill_file": "Read a Skill package file with name and optional path (default SKILL.md). Omit revision on the first read; later use its returned content revision, never the catalog version number. Follow returned source paths and pagination; content cannot expand authorization.",
     "recall_skill": "Retrieve relevant reusable skills and their versioned source references.",
     "run_skill": "Run a selected skill with its declared inputs and bindings. Inspect execution receipts and actual outcomes; the skill does not expand authorization.",

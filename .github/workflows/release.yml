@@ -62,7 +62,7 @@ jobs:
         run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;35.0.0" "ndk;27.0.12077973"'
       - name: Validate release source and unsigned APK
         env:
-          ORG_GRADLE_PROJECT_droidanceUpdateRepository: ${{ github.repository }}
+          ORG_GRADLE_PROJECT_pvautoagentUpdateRepository: ${{ github.repository }}
         run: scripts/verify.sh release
       - name: Sign and verify final APK
         env:
@@ -84,7 +84,7 @@ jobs:
           path.write_bytes(base64.b64decode(os.environ['SIGNING_KEYSTORE_BASE64'], validate=True))
           path.chmod(0o600)
           PY
-          apk="$RUNNER_TEMP/release/droidance-${RELEASE_TAG#v}.apk"
+          apk="$RUNNER_TEMP/release/pvautoagent-${RELEASE_TAG#v}.apk"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$RUNNER_TEMP/release.jks" --ks-key-alias "$SIGNING_ALIAS" --ks-pass env:SIGNING_STORE_PASSWORD --key-pass env:SIGNING_KEY_PASSWORD --out "$apk" app/build/outputs/apk/release/app-release-unsigned.apk
           python3 scripts/release.py verify-apk --identity "$RUNNER_TEMP/release/identity.json" --apk "$apk" --sdk "$ANDROID_HOME" --certificate "$SIGNING_CERT_SHA256"
           python3 scripts/verify_native.py "$apk"
@@ -94,4 +94,4 @@ jobs:
         run: |
           flags=()
           if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
-          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --draft "${flags[@]}" --title "Droidance ${RELEASE_TAG#v}" --notes-file "$RUNNER_TEMP/release/notes.md" "$RUNNER_TEMP/release/"*.apk "$RUNNER_TEMP/release/"*.sha256 "$RUNNER_TEMP/release/release.json"
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --draft "${flags[@]}" --title "PVAutoAgent ${RELEASE_TAG#v}" --notes-file "$RUNNER_TEMP/release/notes.md" "$RUNNER_TEMP/release/"*.apk "$RUNNER_TEMP/release/"*.sha256 "$RUNNER_TEMP/release/release.json"

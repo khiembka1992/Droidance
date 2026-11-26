@@ -1,0 +1,31 @@
+// SPDX-FileCopyrightText: 2026 YBBLab
+// SPDX-License-Identifier: Apache-2.0
+
+package com.pixelvisionlab.pvautoagent.config
+
+import com.pixelvisionlab.pvautoagent.core.agent.config.*
+import com.pixelvisionlab.pvautoagent.core.device.config.*
+
+import com.pixelvisionlab.pvautoagent.config.*
+
+import kotlinx.serialization.Serializable
+
+/** Local runtime notices are configured text, never model-authored task conclusions. */
+@Serializable
+internal data class LocalizedPublicFallbacks(val translations: Map<String, Map<String, String>>) {
+    fun validate() {
+        require("en" in translations)
+        val keys = translations.getValue("en").keys
+        require("termination_default" in keys)
+        require(translations.values.all { messages ->
+            messages.keys == keys && messages.values.all(String::isNotBlank)
+        })
+    }
+
+    fun text(language: String, key: String): String =
+        translations[language]?.get(key) ?: translations.getValue("en")[key]
+            ?: error("Missing public fallback: $key")
+
+    fun termination(language: String, reason: String): String =
+        translations.getValue(language)["termination_$reason"] ?: text(language, "termination_default")
+}

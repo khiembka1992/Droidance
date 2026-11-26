@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="app/src/main/res/drawable-nodpi/droidance_launcher_icon.png" alt="Droidance" width="120" />
+<img src="app/src/main/res/drawable-nodpi/pvautoagent_launcher_icon.png" alt="PV AutoAgent" width="120" />
 
-# Droidance
+# PV AutoAgent
 
 ### Let your Droid dance.
 
@@ -14,17 +14,17 @@ Vision only · Runs in the background · No root · No computer
 
 <br>
 
-<a href="https://github.com/YbbLab/Droidance/releases/latest">
-  <img src="https://img.shields.io/github/v/release/YbbLab/Droidance?include_prereleases&label=Download%20APK&style=for-the-badge&logo=android&logoColor=white&color=3DDC84" alt="Download APK" height="40" />
+<a href="https://github.com/khiembka1992/PV-AutoAgent/releases/latest">
+  <img src="https://img.shields.io/github/v/release/khiembka1992/PV-AutoAgent?include_prereleases&label=Download%20APK&style=for-the-badge&logo=android&logoColor=white&color=3DDC84" alt="Download APK" height="40" />
 </a>
 
 <br><br>
 
 [![Android 11+](https://img.shields.io/badge/Android-11%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](#-get-started)
-[![CI](https://img.shields.io/github/actions/workflow/status/YbbLab/Droidance/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/YbbLab/Droidance/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/khiembka1992/PV-AutoAgent/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/khiembka1992/PV-AutoAgent/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat-square)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/YbbLab/Droidance?style=flat-square&logo=github)](https://github.com/YbbLab/Droidance/stargazers)
-[![Last Commit](https://img.shields.io/github/last-commit/YbbLab/Droidance?style=flat-square)](https://github.com/YbbLab/Droidance/commits)
+[![Stars](https://img.shields.io/github/stars/khiembka1992/PV-AutoAgent?style=flat-square&logo=github)](https://github.com/khiembka1992/PV-AutoAgent/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/khiembka1992/PV-AutoAgent?style=flat-square)](https://github.com/khiembka1992/PV-AutoAgent/commits)
 
 </div>
 
@@ -32,9 +32,9 @@ Vision only · Runs in the background · No root · No computer
 
 ## 📖 About
 
-**Droidance is an open-source AI agent that runs on your Android phone.** Describe a task in one sentence and it works like a person: it looks at the screen, decides the next step and acts, completing work inside your apps — comparing prices, preparing orders, looking things up, scheduling, organizing information and running scheduled tasks.
+**PV AutoAgent is an open-source AI agent that runs on your Android phone.** Describe a task in one sentence and it works like a person: it looks at the screen, decides the next step and acts, completing work inside your apps — comparing prices, preparing orders, looking things up, scheduling, organizing information and running scheduled tasks.
 
-Droidance **needs only a multimodal model API key**. It does not require root, a computer or an accessibility service. Tasks run in a **virtual space** on the phone, so you can keep chatting, watching videos or taking calls while it works on a separate, invisible display. It **understands the interface from screenshots** rather than the UI hierarchy or accessibility tree: if a person can read the screen, it can try to operate it.
+PV AutoAgent **needs only a multimodal model API key**. It does not require root, a computer or an accessibility service. Tasks run in a **virtual space** on the phone, so you can keep chatting, watching videos or taking calls while it works on a separate, invisible display. It **understands the interface from screenshots** rather than the UI hierarchy or accessibility tree: if a person can read the screen, it can try to operate it.
 
 <table>
 <tr>
@@ -69,21 +69,21 @@ No XML hierarchy dumps and no accessibility service. Custom-drawn controls and W
 **Requirements**
 
 - An Android 11 or later phone. Low-memory and Android Go devices are not supported.
-- Wireless debugging needs no root and requires Wi‑Fi for pairing; Root requires a rooted device and Root access granted to Droidance. The model provider still needs network access.
+- Wireless debugging needs no root and requires Wi‑Fi for pairing; Root requires a rooted device and Root access granted to PV AutoAgent. The model provider still needs network access.
 - Android 11–13 support is experimental: without per-display focus, key and text input briefly take focus from the main screen, and on Android 11 and 12 tasks cannot continue while the phone is locked.
 - If the Agent reports that the system blocked input, enable "USB debugging (Security settings)" on Xiaomi-family phones, or disable permission monitoring on OPPO, OnePlus and realme phones, then reconnect the device.
 - An API key for a multimodal model that supports image input and tool calling.
 
 | Step | Action |
 | :---: | :--- |
-| **1** | Download and install the latest APK from [Releases](https://github.com/YbbLab/Droidance/releases/latest) |
+| **1** | Download and install the latest APK from [Releases](https://github.com/khiembka1992/PV-AutoAgent/releases/latest) |
 | **2** | Under **Connect device**, choose wireless debugging, follow the guide to enable **Developer options → Wireless debugging**, and enter the pairing code. On a rooted device, you can instead choose Root and grant access. If Shizuku is running, select Shizuku and allow authorization. **No computer is needed.** |
 | **3** | Add a provider endpoint, API key and model, then describe your task |
 
 That's it. Tasks run in the background, and the runtime island at the top of the screen lets you check progress, pause or take control.
 
 > [!NOTE]
-> Root connection is available from v0.1.9. Droidance is a preview release (0.x); see the [CHANGELOG](CHANGELOG.md). Each release includes a `.sha256` file for the APK.
+> Root connection is available from v0.1.9. PV AutoAgent is a preview release (0.x); see the [CHANGELOG](CHANGELOG.md). Each release includes a `.sha256` file for the APK.
 
 > [!CAUTION]
 > This project is for learning and research. Automation may violate some apps' terms of service and put accounts at risk. Read the [disclaimer](#disclaimer) before use.
@@ -94,8 +94,8 @@ That's it. Tasks run in the background, and the runtime island at the top of the
 Requires JDK 17 and Android SDK 35. Set `sdk.dir` in `local.properties` at the repository root (the file is ignored by Git), then run:
 
 ```bash
-git clone https://github.com/YbbLab/Droidance.git
-cd Droidance
+git clone https://github.com/khiembka1992/PV-AutoAgent.git
+cd PV-AutoAgent
 ./gradlew :app:assembleDebug
 ```
 
@@ -140,7 +140,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) for development conventions and validation.
 
 **Compared with common approaches**
 
-| | Computer-side ADB control | Accessibility-service agents | **Droidance** |
+| | Computer-side ADB control | Accessibility-service agents | **PV AutoAgent** |
 | :--- | :---: | :---: | :---: |
 | No computer / USB | ❌ | ✅ | ✅ |
 | No root | ✅ | ✅ | ✅ |
@@ -154,7 +154,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) for development conventions and validation.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/architecture/architecture-en-dark.png" />
-  <img src="assets/architecture/architecture-en-light.png" alt="Droidance architecture" />
+  <img src="assets/architecture/architecture-en-light.png" alt="PV AutoAgent architecture" />
 </picture>
 
 ### How it runs on an Android phone
@@ -185,7 +185,7 @@ Agent rules and policies live in Markdown configuration (`app/src/main/assets/ru
 **Where data goes**
 
 - **Local first**: conversations, skills and execution records stay on your device. There is no third-party analytics or telemetry.
-- **Model requests**: instructions, context and screenshots are sent to **the model provider you configure**, directly to its endpoint and never through a Droidance server. Review that provider's privacy policy.
+- **Model requests**: instructions, context and screenshots are sent to **the model provider you configure**, directly to its endpoint and never through a PV AutoAgent server. Review that provider's privacy policy.
 - **Your credentials**: API keys are stored in app-private storage and passed to the shell-identity runtime in memory. Runtime data and history also live in a shell-owned directory on the device, which is not automatically removed on uninstall; directories left by uninstalled older versions may still contain credential copies. See [SECURITY](SECURITY.md).
 - **Local diagnostics**: the app automatically retains model requests, responses and screenshots for troubleshooting; these may still contain personal information. Cleanup targets seven days and 512 MiB, but runs on later requests as a best effort and excludes the current task, so neither is a strict retention or size limit. Use Settings → Data management → Clean up runtime logs to remove diagnostics; conversations, replay attachments and memory are managed separately. Diagnostic exports may contain sensitive content; review them before sharing.
 - **App updates**: update checks contact the GitHub API. If a direct download fails, the app falls back to the `ghproxy.net` mirror; the package checksum always comes from the GitHub API.
@@ -199,7 +199,7 @@ Agent rules and policies live in Markdown configuration (`app/src/main/assets/ru
 | Shizuku authorization (optional) | Start the same device control process through a running Shizuku service |
 | Calendar, contacts, SMS, call log | System capabilities the agent can use for a task after you grant them |
 | Notification access | Read notifications for tasks and automation |
-| Droidance keyboard | Type text on the virtual display |
+| PV AutoAgent keyboard | Type text on the virtual display |
 | Query installed apps | Find and launch target apps by name |
 | Exact alarms, start at boot, battery optimization exemption | Run and restore scheduled tasks on time |
 | Install unknown apps | Install updates downloaded in the app |
@@ -216,9 +216,9 @@ Runtime permissions can be revoked in system settings at any time. After wireles
 ## 📱 Compatibility and known limitations
 
 - Wireless pairing and reconnecting after a phone restart require Wi‑Fi. Some systems turn wireless debugging off after network changes, restarts or long idle periods, and it must be enabled again when needed.
-- Install Shizuku separately and start it through ADB or wireless debugging; start it again after a phone reboot. For root-started Shizuku, choose Droidance’s Root connection. A stopped Shizuku service does not interrupt tasks while the existing device channel remains available.
+- Install Shizuku separately and start it through ADB or wireless debugging; start it again after a phone reboot. For root-started Shizuku, choose PV AutoAgent’s Root connection. A stopped Shizuku service does not interrupt tasks while the existing device channel remains available.
 - Root connection has been tested on a physical device with Android 16 and SukiSU; behavior may differ with other Root managers and devices.
-- Some vendor systems restrict background work. Allow Droidance to run in the background and turn off battery optimization for it.
+- Some vendor systems restrict background work. Allow PV AutoAgent to run in the background and turn off battery optimization for it.
 - Some apps detect developer options or wireless debugging and may refuse to run or limit features.
 - Success rate and speed depend on the model's vision and reasoning. An agent reporting "done" does not guarantee the business result is correct, so check important results yourself.
 
@@ -233,7 +233,7 @@ Runtime permissions can be revoked in system settings at any time. After wireles
 
 ## 🤝 Contributing
 
-Report problems and suggestions in [Issues](https://github.com/YbbLab/Droidance/issues), or open a pull request. Before you start, read:
+Report problems and suggestions in [Issues](https://github.com/khiembka1992/PV-AutoAgent/issues), or open a pull request. Before you start, read:
 
 - [Contributing guide](CONTRIBUTING.md): development setup, architecture conventions and validation
 - [Code of Conduct](CODE_OF_CONDUCT.md)
@@ -241,19 +241,19 @@ Report problems and suggestions in [Issues](https://github.com/YbbLab/Droidance/
 
 Follow us: [X](https://x.com/ybblab2026) · [YouTube](https://www.youtube.com/@ybblab) · [Bilibili](https://space.bilibili.com/3706972849310516) · [Xiaohongshu](https://www.xiaohongshu.com/user/profile/69cb432b0000000032025c5e)
 
-<a href="https://github.com/YbbLab/Droidance/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=YbbLab/Droidance" alt="Contributors" />
+<a href="https://github.com/khiembka1992/PV-AutoAgent/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=khiembka1992/PV-AutoAgent" alt="Contributors" />
 </a>
 
 ---
 
 ## 📄 License
 
-Droidance is licensed under the [Apache License 2.0](LICENSE). You may use, modify and distribute it, including commercially, provided that you:
+PV AutoAgent is licensed under the [Apache License 2.0](LICENSE). You may use, modify and distribute it, including commercially, provided that you:
 
 - **Keep notices**: retain the copyright notices, [LICENSE](LICENSE) and [NOTICE](NOTICE) when distributing source or binaries.
 - **Mark changes**: state your changes in any source files you modify.
-- **Don't imply endorsement**: the license grants no trademark rights to the Droidance name or logo. Do not publish or promote derivative works as official.
+- **Don't imply endorsement**: the license grants no trademark rights to the PV AutoAgent name or logo. Do not publish or promote derivative works as official.
 - **Respect third-party licenses**: bundled third-party components keep their own licenses. See [NOTICE](NOTICE) and [bundled license texts](app/src/main/assets/licenses/).
 
 ### Disclaimer
@@ -272,15 +272,15 @@ Droidance is licensed under the [Apache License 2.0](LICENSE). You may use, modi
 
 ## 📈 Activity
 
-<a href="https://star-history.com/#YbbLab/Droidance&Date">
+<a href="https://star-history.com/#khiembka1992/PV-AutoAgent&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=YbbLab/Droidance&type=Date&theme=dark" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=YbbLab/Droidance&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=khiembka1992/PV-AutoAgent&type=Date&theme=dark" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=khiembka1992/PV-AutoAgent&type=Date" />
   </picture>
 </a>
 
 <div align="center">
 
-**If Droidance gets your phone dancing, please give it a ⭐.**
+**If PV AutoAgent gets your phone dancing, please give it a ⭐.**
 
 </div>

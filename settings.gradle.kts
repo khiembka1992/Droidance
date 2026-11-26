@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 YBBLab
 // SPDX-License-Identifier: Apache-2.0
 
-// Droidance - Android AI Agent 自动化平台
+// PVAutoAgent - Android AI Agent 自动化平台
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -25,7 +25,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Droidance"
+rootProject.name = "PV-AutoAgent"
 include(":app")
 
 include(":core:model")

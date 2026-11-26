@@ -1,9 +1,19 @@
-Droidance
-Copyright 2026 YBBLab and Droidance contributors
+PV AutoAgent
+Copyright 2026 PixelVision Lab
+Tagline: Your AI. Your Phone. Your Tasks.
 
-This product includes software developed by YBBLab and Droidance contributors.
-Project maintained by YBBLab.
-Project source: https://github.com/ybblab/Droidance
+PV AutoAgent is derived from Droidance and remains distributed under the
+Apache License 2.0. Upstream copyright and attribution are retained:
+
+  Droidance
+  Copyright 2026 YBBLab and Droidance contributors
+  Project maintained by YBBLab.
+  Project source: https://github.com/ybblab/Droidance
+
+This product includes software developed by YBBLab, Droidance contributors
+and PixelVision Lab.
+Project maintained by PixelVision Lab.
+Project source: https://github.com/khiembka1992/PV-AutoAgent
 
 ========================================================================
 Third-Party Software Attributions
@@ -63,7 +73,7 @@ Third-Party Software Attributions
 9. Lucide functional UI icons
    - Source: https://github.com/lucide-icons/lucide/tree/1fae58d0a9c661a338036838caf3399b5507bab6/icons
    - License: ISC; derived Feather icons retain their MIT attribution.
-   - Vector paths adapted to a shared 1.5-unit stroke for Droidance.
+   - Vector paths adapted to a shared 1.5-unit stroke for PV AutoAgent.
    - Full upstream license is bundled under assets/licenses/lucide-LICENSE.txt.
 
 10. Lobe Icons 1.93.0 provider brand icons

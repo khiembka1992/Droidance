@@ -114,7 +114,7 @@ Sources: [Android common Intents — alarms and timers](https://developer.androi
 - Arbitrary existing-record updates, full listing and permanent deletion: no universal
   public cross-app CRUD contract. Do not invent a clock ContentProvider, reuse another
   app's private URI, read private databases or replace the user's clock with alarms owned
-  by Droidance. `SET_ALARM` may create/reuse an alarm; it is not an arbitrary update by ID.
+  by PV AutoAgent. `SET_ALARM` may create/reuse an alarm; it is not an arbitrary update by ID.
 
 Calendar and contacts have their own permission-bound Provider CRUD contracts. Do not
 infer the same coverage for every Android feature just because it has a permission.

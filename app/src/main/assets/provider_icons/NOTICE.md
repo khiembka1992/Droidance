@@ -13,7 +13,7 @@ are retained in `res/drawable-nodpi/` and `res/drawable-night-nodpi/`; the
 catalog is used to resolve the appropriate brand image in the settings UI.
 It identifies artwork, not native protocol support for every provider.
 
-Brand names and logos remain trademarks of their respective owners. Droidance
+Brand names and logos remain trademarks of their respective owners. PV AutoAgent
 uses them only to identify the API provider selected by the user.
 
 The recorded package version and retained MIT text identify the declared

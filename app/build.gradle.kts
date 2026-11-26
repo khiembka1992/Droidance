@@ -20,7 +20,7 @@ abstract class GenerateProjectNotices : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        val destination = outputDirectory.get().dir("licenses/droidance").asFile
+        val destination = outputDirectory.get().dir("licenses/pvautoagent").asFile
         destination.mkdirs()
         noticeFiles.files.forEach { it.copyTo(destination.resolve(it.name), overwrite = true) }
     }
@@ -36,21 +36,21 @@ val generateBuiltinSkills = tasks.register<Sync>("generateBuiltinSkills") {
     into(layout.buildDirectory.dir("generated/builtinSkills/skills"))
 }
 
-val updateRepository = providers.gradleProperty("droidanceUpdateRepository").getOrElse("")
+val updateRepository = providers.gradleProperty("pvautoagentUpdateRepository").getOrElse("")
 require(updateRepository.isEmpty() || updateRepository.matches(Regex("[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+"))) {
-    "droidanceUpdateRepository must be owner/repository"
+    "pvautoagentUpdateRepository must be owner/repository"
 }
 
-val repositoryRegression = providers.gradleProperty("droidanceTestRunner").orNull ==
-    "com.droidance.settings.SettingsRegressionTestRunner"
+val repositoryRegression = providers.gradleProperty("pvautoagentTestRunner").orNull ==
+    "com.pixelvisionlab.pvautoagent.settings.SettingsRegressionTestRunner"
 
 
 android {
-    namespace = "com.droidance"
+    namespace = "com.pixelvisionlab.pvautoagent"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.droidance"
+        applicationId = "com.pixelvisionlab.pvautoagent"
         minSdk = 28
         targetSdk = 35
         resourceConfigurations += listOf("en", "vi")
@@ -58,7 +58,7 @@ android {
         versionCode = 18
         versionName = "0.3.2"
 
-        testInstrumentationRunner = providers.gradleProperty("droidanceTestRunner")
+        testInstrumentationRunner = providers.gradleProperty("pvautoagentTestRunner")
             .getOrElse("androidx.test.runner.AndroidJUnitRunner")
     }
 

@@ -4,9 +4,9 @@
 
 # PV AutoAgent
 
-### Let your Droid dance.
+### Your AI. Your Phone. Your Tasks.
 
-**装在手机上的安卓操作智能体，让手机自己干活。**
+**AI-powered Android automation agent — 装在手机上的安卓操作智能体，让手机自己干活。**
 
 纯视觉 · 后台运行 · 无需 Root · 无需电脑
 
@@ -239,7 +239,7 @@ scripts/verify.sh
 - [行为准则](CODE_OF_CONDUCT.md)
 - [安全策略](SECURITY.md)：安全漏洞请通过 GitHub 私下报告，不要公开提交 Issue
 
-关注我们：[X](https://x.com/ybblab2026) · [YouTube](https://www.youtube.com/@ybblab) · [哔哩哔哩](https://space.bilibili.com/3706972849310516) · [小红书](https://www.xiaohongshu.com/user/profile/69cb432b0000000032025c5e)
+关注我们：[GitHub](https://github.com/khiembka1992)
 
 <a href="https://github.com/khiembka1992/PV-AutoAgent/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=khiembka1992/PV-AutoAgent" alt="Contributors" />

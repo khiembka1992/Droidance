@@ -4,9 +4,9 @@
 
 # PV AutoAgent
 
-### Let your Droid dance.
+### Your AI. Your Phone. Your Tasks.
 
-**The Android Use Agent That Lives on Your Phone**
+**AI-powered Android automation agent — the Android use agent that lives on your phone**
 
 Vision only · Runs in the background · No root · No computer
 
@@ -239,7 +239,7 @@ Report problems and suggestions in [Issues](https://github.com/khiembka1992/PV-A
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security policy](SECURITY.md): report vulnerabilities privately through GitHub, not in a public issue
 
-Follow us: [X](https://x.com/ybblab2026) · [YouTube](https://www.youtube.com/@ybblab) · [Bilibili](https://space.bilibili.com/3706972849310516) · [Xiaohongshu](https://www.xiaohongshu.com/user/profile/69cb432b0000000032025c5e)
+Follow us: [GitHub](https://github.com/khiembka1992)
 
 <a href="https://github.com/khiembka1992/PV-AutoAgent/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=khiembka1992/PV-AutoAgent" alt="Contributors" />

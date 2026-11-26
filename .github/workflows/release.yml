@@ -94,4 +94,4 @@ jobs:
         run: |
           flags=()
           if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
-          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --draft "${flags[@]}" --title "PVAutoAgent ${RELEASE_TAG#v}" --notes-file "$RUNNER_TEMP/release/notes.md" "$RUNNER_TEMP/release/"*.apk "$RUNNER_TEMP/release/"*.sha256 "$RUNNER_TEMP/release/release.json"
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --draft "${flags[@]}" --title "PV AutoAgent ${RELEASE_TAG#v}" --notes-file "$RUNNER_TEMP/release/notes.md" "$RUNNER_TEMP/release/"*.apk "$RUNNER_TEMP/release/"*.sha256 "$RUNNER_TEMP/release/release.json"

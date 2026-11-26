@@ -2,16 +2,12 @@ PV AutoAgent
 Copyright 2026 PixelVision Lab
 Tagline: Your AI. Your Phone. Your Tasks.
 
-PV AutoAgent is derived from Droidance and remains distributed under the
-Apache License 2.0. Upstream copyright and attribution are retained:
+This product includes software derived from the Droidance project,
+Copyright 2026 YBBLab and Droidance contributors, used under the
+Apache License 2.0. Original upstream project:
+https://github.com/ybblab/Droidance
 
-  Droidance
-  Copyright 2026 YBBLab and Droidance contributors
-  Project maintained by YBBLab.
-  Project source: https://github.com/ybblab/Droidance
-
-This product includes software developed by YBBLab, Droidance contributors
-and PixelVision Lab.
+This product includes software developed by PixelVision Lab.
 Project maintained by PixelVision Lab.
 Project source: https://github.com/khiembka1992/PV-AutoAgent
 

@@ -11,7 +11,7 @@
     <string name="model_not_configured">No mô hình không được cấu hình. Thêm một mô hình và phím ADI trong cấu hình mô hình AI.</string>
     <string name="composer_picker_close">Close</string>
     <string name="execution_interrupted_result">The trình này kết thúc vì ứng dụng bị ngắt quãng và chưa hoàn tất mọi đòi hỏi. Kết quả tồn tại và hồ sơ hành động được giữ lại; hành động cuối cùng có lẽ chưa được kiểm tra.</string>
-    <string name="app_name">oidance</string>
+    <string name="app_name">PV AutoAgent</string>
     <string name="common_back">Back</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_delete">Delete</string>
@@ -348,7 +348,7 @@
     <string name="settings_backup_error_password">correct mã hoá:</string>
     <string name="settings_backup_error_not_backup">file</string>
     <string name="settings_backup_error_corrupted">file tập tin sao lưu bị hư hoặc không đầy đủ</string>
-    <string name="settings_backup_error_newer">Thisn dự phòng này là từ một phiên bản Doidance mới hơn. Cập nhật ứng dụng trước.</string>
+    <string name="settings_backup_error_newer">Thisn dự phòng này là từ một phiên bản PV AutoAgent mới hơn. Cập nhật ứng dụng trước.</string>
     <string name="settings_backup_error_busy">A 1 nhiệm vụ đang được thực hiện, thử lại khi nó hoàn thành.</string>
     <string name="settings_backup_error_unavailable">service dịch vụ thiết bị không phải được kết nối. Kết nối nó rồi thử lại.</string>
     <string name="settings_backup_error_failed">The động thất bại. Thử lại đi.</string>
@@ -568,7 +568,7 @@
     <string name="connection_pairing_required_title">required phân loại</string>
     <string name="connection_pairing_required_description">authorization phép đôi trước không còn hợp lệ nữa. Cầu nối lại để phục hồi kết nối thiết bị.</string>
     <string name="connection_wifi_title">not chưa kết nối</string>
-    <string name="connection_wifi_description">debugi lỗi không dây cần thiết kết nối Wi-Fi. Kết nối đến Wi-Fi; tiến trình Doidance sẽ thử tái kết nối khi bạn trở về.</string>
+    <string name="connection_wifi_description">debugi lỗi không dây cần thiết kết nối Wi-Fi. Kết nối đến Wi-Fi; tiến trình PV AutoAgent sẽ thử tái kết nối khi bạn trở về.</string>
     <string name="connection_wireless_disabled_title">off sửa lỗi không dây tắt</string>
     <string name="connection_wireless_disabled_description">operationsance sẽ kiểm tra kết nối khi anh quay lại.</string>
     <string name="connection_unavailable_title">Device thiết bị đã tắt tạm thời</string>
@@ -661,7 +661,7 @@
     <string name="skill_assessments">AsPH0Z</string>
     <string name="skill_describe">Describe tả dòng chảy công việc</string>
     <string name="skill_generate">Generate</string>
-    <string name="skill_demonstration_scope">Enter ứng dụng và mục tiêu, rồi hiển thị trong không gian ảo DDoidance. Sau khi thu, tác vụ sẽ sử dụng hành động và trước/sau ảnh để soạn thảo một kỹ năng. Tránh nhập nhạy như mật khẩu.</string>
+    <string name="skill_demonstration_scope">Enter ứng dụng và mục tiêu, rồi hiển thị trong không gian ảo PV AutoAgent. Sau khi thu, tác vụ sẽ sử dụng hành động và trước/sau ảnh để soạn thảo một kỹ năng. Tránh nhập nhạy như mật khẩu.</string>
     <string name="skill_recording_unavailable">Cannot trình bày: hãy kiểm tra xem ứng dụng đích và không gian ảo.</string>
     <string name="skill_recorded_count">AskPHZZZ, yêu cầu trợ lý biến chúng thành một bản nháp kỹ năng.</string>
     <string name="skill_save_draft">Save</string>
@@ -864,7 +864,7 @@
     <string name="connection_shizuku_resident_available">Theku trước khi thiết lập kết nối mới.</string>
     <string name="connection_shizuku_update_required">Updateuku trước khi kết nối.</string>
     <string name="connection_shizuku_shell_required">Startuku thông qua việc gỡ lỗi không dây, hoặc chọn kết nối root trên thiết bị gốc.</string>
-    <string name="connection_shizuku_denied">authorizationuku không được phép kiểm tra quyền truy cập Draoidance ở Shizuku.</string>
+    <string name="connection_shizuku_denied">authorizationuku không được phép kiểm tra quyền truy cập PV AutoAgent ở Shizuku.</string>
     <string name="connection_shizuku_start_failed">Shiuku được phép, nhưng không thể thiết lập kết nối thiết bị. Xin hãy thử lại.</string>
     <string name="connection_shizuku_stopped_title">Shiuku không chạy đâu.</string>
     <string name="connection_shizuku_auth_title">requireduku cần thiết</string>

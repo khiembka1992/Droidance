@@ -23,7 +23,7 @@
     <string name="settings_air_notification_input_missing">not không nhận được kết nhập đôi. Giữ cho hộp thoại đôi hệ thống mở lại và nhập lại mã vào thông báo.</string>
     <string name="settings_air_pairing_required_detail">And đã từ chối chìa khóa song song ADB hiện tại. mở bộ gỡ lỗi Wireless cặp với mã cặp và cặp một lần nữa.</string>
     <string name="settings_air_wifi_unavailable_detail">No sẽ thử lại khi Wi-Fi trở về.</string>
-    <string name="settings_air_pairing_service_not_found">No dịch vụ đôi đã được tìm. Cho phép Doidance chạy ở nền, mở lại hộp thoại đôi hệ thống, và nhập mã mới vào thông báo.</string>
+    <string name="settings_air_pairing_service_not_found">No dịch vụ đôi đã được tìm. Cho phép PV AutoAgent chạy ở nền, mở lại hộp thoại đôi hệ thống, và nhập mã mới vào thông báo.</string>
     <string name="settings_air_pairing_timeout">P lại thời gian mở hộp thoại kết hợp hệ thống để lấy mã mới.</string>
     <string name="settings_air_pairing_rejected">And đã từ chối cặp, lấy mã kết hợp và thử lại.</string>
     <string name="settings_air_pairing_connection_failed">not hế hế hế hế. Hãy lấy một mã cặp mới rồi thử lại.</string>

@@ -36,10 +36,10 @@ internal fun markdownSection(document: String, heading: String): String {
 }
 
 /**
- * 内置规则与用户覆盖的唯一读取入口。
+ * Lối vào đọc duy nhất cho quy tắc tích hợp và phần ghi đè của người dùng.
  *
- * Markdown 承载静态模型指令；YAML 分别承载本地 Harness 配置和条件化提示，并在启动时完整校验。
- * 用户覆盖位于 rules/overrides/，覆盖文件必须是完整文档，不与内置值做 union 或逐项合并。
+ * Markdown chứa chỉ thị mô hình tĩnh; YAML lần lượt chứa cấu hình Harness cục bộ và prompt có điều kiện, đồng thời xác minh đầy đủ khi khởi chạy.
+ * Phần ghi đè của người dùng nằm ở rules/overrides/, file ghi đè phải là tài liệu đầy đủ, không union hay hợp nhất từng mục với giá trị tích hợp.
  */
 @Singleton
 class RuleConfigManager @Inject constructor(
@@ -86,7 +86,7 @@ class RuleConfigManager @Inject constructor(
     private var overridesSuspended = false
 
     fun initialize() {
-        // 内置配置错误必须在启动阶段直接暴露；用户 override 与新版本不兼容时停用 override，回到内置规则。
+        // Lỗi cấu hình tích hợp phải lộ ra trực tiếp ở giai đoạn khởi chạy; khi override của người dùng không tương thích với bản mới thì vô hiệu hoá override, quay về quy tắc tích hợp.
         withOverrideFallback { validate() }
         fileManager.writeFile(VERSION_FILE, BUILTIN_VERSION)
     }
@@ -200,7 +200,7 @@ class RuleConfigManager @Inject constructor(
         return publicFallbackDocument().termination(languageManager.resolved().tag, reasonKey)
     }
 
-    /** 保存完整 override 后调用；不会回退或合并旧格式。 */
+    /** Được gọi sau khi lưu override đầy đủ; không lùi về hay hợp nhất định dạng cũ. */
     fun invalidate(filePath: String) {
         val fileName = filePath.substringAfterLast('/')
         when (fileName) {
@@ -211,7 +211,7 @@ class RuleConfigManager @Inject constructor(
         documentCache.remove(fileName)
     }
 
-    /** 读取 Markdown 文档。用户 override 存在时完整替换内置文档。 */
+    /** Đọc tài liệu Markdown. Khi có override của người dùng thì thay thế hoàn toàn tài liệu tích hợp. */
     fun readDocument(fileName: String): String {
         require(fileName.matches(SAFE_FILE_NAME)) { "Invalid rule file name: $fileName" }
         return documentCache[fileName] ?: synchronized(documentCache) {
@@ -223,7 +223,7 @@ class RuleConfigManager @Inject constructor(
         }
     }
 
-    /** 读取指定二级 Markdown 标题下的正文。 */
+    /** Đọc nội dung dưới tiêu đề Markdown cấp hai được chỉ định. */
     override fun readMarkdownSection(fileName: String, heading: String): String {
         return runCatching { withOverrideFallback { markdownSection(readDocument(fileName), heading) } }
             .getOrElse { error ->

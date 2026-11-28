@@ -142,7 +142,7 @@ private val ComposerIconButtonSize = 48.dp
 private val ComposerActionControlSize = 32.dp
 
 /**
- * 底部输入栏
+ * Thanh nhập liệu dưới cùng
  */
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
     androidx.compose.foundation.ExperimentalFoundationApi::class)

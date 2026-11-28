@@ -34,9 +34,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 运行时能力注册表。
+ * Bảng đăng ký năng lực runtime.
  *
- * 这里记录“当前能做什么”的代码真相，避免把实时能力状态塞回 Markdown。
+ * Nơi đây ghi lại sự thật trong mã về "hiện tại có thể làm gì", tránh nhét trạng thái năng lực thời gian thực ngược vào Markdown.
  */
 @Singleton
 class RuntimeCapabilityRegistry @Inject constructor(
@@ -68,8 +68,8 @@ class RuntimeCapabilityRegistry @Inject constructor(
             adbBridgeAvailable = adbBridgeAvailable,
             inputInjectionReady = inputInjectionReady,
             visionProviderAvailable = visionProviderAvailable,
-            // 常驻 sidecar binder 存活时也能出文本观察(virtual frame capture)，不应漏掉这条 WiFi
-            // 无关的路线——否则 airReady 门禁即便放开了 adbBridgeAvailable 也会被这里再次卡住。
+            // Khi binder sidecar thường trú còn sống vẫn có thể tạo quan sát văn bản (virtual frame capture), không nên bỏ sót route WiFi
+            // không liên quan này — nếu không, cổng airReady dù đã mở adbBridgeAvailable vẫn bị chặn lại ở đây.
             textObservationAvailable = screenCaptureAvailable || adbBridgeAvailable || virtualSpaceBridgeAvailable,
             virtualSpaceBridgeAvailable = virtualSpaceBridgeAvailable,
         )
@@ -105,7 +105,7 @@ class RuntimeCapabilityRegistry @Inject constructor(
                 recoverResidentChannel()
             }
         }
-        // 配对/连接成功即主动建立唯一的全能力常驻 sidecar，不等首次设备操作惰性启动。
+        // Ghép nối/kết nối thành công là chủ động dựng sidecar thường trú đầy đủ năng lực duy nhất, không đợi thao tác thiết bị đầu tiên khởi động lười.
         // The virtual display keeps using its resident Binder after the live ADB connection ends.
         appScope.launch {
             airModePairingManager.state.collect { state ->
@@ -186,7 +186,7 @@ class RuntimeCapabilityRegistry @Inject constructor(
         if (airModePairingManager.isShellReady) ensureResidentChannel()
     }
 
-    /** 全能力常驻 sidecar：ensureResidentChannel 幂等，重复触发安全。 */
+    /** Sidecar thường trú đầy đủ năng lực: ensureResidentChannel idempotent, kích hoạt lặp lại vẫn an toàn. */
     private fun ensureResidentChannel() {
         appScope.launch(Dispatchers.IO) {
             if (rootConnection.currentMethod == DeviceConnectionMethod.ROOT) {
@@ -205,8 +205,8 @@ class RuntimeCapabilityRegistry @Inject constructor(
                     mode
                 )
             }.getOrDefault(false)
-            // 只写 logcat 的话，真机 debug 导出包完全看不到这行——之前排查"WiFi关了还能不能用"
-            // 全靠代码推理，就是因为这里没有落进 debugLogManager。改走这里，下次导出直接可见。
+            // Nếu chỉ ghi vào logcat thì gói debug xuất từ thiết bị thật hoàn toàn không thấy dòng này — trước đây khi điều tra "tắt WiFi rồi còn dùng được không"
+            // phải suy luận hoàn toàn từ mã, chính vì chỗ này không ghi vào debugLogManager. Chuyển sang ghi ở đây, lần xuất sau sẽ thấy ngay.
             debugLogManager.appendEvent(
                 "🔗 resident sidecar on paired: mode=${mode.name} ok=$ok" +
                     if (!ok) " diag=${virtualSpaceSidecarBridge.lastSidecarStartDiagnostic.take(160)}" else ""
@@ -234,9 +234,9 @@ class RuntimeCapabilityRegistry @Inject constructor(
             updatedAtMs = System.currentTimeMillis()
         )
         snapshot = refreshed
-        // transport 两信号独立观测（§5.5）：在线 ADB 与常驻 Binder 分别记录。ADB 从可用变不可用而 Binder
-        // 仍活着时只记录 transport 迁移，不触发重新配对阻断；两者都消失才提示需重新连接，
-        // 且明确说明无法凭空重启 sidecar 进程，不谎称可永久离线自恢复。
+        // Quan sát độc lập hai tín hiệu transport (§5.5): ADB trực tuyến và Binder thường trú được ghi riêng. Khi ADB từ khả dụng chuyển sang không khả dụng mà Binder
+        // vẫn còn sống thì chỉ ghi chuyển dịch transport, không kích hoạt chặn ghép nối lại; chỉ khi cả hai đều mất mới nhắc cần kết nối lại,
+        // và nói rõ không thể khởi động lại tiến trình sidecar từ hư không, không nói dối rằng có thể tự phục hồi offline vĩnh viễn.
         if (current.updatedAtMs > 0 &&
             (current.adbBridgeAvailable != refreshed.adbBridgeAvailable ||
                 current.virtualSpaceBridgeAvailable != refreshed.virtualSpaceBridgeAvailable)

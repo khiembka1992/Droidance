@@ -59,7 +59,7 @@ internal fun UsageRangeSelector(
     }
 }
 
-/** 每日总用量柱形图：上方为总用量实心柱，下方为缓存命中率斜线网格。 */
+/** Biểu đồ cột tổng mức dùng hằng ngày: phía trên là cột đặc tổng mức dùng, phía dưới là lưới gạch chéo tỷ lệ trúng bộ nhớ đệm. */
 @Composable
 internal fun UsageBarChart(
     daily: List<com.droidance.ui.viewmodel.DailyTokenUsage>,
@@ -74,7 +74,7 @@ internal fun UsageBarChart(
     val labelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
 
     Column(modifier = modifier) {
-        // 图例 + 峰值
+        // Chú giải + đỉnh cao nhất
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically

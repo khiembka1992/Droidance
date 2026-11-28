@@ -6,7 +6,7 @@ package com.droidance.update.model
 import java.io.File
 
 /**
- * 更新检查状态（类型化状态）
+ * Trạng thái kiểm tra cập nhật (trạng thái có kiểu)
  */
 sealed interface UpdateCheckState {
     data object Disabled : UpdateCheckState
@@ -37,7 +37,7 @@ enum class UpdateCheckError {
 }
 
 /**
- * 下载进度状态
+ * Trạng thái tiến trình tải xuống
  */
 sealed interface DownloadProgressState {
     data object Idle : DownloadProgressState
@@ -57,7 +57,7 @@ enum class DownloadError {
 }
 
 /**
- * 安装操作结果
+ * Kết quả thao tác cài đặt
  */
 sealed interface InstallResult {
     data object PromptLaunched : InstallResult

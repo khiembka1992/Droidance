@@ -84,8 +84,8 @@ class SystemSettingsNavigator @Inject constructor(
     }
 
     fun openWirelessDebuggingSettings() {
-        // 先尝试直达「无线调试」详情页（开关 + 使用配对码配对设备）；AOSP 原生不开放
-        // SubSettings 给第三方，部分厂商 ROM 开放，失败时一律回退开发者选项页。
+        // Trước tiên thử đi thẳng tới trang chi tiết "gỡ lỗi không dây" (công tắc + ghép nối thiết bị bằng mã ghép nối); AOSP gốc không mở
+        // SubSettings cho bên thứ ba, một số ROM của nhà sản xuất có mở, khi thất bại luôn lùi về trang tùy chọn nhà phát triển.
         val deepLink = wirelessDebuggingDeepLinkIntent()
         if (deepLink != null && startActivitySafely(deepLink)) return
         context.startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).apply {

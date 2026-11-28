@@ -22,9 +22,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// 深色配色方案：近黑底 + 近白主操作（按钮）+ 蓝色功能强调
+// Bộ màu tối: nền gần đen + thao tác chính gần trắng (nút) + nhấn mạnh chức năng màu xanh
 private val DarkColorScheme = darkColorScheme(
-    primary = Neutral50,          // 主按钮/Material 填充：深色下用近白，文字深色
+    primary = Neutral50,          // Nút chính/fill Material: ở nền tối dùng gần trắng, chữ màu tối
     onPrimary = Neutral950,
     primaryContainer = Neutral800,
     onPrimaryContainer = Neutral50,
@@ -32,7 +32,7 @@ private val DarkColorScheme = darkColorScheme(
     onSecondary = Neutral900,
     secondaryContainer = Neutral800,
     onSecondaryContainer = Neutral300,
-    tertiary = AccentBlue,        // 功能强调蓝
+    tertiary = AccentBlue,        // Xanh nhấn mạnh chức năng
     onTertiary = Neutral0,
     tertiaryContainer = AccentBlueContainerDark,
     onTertiaryContainer = AccentBlue,
@@ -58,9 +58,9 @@ private val DarkColorScheme = darkColorScheme(
     onErrorContainer = StatusOnErrorContainerDark,
 )
 
-// 浅色配色方案：极简浅底 + 石墨黑主操作（按钮）+ 蓝色功能强调
+// Bộ màu sáng: nền sáng tối giản + thao tác chính đen than chì (nút) + nhấn mạnh chức năng màu xanh
 private val LightColorScheme = lightColorScheme(
-    primary = Neutral900,         // 主按钮/强调：石墨黑
+    primary = Neutral900,         // Nút chính/nhấn mạnh: đen than chì
     onPrimary = Neutral0,
     primaryContainer = Neutral200,
     onPrimaryContainer = Neutral900,
@@ -68,11 +68,11 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = Neutral0,
     secondaryContainer = Neutral100,
     onSecondaryContainer = Neutral700,
-    tertiary = AccentBlue,        // 功能强调蓝
+    tertiary = AccentBlue,        // Xanh nhấn mạnh chức năng
     onTertiary = Neutral0,
     tertiaryContainer = AccentBlueContainerLight,
     onTertiaryContainer = AccentBlueVariant,
-    // 画布 < 卡片 < 浮层逐级只亮一小步；浮层 LightFloating 见 droidanceFloatingSurfaceColor。
+    // Canvas < card < lớp phủ sáng dần từng bậc nhỏ; lớp phủ LightFloating xem tại droidanceFloatingSurfaceColor.
     background = LightCanvas,
     surface = LightCard,
     surfaceVariant = LightContainerHigh,
@@ -94,12 +94,12 @@ private val LightColorScheme = lightColorScheme(
 )
 
 /**
- * 让子组件感知当前是否深色模式（用于玻璃效果等）
+ * Cho component con biết hiện có đang ở chế độ tối hay không (dùng cho hiệu ứng kính, v.v.)
  */
 val LocalAppIsDark = staticCompositionLocalOf { false }
 
 /**
- * Droidance 主题
+ * Giao diện Droidance
  * Consumes the theme mode supplied by the settings repository.
  */
 @Composable
@@ -115,7 +115,7 @@ fun DroidanceTheme(
 
     val colorScheme = if (isDark) DarkColorScheme else LightColorScheme
 
-    // 设置状态栏样式
+    // Đặt kiểu thanh trạng thái
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -125,9 +125,9 @@ fun DroidanceTheme(
         }
     }
 
-    // Material3 未覆盖时，文字选中高亮默认继承 colorScheme.primary——浅色主题下 primary 是石墨黑
-    // (见上方 LightColorScheme)，选中文字会像被涂了一块深黑色，又深又难看。选中本就是 AccentBlue
-    // 注释里写明的用途之一，这里显式覆盖成蓝色半透明高亮，深浅主题都统一好看。
+    // Khi Material3 không ghi đè, màu nhấn chọn văn bản mặc định kế thừa colorScheme.primary — ở giao diện sáng primary là đen than chì
+    // (xem LightColorScheme ở trên), chữ được chọn trông như bị bôi một mảng đen đậm, vừa tối vừa xấu. Việc chọn vốn đã là một trong
+    // những mục đích được ghi rõ trong comment của AccentBlue, nên ở đây ghi đè tường minh thành nhấn xanh bán trong suốt, cả giao diện sáng lẫn tối đều đồng nhất và dễ nhìn.
     val selectionColors = TextSelectionColors(
         handleColor = AccentBlue,
         backgroundColor = AccentBlue.copy(alpha = 0.35f)

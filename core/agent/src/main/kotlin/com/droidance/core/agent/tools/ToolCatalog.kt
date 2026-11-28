@@ -36,7 +36,7 @@ object ToolCatalog {
     )
 
 
-    /** 会改变屏幕的动作：执行后用模型自己声明的预期回灌验收，把"做了但没效果"变成可判定。 */
+    /** Hành động làm thay đổi màn hình: sau khi thực thi, dùng kỳ vọng do chính mô hình khai báo để nghiệm thu lại, biến "đã làm nhưng không có hiệu lực" thành có thể phán định. */
     val screenChangingToolNames: Set<String> = setOf(
         DeviceToolNames.ANDROID_ACT,
         DeviceToolNames.SCREEN_ACT,
@@ -47,7 +47,7 @@ object ToolCatalog {
         DeviceToolNames.SCREEN_ACT,
     )
 
-    /** 操作当前画面或读取 Android 状态时，可附带字面事实到任务观察笔记。 */
+    /** Khi thao tác khung hình hiện tại hoặc đọc trạng thái Android, có thể kèm sự thật nguyên văn vào ghi chú quan sát của tác vụ. */
     val screenEvidenceToolNames: Set<String> = screenDependentActionToolNames + setOf(
         DeviceToolNames.ANDROID_READ, "workspace"
     )

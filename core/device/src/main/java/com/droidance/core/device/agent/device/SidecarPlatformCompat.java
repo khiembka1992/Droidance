@@ -38,16 +38,16 @@ final class SidecarPlatformCompat {
         int flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC | OWN_CONTENT_ONLY | DESTROY_CONTENT_ON_REMOVAL;
         // Shell holds ADD_TRUSTED_DISPLAY and ADD_ALWAYS_UNLOCKED_DISPLAY from Android 13 only;
         // Android 12 rejects the whole display when TRUSTED or OWN_DISPLAY_GROUP is requested.
-        // 这几个 flag 是**互相依赖的一组，不要单独摘任何一个**：
-        //   ALWAYS_UNLOCKED 只对"不在默认显示组"的虚拟屏合法 -> 必须与 OWN_DISPLAY_GROUP 同在，
-        //     单独摘掉 OWN_DISPLAY_GROUP 会让 createVirtualDisplay 直接抛参数异常、虚拟空间连屏都建不起来；
-        //   OWN_FOCUS 要求该屏是 TRUSTED。
-        //   OWN_DISPLAY_GROUP 带来的独立电源组默认是 Asleep，必须由 wakeDisplayGroup() 唤醒，
-        //     否则系统判该屏 not interactive 并丢弃全部注入触摸。
+        // Các flag này là **một nhóm phụ thuộc lẫn nhau, không được bỏ riêng bất kỳ cái nào**:
+        //   ALWAYS_UNLOCKED chỉ hợp lệ với màn hình ảo "không nằm trong nhóm hiển thị mặc định" -> phải đi cùng OWN_DISPLAY_GROUP,
+        //     bỏ riêng OWN_DISPLAY_GROUP sẽ khiến createVirtualDisplay ném ngoại lệ tham số ngay, không gian ảo không dựng nổi cả màn hình;
+        //   OWN_FOCUS yêu cầu màn hình đó là TRUSTED.
+        //   Nhóm nguồn (power group) độc lập mà OWN_DISPLAY_GROUP mang lại mặc định là Asleep, phải được wakeDisplayGroup() đánh thức,
+        //     nếu không hệ thống sẽ đánh giá màn hình đó not interactive và loại bỏ toàn bộ thao tác chạm được inject.
         if (sdk >= Build.VERSION_CODES.TIRAMISU) flags |= TRUSTED | OWN_DISPLAY_GROUP | ALWAYS_UNLOCKED;
-        // OWN_FOCUS 是注入能否生效的前提：App 自己的查看页/接管面板长期在主屏前台持有焦点，
-        // 没有这个 flag 时虚拟屏不维护自己的焦点与触摸模式，注入的 tap/swipe 会被系统丢弃
-        // （agent 和人工接管同时"点不动、滑不动"）。该 flag 要求同屏已置 TRUSTED。
+        // OWN_FOCUS là tiền đề để inject có hiệu lực: trang xem/bảng tiếp quản của chính App thường xuyên giữ tiêu điểm ở foreground trên màn hình chính,
+        // không có flag này thì màn hình ảo không duy trì tiêu điểm và chế độ chạm của riêng nó, tap/swipe được inject sẽ bị hệ thống loại bỏ
+        // (agent và tiếp quản thủ công đồng thời "không nhấn được, không vuốt được"). Flag này yêu cầu màn hình đó đã được đặt TRUSTED.
         // OWN_FOCUS keeps input events scoped to this display. Background text uses
         // display-scoped keys/clipboard without selecting the user's system IME.
         // A background display needs its own focus without taking the physical screen's

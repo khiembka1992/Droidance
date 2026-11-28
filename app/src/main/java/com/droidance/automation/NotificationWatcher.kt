@@ -11,19 +11,19 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 /**
- * 通知监听服务
- * 捕获并发布原始通知事件。
+ * Dịch vụ lắng nghe thông báo
+ * Bắt và phát các sự kiện thông báo thô.
  */
 class NotificationWatcher : NotificationListenerService() {
 
     companion object {
         private const val TAG = "NotificationWatcher"
 
-        /** 全局实例引用 */
+        /** Tham chiếu instance toàn cục */
         var instance: NotificationWatcher? = null
             private set
 
-        /** 通知事件流 */
+        /** Luồng sự kiện thông báo */
         private val _notificationFlow = MutableSharedFlow<NotificationInfo>(extraBufferCapacity = 50)
         val notificationFlow: SharedFlow<NotificationInfo> = _notificationFlow
         internal fun publish(info: NotificationInfo) { _notificationFlow.tryEmit(info) }
@@ -32,7 +32,7 @@ class NotificationWatcher : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         instance = this
-        Log.i(TAG, "通知监听服务已连接")
+        Log.i(TAG, "Dịch vụ lắng nghe thông báo đã kết nối")
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -53,25 +53,25 @@ class NotificationWatcher : NotificationListenerService() {
 
         Log.d(TAG, "Notification received; package=${info.packageName}")
 
-        // 发射通知事件
+        // Phát sự kiện thông báo
         _notificationFlow.tryEmit(info)
 
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        // 通知被清除时的处理（可选）
+        // Xử lý khi thông báo bị xóa (tùy chọn)
     }
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         instance = null
-        Log.i(TAG, "通知监听服务已断开")
+        Log.i(TAG, "Dịch vụ lắng nghe thông báo đã ngắt kết nối")
     }
 
     /**
-     * 点击通知（触发其 PendingIntent，相当于用户点了通知栏）
-     * @param key 通知的唯一标识
-     * @return 是否成功
+     * Nhấn vào thông báo (kích hoạt PendingIntent của nó, tương đương người dùng nhấn vào thanh thông báo)
+     * @param key mã định danh duy nhất của thông báo
+     * @return liệu có thành công
      */
     fun clickNotification(key: String, displayId: Int? = null): Boolean {
         return try {
@@ -95,8 +95,8 @@ class NotificationWatcher : NotificationListenerService() {
     }
 
     /**
-     * 清除指定通知
-     * @param key 通知的唯一标识
+     * Xóa thông báo được chỉ định
+     * @param key mã định danh duy nhất của thông báo
      */
     fun dismissNotification(key: String) {
         try {
@@ -108,7 +108,7 @@ class NotificationWatcher : NotificationListenerService() {
     }
 
     /**
-     * 读取当前所有活跃通知
+     * Đọc tất cả thông báo đang hoạt động hiện tại
      */
     fun getAllNotifications(): List<NotificationInfo> {
         return try {
@@ -131,14 +131,14 @@ class NotificationWatcher : NotificationListenerService() {
 }
 
 /**
- * 通知信息数据类
+ * Lớp dữ liệu thông tin thông báo
  */
 @kotlinx.serialization.Serializable
 data class NotificationInfo(
-    val packageName: String,   // 来源 App 包名
-    val appName: String,       // 来源 App 名称
-    val title: String,         // 通知标题
-    val content: String,       // 通知内容
-    val timestamp: Long,       // 通知时间
-    val key: String            // 通知唯一标识
+    val packageName: String,   // Tên gói của App nguồn
+    val appName: String,       // Tên App nguồn
+    val title: String,         // Tiêu đề thông báo
+    val content: String,       // Nội dung thông báo
+    val timestamp: Long,       // Thời điểm thông báo
+    val key: String            // Mã định danh duy nhất của thông báo
 )

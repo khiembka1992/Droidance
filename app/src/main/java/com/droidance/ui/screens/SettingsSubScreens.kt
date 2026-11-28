@@ -18,7 +18,7 @@ import com.droidance.R
 import com.droidance.ui.icons.DroidanceIcons
 import com.droidance.ui.viewmodel.SettingsViewModel
 
-// ── 设备与执行 ──────────────────────────────────────────────────────────────
+// ── Thiết bị và thực thi ────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +67,7 @@ fun SettingsPermissionsScreen(
     )
 }
 
-/** 从系统设置页返回时自动刷新权限/服务状态，不需要用户手动刷新 */
+/** Tự động làm mới trạng thái quyền/dịch vụ khi quay về từ trang cài đặt hệ thống, người dùng không cần làm mới thủ công */
 @Composable
 private fun RefreshStatusOnResume(viewModel: SettingsViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -77,7 +77,7 @@ private fun RefreshStatusOnResume(viewModel: SettingsViewModel) {
     }
 }
 
-// ── 私有共用组件 ──────────────────────────────────────────────────────────────
+// ── Thành phần dùng chung nội bộ ──────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

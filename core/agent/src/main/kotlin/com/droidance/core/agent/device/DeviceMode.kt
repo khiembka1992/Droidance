@@ -31,10 +31,10 @@ data class DeviceCapabilities(
     val virtualSpaceBridgeAvailable: Boolean = false
 ) {
 
-    // 实时 ADB 连接(adbBridgeAvailable)断开(如 WiFi 关闭)后，只要配对期间建立的常驻 sidecar
-    // binder(virtualSpaceBridgeAvailable)还活着，AIR 仍应可运行——这条线路本机 Binder IPC 不
-    // 经 ADB。之前只看 adbBridgeAvailable，导致 WiFi 一断即使 sidecar 完好也判定"无可用通道"，
-    // 让常驻通道机制形同虚设。
+    // Sau khi kết nối ADB trực tiếp (adbBridgeAvailable) ngắt (ví dụ tắt WiFi), chỉ cần sidecar thường trú được thiết lập trong lúc ghép nối
+    // binder (virtualSpaceBridgeAvailable) còn sống thì AIR vẫn phải chạy được — đường này dùng Binder IPC cục bộ không
+    // qua ADB. Trước đây chỉ xem adbBridgeAvailable, khiến WiFi vừa ngắt là báo "không có kênh khả dụng" dù sidecar còn nguyên vẹn,
+    // làm cơ chế kênh thường trú thành vô dụng.
     val standardReady: Boolean
         get() = (adbBridgeAvailable || virtualSpaceBridgeAvailable) && textObservationAvailable
 }

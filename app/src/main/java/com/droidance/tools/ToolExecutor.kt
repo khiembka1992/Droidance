@@ -67,8 +67,8 @@ import com.droidance.agent.device.VirtualSpaceManager
 import com.droidance.core.device.agent.device.VirtualSpaceSidecarBridge
 
 /**
- * 工具执行器
- * 管理和执行所有可用的工具
+ * Bộ thực thi công cụ
+ * Quản lý và thực thi tất cả công cụ khả dụng
  */
 @Singleton
 class ToolExecutor @Inject constructor(
@@ -227,9 +227,9 @@ class ToolExecutor @Inject constructor(
                 registerRetainedVirtualExecution(current)
                 return
             }
-            // 同一 Turn 内先出现 TURN_LOCAL 轮时，该轮的冻结
-            // attempt 不会落库，下一轮会重新准备新的绑定。旧 context 只是本 turn 的临时
-            // 激活，替换为最新绑定，避免误判为跨任务上下文冲突。
+            // Khi trong cùng một Turn xuất hiện lượt TURN_LOCAL trước, attempt bị đóng băng
+            // của lượt đó sẽ không được ghi vào kho, lượt tiếp theo sẽ chuẩn bị ràng buộc mới. Context cũ chỉ là
+            // kích hoạt tạm thời của turn này, thay bằng ràng buộc mới nhất để tránh bị coi nhầm là xung đột ngữ cảnh giữa các tác vụ.
             executionContextStore.finish(current.executionId)
         }
         val context = ExecutionContext(
@@ -742,7 +742,7 @@ class ToolExecutor @Inject constructor(
         (toolRegistry.getTool("program") as? com.droidance.program.ProgramTool)?.release(owner)
     }
 
-    /** 重置会话级工具缓存。 */
+    /** Đặt lại bộ nhớ đệm công cụ cấp cuộc trò chuyện. */
     fun resetSession() {
         if (toolTurnServices.currentOrNull() == null) return
         observeScreenTool.invalidateCache()
@@ -1688,7 +1688,7 @@ class ToolExecutor @Inject constructor(
         val reason: String
     )
 
-    // ====== 公共状态 ======
+    // ====== Trạng thái chung ======
 
     /** Read-only compatibility views. Consumers must use consumePendingObservation() atomically. */
     override val pendingScreenshotBase64: String?
@@ -1697,7 +1697,7 @@ class ToolExecutor @Inject constructor(
     private val currentModelCoordinateMapper: ModelCoordinateMapper
         get() = observationSession.currentModelCoordinateMapper
 
-    /** observe_screen 工具执行后存储的结构化屏幕状态，由 TaskCoordinator 优先消费。 */
+    /** Trạng thái màn hình có cấu trúc được lưu sau khi công cụ observe_screen thực thi, TaskCoordinator ưu tiên sử dụng. */
     override var pendingScreenStateText: String?
         get() = taskState.observations.pendingScreenStateText
         set(value) { taskState.observations.pendingScreenStateText = value }
@@ -1716,7 +1716,7 @@ class ToolExecutor @Inject constructor(
         x to y
     }.getOrElse { null to null }
 
-    /** 后台自动截图 Job（异步执行，不阻塞当前轮工具返回） */
+    /** Job tự động chụp màn hình ở nền (thực thi bất đồng bộ, không chặn công cụ của lượt hiện tại trả về) */
     private var autoCaptureJob: Job?
         get() = taskState.observations.autoCaptureJob
         set(value) { taskState.observations.autoCaptureJob = value }
@@ -1738,12 +1738,12 @@ class ToolExecutor @Inject constructor(
         lastDumpElements.clear()
     }
 
-    /** 快速屏幕哈希，用于动作前后对比 UI 是否发生变化。 */
+    /** Hash màn hình nhanh, dùng để so sánh trước và sau hành động xem UI có thay đổi không. */
     private suspend fun quickScreenHash(): Long? {
         return localActionVerifier.quickScreenHash()
     }
 
-    /** 存储最近一次读屏解析出的可交互元素，供统一 find_and_click 与文本目标定位使用。 */
+    /** Lưu các phần tử tương tác mà lần đọc màn hình gần nhất phân giải ra, phục vụ find_and_click thống nhất và định vị mục tiêu văn bản. */
     private var lastDumpElements: MutableList<DumpElement>
         get() = taskState.lastDumpElements
         set(value) { taskState.lastDumpElements = value }
@@ -1794,7 +1794,7 @@ class ToolExecutor @Inject constructor(
     ): DeviceInputResult = deviceBackend.tap(x, y, precision)
 
 
-    /** 在 lastDumpElements 中按当前屏幕字面文本搜索元素 */
+    /** Tìm phần tử trong lastDumpElements theo văn bản hiển thị trên màn hình hiện tại */
     private fun searchElements(query: String): List<DumpElement> {
         return lastDumpElements.mapNotNull { it.targetForText(query) }
     }

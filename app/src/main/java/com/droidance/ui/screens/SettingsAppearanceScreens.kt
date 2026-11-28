@@ -23,7 +23,7 @@ import com.droidance.config.AppLanguage
 import com.droidance.settings.AppThemeMode
 import com.droidance.ui.icons.DroidanceIcons
 
-// ── 主题与语言 ────────────────────────────────────────────────────────────────
+// ── Giao diện và ngôn ngữ ─────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,7 +97,7 @@ fun SettingsLanguageScreen(
 @Composable
 private fun languageLabel(language: AppLanguage): String = when (language) {
     AppLanguage.SYSTEM -> stringResource(R.string.settings_language_system)
-    AppLanguage.SIMPLIFIED_CHINESE -> stringResource(R.string.settings_language_zh)
+    AppLanguage.VIETNAMESE -> stringResource(R.string.settings_language_vi)
     AppLanguage.ENGLISH -> stringResource(R.string.settings_language_en)
 }
 

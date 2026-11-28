@@ -21,7 +21,7 @@ object SidecarBinderRegistry {
     val deaths: kotlinx.coroutines.flow.SharedFlow<Unit> = deathEvents
     private val binders = ConcurrentHashMap<Int, IBinder>()
 
-    // 诊断：app 端通过广播收到 binder 的次数，区分"sidecar 没发广播"和"app 没收到广播"
+    // Chẩn đoán: số lần phía app nhận được binder qua broadcast, để phân biệt "sidecar không gửi broadcast" và "app không nhận được broadcast"
     @Volatile
     var receivedCount: Int = 0
         private set
@@ -31,10 +31,10 @@ object SidecarBinderRegistry {
         if (value == null) {
             binders.remove(uid)
         } else {
-            // Sidecar 会周期性重发同一个服务的 Binder，BroadcastReceiver 每次都可能
-            // 得到一个新的代理对象。无条件覆盖会让 backendSessionId 在任务中途抖动，
-            // 已冻结的执行绑定随后被误判为“session changed”。只在旧 Binder 已死时
-            // 换代；同一常驻进程的 rebroadcast 保持第一次收到的稳定代理引用。
+            // Sidecar sẽ định kỳ gửi lại Binder của cùng một dịch vụ, BroadcastReceiver mỗi lần đều có thể
+            // nhận được một đối tượng proxy mới. Việc ghi đè vô điều kiện sẽ khiến backendSessionId dao động giữa chừng tác vụ,
+            // ràng buộc thực thi đã bị đóng băng sau đó bị đánh giá nhầm là "session changed". Chỉ đổi
+            // thế hệ khi Binder cũ đã chết; rebroadcast của cùng tiến trình thường trú giữ tham chiếu proxy ổn định nhận được lần đầu.
             val current = binders[uid]
             if ((current == null || !current.isBinderAlive) && watchForDeath(uid, value)) {
                 binders[uid] = value

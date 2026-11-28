@@ -121,12 +121,12 @@ final class SidecarRuntimeSurface {
                 " layerStack=" + indicatorDisplayLayerStack);
     }
 
-    /** 冻结的旧事务只处理隐藏；协议 15 起显示必须携带 App 渲染的位图。 */
+    /** Giao dịch cũ đã đóng băng chỉ xử lý ẩn; từ giao thức 15, hiển thị phải mang theo bitmap do App kết xuất. */
     synchronized boolean updateIndicator(boolean visible, String label, String actionLabel, boolean paused) {
         return updateIsland(visible, label, "", actionLabel, "", paused);
     }
 
-    /** 冻结的旧事务只处理隐藏；协议 15 起显示必须携带 App 渲染的位图。 */
+    /** Giao dịch cũ đã đóng băng chỉ xử lý ẩn; từ giao thức 15, hiển thị phải mang theo bitmap do App kết xuất. */
     synchronized boolean updateIsland(
             boolean visible,
             String progressText,
@@ -160,7 +160,7 @@ final class SidecarRuntimeSurface {
         return applied;
     }
 
-    /** 冻结的旧事务只处理隐藏；协议 15 起显示必须携带指针位图。 */
+    /** Giao dịch cũ đã đóng băng chỉ xử lý ẩn; từ giao thức 15, hiển thị phải mang theo bitmap con trỏ. */
     synchronized boolean updateCursor(
             boolean visible,
             int actionType,

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 YBBLab
 // SPDX-License-Identifier: Apache-2.0
 
-// Droidance - Android AI Agent 自动化平台
+// Droidance - nền tảng tự động hóa Android AI Agent
 pluginManagement {
     includeBuild("build-logic")
     repositories {

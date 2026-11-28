@@ -24,9 +24,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Markdown 文件管理器
- * 负责 Droidance 本地记忆系统的文件读写操作
- * 所有记忆数据以 Markdown 文件存储（File-First 理念）
+ * Trình quản lý tệp Markdown
+ * Phụ trách đọc/ghi tệp cho hệ thống ký ức cục bộ của Droidance
+ * Toàn bộ dữ liệu ký ức được lưu dưới dạng tệp Markdown (triết lý File-First)
  */
 @Singleton
 class MarkdownFileManager @Inject constructor(
@@ -36,7 +36,7 @@ class MarkdownFileManager @Inject constructor(
     private val remote get() = runtimeClient?.get()?.takeIf { !it.isOwner && it.managedStorageEnabled && it.storageTransferred }
     private val ioLock = ReentrantReadWriteLock()
 
-    // 数据根目录：权威位置收敛至内部私有目录（noBackupFilesDir）
+    // Thư mục gốc dữ liệu: vị trí chuẩn được thu về thư mục riêng tư nội bộ (noBackupFilesDir)
     private val dataDir: File by lazy {
         val baseDir = context.noBackupFilesDir ?: context.filesDir
         val internalRoot = File(baseDir, "droidance-data")
@@ -70,7 +70,7 @@ class MarkdownFileManager @Inject constructor(
         return file
     }
 
-    /** 读取指定路径的 Markdown 文件 */
+    /** Đọc tệp Markdown tại đường dẫn được chỉ định */
     override fun readFile(relativePath: String): String? {
         remote?.let { return it.file("read", relativePath).getString("text") }
         return ioLock.read {
@@ -99,7 +99,7 @@ class MarkdownFileManager @Inject constructor(
 
     }
 
-    /** 写入/覆盖指定路径的 Markdown 文件 */
+    /** Ghi/ghi đè tệp Markdown tại đường dẫn được chỉ định */
     // Readers and atomic replacements share the lock. In-place and directory mutations
     // take the exclusive lock, so they cannot race staged replacements.
     override fun writeFile(relativePath: String, content: String) {
@@ -143,7 +143,7 @@ class MarkdownFileManager @Inject constructor(
         }
     }
 
-    /** 追加内容到指定文件 */
+    /** Nối thêm nội dung vào tệp được chỉ định */
     fun appendFile(relativePath: String, content: String) {
         remote?.let { it.file("append", relativePath, android.os.Bundle().apply { putString("text", content) }); return }
         ioLock.write {
@@ -153,13 +153,13 @@ class MarkdownFileManager @Inject constructor(
         }
     }
 
-    /** 检查文件是否存在 */
+    /** Kiểm tra tệp có tồn tại hay không */
     override fun exists(relativePath: String): Boolean {
         remote?.let { return it.file("exists", relativePath).getBoolean("result") }
         return ioLock.read { resolve(relativePath).exists() }
     }
 
-    /** 返回文件 mtime；不存在时返回 -1。 */
+    /** Trả về mtime của tệp; trả về -1 khi không tồn tại. */
     fun lastModified(relativePath: String): Long {
         remote?.let { return it.file("modified", relativePath).getLong("time") }
         return ioLock.read {
@@ -168,7 +168,7 @@ class MarkdownFileManager @Inject constructor(
         }
     }
 
-    /** 列出目录下的所有文件 */
+    /** Liệt kê tất cả tệp trong thư mục */
     override fun listFiles(directoryPath: String): List<String> {
         remote?.let { return it.file("list", directoryPath).getStringArrayList("names").orEmpty() }
         return ioLock.read {
@@ -181,7 +181,7 @@ class MarkdownFileManager @Inject constructor(
         }
     }
 
-    /** 删除文件 */
+    /** Xóa tệp */
     fun deleteFile(relativePath: String): Boolean {
         remote?.let { return it.file("delete", relativePath).getBoolean("result") }
         return ioLock.write { Files.deleteIfExists(resolve(relativePath).toPath()) }
@@ -228,7 +228,7 @@ class MarkdownFileManager @Inject constructor(
         }
     }
 
-    /** 获取数据根目录的绝对路径 */
+    /** Lấy đường dẫn tuyệt đối của thư mục gốc dữ liệu */
     fun getDataDirPath(): String {
         val client = remote ?: return dataDir.absolutePath
         val export = File(context.cacheDir, "runtime-export-${java.util.UUID.randomUUID()}").apply { mkdirs() }

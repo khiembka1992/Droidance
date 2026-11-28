@@ -7,11 +7,11 @@ import android.content.Context
 import kotlin.math.roundToInt
 
 /**
- * 用户把运行浮层拖到的高度偏移，跨任务与 App 重启保留——挡住视线的通常是某个 App 的固定
- * 元素，下次还会挡，所以位置值得记住。
+ * Độ lệch độ cao người dùng kéo lớp phủ runtime tới, được giữ qua các tác vụ và lần khởi động lại App — thứ che khuất tầm nhìn thường là phần tử cố định của một App,
+ * lần sau vẫn che, nên vị trí đáng để ghi nhớ.
  *
- * 主屏运行岛与虚拟空间查看页控制岛记同一份：两处默认落点都从屏幕底部起算，挪一处等于挪
- * 同一个岛，回到另一处它还在同样的高度上。
+ * Runtime island ở màn hình chính và island điều khiển ở trang xem không gian ảo ghi chung một bản: điểm đáp mặc định của cả hai đều tính từ đáy màn hình, dời một chỗ là dời
+ * cùng một island, quay lại chỗ kia nó vẫn ở đúng độ cao đó.
  */
 object RuntimeIslandPosition {
     const val KEY_BOTTOM_OFFSET = "island_bottom_offset_px"

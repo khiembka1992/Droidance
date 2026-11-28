@@ -74,14 +74,14 @@ class ObserveScreenTool @Inject constructor(
     private fun frameRecoveryRepeats(): Int =
         ruleConfigManager.harnessPolicy().runtimeThresholds.frameRecoveryRepeats
     companion object {
-        /** 指纹观察缓存容量：覆盖"列表→详情→返回列表"往返，命中即省缩放+编码。 */
+        /** Dung lượng bộ nhớ đệm quan sát theo fingerprint: bao trùm lượt đi-về "danh sách→chi tiết→quay lại danh sách", trúng đệm là tiết kiệm thu phóng + mã hóa. */
         const val OBSERVE_CACHE_MAX_ENTRIES = 8
         const val MODE_PURE_VLM = "pure_vlm"
         const val MODE_CROP_ZOOM = "crop_zoom"
         const val MODE_NONE = "none"
     }
 
-    /** 图像与坐标元数据必须作为同一帧原子发布。 */
+    /** Ảnh và siêu dữ liệu tọa độ phải được phát hành nguyên tử như cùng một frame. */
     var setPendingVisionFrame: (suspend (PublishedVisionFrame) -> Unit)? = null
 
     @Volatile
@@ -107,8 +107,8 @@ class ObserveScreenTool @Inject constructor(
     private var lastScreenFingerprint: String? = null
 
     /**
-     * 同一指纹帧的完整观察结果缓存（LRU）。多帧容量让"回到旧页"也命中，
-     * 而不只是"连续两次观察同一帧"：AppTakeover 巡检与列表往返是主要受益场景。
+     * Bộ nhớ đệm kết quả quan sát đầy đủ theo cùng fingerprint (LRU). Dung lượng nhiều frame giúp "quay lại trang cũ" cũng trúng đệm,
+     * chứ không chỉ "quan sát cùng một frame hai lần liên tiếp": tuần tra AppTakeover và lượt đi-về danh sách là cảnh hưởng lợi chính.
      */
     private val observeCache = LruCache<String, ObserveCacheEntry>(OBSERVE_CACHE_MAX_ENTRIES)
 
@@ -229,7 +229,7 @@ class ObserveScreenTool @Inject constructor(
         val capabilitySnapshot = registry.current()
         val executionContext = executionContextStore.requireCurrent()
         val displayId = executionContext.displayId
-        // 按当前执行空间截图。虚拟空间必须保持与主屏隔离，不能在后台帧失败时偷看主屏。
+        // Chụp màn hình theo không gian thực thi hiện tại. Không gian ảo phải giữ cách ly với màn hình chính, không được lén xem màn hình chính khi frame nền thất bại.
         val captureDisplayId = displayId.takeUnless { it == 0 }
         val frame = providedFrame ?: if (executionContext.isVirtualSpace) {
             com.droidance.core.agent.tools.captureWithFrameRecovery(

@@ -41,13 +41,13 @@ import com.droidance.ui.theme.*
 import com.droidance.ui.viewmodel.ProviderListViewModel
 
 /**
- * AI Provider 列表页面
- * 展示所有已配置的 Provider，支持添加、编辑、删除、启用/禁用
+ * Trang danh sách AI Provider
+ * Hiển thị tất cả Provider đã cấu hình, hỗ trợ thêm, sửa, xóa, bật/tắt
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderListScreen(
-    onNavigateToEdit: (String?) -> Unit, // null = 新建, id = 编辑
+    onNavigateToEdit: (String?) -> Unit, // null = tạo mới, id = chỉnh sửa
     onNavigateBack: () -> Unit,
     viewModel: ProviderListViewModel = hiltViewModel()
 ) {
@@ -92,7 +92,7 @@ fun ProviderListScreen(
             )
         },
         floatingActionButton = {
-            // 添加新 Provider 按钮
+            // Nút thêm Provider mới
             FloatingActionButton(
                 onClick = { onNavigateToEdit(null) },
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -104,7 +104,7 @@ fun ProviderListScreen(
         }
     ) { paddingValues ->
         if (providers.isEmpty()) {
-            // 空状态
+            // Trạng thái rỗng
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -160,14 +160,14 @@ fun ProviderListScreen(
                     )
                 }
 
-                // 底部留白（FAB 不挡住最后一项）
+                // Khoảng trống cuối danh sách (để FAB không che mục cuối)
                 item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
     }
 }
 /**
- * 单个 Provider 卡片
+ * Thẻ Provider đơn lẻ
  */
 @Composable
 private fun ProviderCard(
@@ -199,12 +199,12 @@ private fun ProviderCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // 顶部行：名称 + 状态 + 开关
+            // Hàng trên cùng: tên + trạng thái + công tắc
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 优先按 API 域名和 Provider 名称匹配本地品牌图标；未知服务保留首字母兜底。
+                // Ưu tiên khớp icon thương hiệu cục bộ theo tên miền API và tên Provider; dịch vụ chưa biết giữ chữ cái đầu làm dự phòng.
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -231,7 +231,7 @@ private fun ProviderCard(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                // 名称 + API 地址
+                // Tên + địa chỉ API
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = config.name,
@@ -250,7 +250,7 @@ private fun ProviderCard(
                     )
                 }
 
-                // 启用/禁用开关
+                // Công tắc bật/tắt
                 Switch(
                     checked = config.isEnabled,
                     onCheckedChange = { onToggle() },
@@ -267,7 +267,7 @@ private fun ProviderCard(
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 模型选择器：点击切换当前生效模型
+            // Bộ chọn mô hình: nhấn để đổi mô hình đang có hiệu lực
             if (config.models.isNotEmpty()) {
                 var expanded by remember { mutableStateOf(false) }
                 val current = config.defaultModel.ifBlank { config.models.first() }
@@ -352,14 +352,14 @@ private fun ProviderCard(
                 }
             }
 
-            // API Key 状态 + 操作按钮
+            // Trạng thái API Key + nút thao tác
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // API Key 状态：已配置 = 中性灰勾（完成态不抢戏），缺失 = 琥珀点提醒
+                // Trạng thái API Key: đã cấu hình = dấu tick xám trung tính (trạng thái hoàn tất không tranh mắt), thiếu = chấm hổ phách nhắc nhở
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val keyReady = config.apiKey.isNotBlank()
                     if (keyReady) {
@@ -409,7 +409,7 @@ private fun ProviderCard(
         }
     }
 
-    // 删除确认对话框
+    // Hộp thoại xác nhận xóa
     if (showDeleteDialog) {
         GlassAlertDialog(
             onDismissRequest = { showDeleteDialog = false },

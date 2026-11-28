@@ -152,7 +152,7 @@ internal class ViewerControlIslandView(
         gravity = Gravity.CENTER_VERTICAL
         setPadding(0, 0, dp(RuntimeIslandStyle.EDGE_PADDING_DP), 0)
 
-        // 透明点击区覆盖收起标识和吉祥物；拖动仍由父容器在超过阈值后接管。
+        // Vùng nhấn trong suốt phủ lên biểu tượng thu gọn và linh vật; kéo vẫn do container cha tiếp quản sau khi vượt ngưỡng.
         addView(View(context).apply {
             contentDescription = context.getString(R.string.takeover_close_viewer)
             isFocusable = true

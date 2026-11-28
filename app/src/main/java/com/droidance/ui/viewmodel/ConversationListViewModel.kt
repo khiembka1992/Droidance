@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
- * 对话列表页 ViewModel
+ * ViewModel của trang danh sách cuộc trò chuyện
  */
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
@@ -45,7 +45,7 @@ class ConversationListViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000),
             HistorySnapshot<List<ConversationListItem>>(null, HistoryLoadStatus.LOADING))
 
-    /** 当前正在跑任务的会话 ID（用于抽屉显示绿色脉冲点） */
+    /** ID cuộc trò chuyện đang chạy tác vụ (dùng cho ngăn kéo hiển thị chấm nhấp nháy màu xanh) */
     val runningConversationId: StateFlow<String?> = combine(
         agentRuntime.state,
         agentRuntime.currentConversationId

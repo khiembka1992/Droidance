@@ -86,7 +86,7 @@ internal object ResidentSidecarProcessCommands {
             "done"
         val logPath = logPath(requireStorageDirectory(storageDirectory, packageName))
         return buildString {
-            // 不能在同一条 sh -c 里按 mainClass 清进程，否则会匹配当前命令文本并杀掉启动过程。
+            // Không thể dọn tiến trình theo mainClass trong cùng một lệnh sh -c, nếu không sẽ khớp với chính văn bản lệnh hiện tại và giết luôn quá trình khởi chạy.
             append("export CLASSPATH=${escape(apkPath)}; ")
             append("export DROIDANCE_SIDECAR_MAIN=${escape(mainClass)}; ")
             append("export DROIDANCE_SIDECAR_PACKAGE=${escape(packageName)}; ")
@@ -94,10 +94,10 @@ internal object ResidentSidecarProcessCommands {
             append("export DROIDANCE_SIDECAR_SOURCE=${escape("droidance-sidecar-source=$apkPath")}; ")
             append("export DROIDANCE_SIDECAR_STORAGE=${escape(storageDirectory)}; ")
             append("mkdir -p ${escape(storageDirectory + "/sidecar")}; ")
-            // setsid 让 sidecar 脱离 AIR/AirAdbClient 的一次性 shell 会话，避免 shell 连接关闭时
-            // SIGHUP 杀掉后台 sidecar 进程（真机 binder timeout 的疑似主因；模拟器手动 adb shell 不复现）。
-            // setsid 脱离一次性 shell 会话 + </dev/null 关闭 stdin 防 SIGPIPE，
-            // 确保 AirAdbClient 连接关闭后 sidecar 仍存活到完成 binder 广播。
+            // setsid tách sidecar khỏi phiên shell một lần của AIR/AirAdbClient, tránh việc khi kết nối shell đóng
+            // SIGHUP giết tiến trình sidecar ở nền (nghi là nguyên nhân chính của binder timeout trên thiết bị thật; không tái hiện khi adb shell thủ công trên trình giả lập).
+            // setsid tách khỏi phiên shell một lần + </dev/null đóng stdin để chống SIGPIPE,
+            // đảm bảo sau khi kết nối AirAdbClient đóng, sidecar vẫn sống đến khi hoàn tất broadcast binder.
             // Append so the exit that a restart follows stays readable; a launch rotates a large log.
             append("[ \"\$(wc -c <$logPath 2>/dev/null || echo 0)\" -gt $LOG_ROTATE_BYTES ] && mv -f $logPath $logPath.1; ")
             append("(setsid sh -c ${escape(supervisor)} ")

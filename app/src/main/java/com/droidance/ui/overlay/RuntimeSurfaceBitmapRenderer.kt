@@ -17,12 +17,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.max
 
-/** App 进程负责排版，sidecar 只合成像素，避免 raw app_process 依赖字体运行时。 */
+/** Tiến trình App chịu trách nhiệm dàn trang, sidecar chỉ hợp thành pixel, tránh để raw app_process phụ thuộc runtime font. */
 @Singleton
 class RuntimeSurfaceBitmapRenderer @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    /** 岛内主按钮的语义：决定画哪个图标（打开镜像 / 接管主屏 / 把控制交回 agent）。 */
+    /** Ngữ nghĩa của nút chính trong island: quyết định vẽ icon nào (mở bản mirror / tiếp quản màn hình chính / trả quyền điều khiển lại cho agent). */
     enum class IslandAction { OPEN, TAKEOVER, RESUME, NONE }
 
     data class IslandBitmap(
@@ -219,13 +219,13 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
             if (executing) MascotMotion.loopingDancePose(elapsedMs, !motionEnabled) else MascotPose())
     }
 
-    /** 岛宽定死，只有窄屏才收：左右各留 [RuntimeIslandStyle.SIDE_MIN_MARGIN_DP]。 */
+    /** Chiều rộng island cố định, chỉ thu lại trên màn hình hẹp: mỗi bên chừa [RuntimeIslandStyle.SIDE_MIN_MARGIN_DP]. */
     private fun islandWidthPx(): Int {
         val maxWidth = screenWidthPx() - dp(RuntimeIslandStyle.SIDE_MIN_MARGIN_DP) * 2
         return dp(RuntimeIslandStyle.WIDTH_DP).coerceAtMost(maxWidth)
     }
 
-    /** 圆形图标按钮底座；glyph 拿到中心点与 1dp 单位，自己画线条。 */
+    /** Đế nút icon tròn; glyph nhận điểm tâm và đơn vị 1dp rồi tự vẽ nét. */
     private fun drawIconChip(
         canvas: Canvas,
         left: Int,
@@ -249,8 +249,8 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
     }
 
     /**
-     * 主按钮图标：OPEN = 对角展开箭头（打开镜像），TAKEOVER = 暂停条（我来操作），
-     * RESUME = 播放三角（把控制交回 agent）。语义靠形状表达，不再依赖文案长度。
+     * Icon nút chính: OPEN = mũi tên mở chéo (mở bản mirror), TAKEOVER = thanh tạm dừng (tôi tự thao tác),
+     * RESUME = tam giác phát (trả quyền điều khiển lại cho agent). Ngữ nghĩa thể hiện qua hình dạng, không còn phụ thuộc độ dài nhãn.
      */
     private fun drawActionGlyph(
         canvas: Canvas,
@@ -269,7 +269,7 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
         }
         when (action) {
             IslandAction.NONE -> {
-                // 驻留态：主按钮无动作，只保留停止按钮。
+                // Trạng thái thường trú: nút chính không có hành động, chỉ giữ nút dừng.
             }
             IslandAction.OPEN -> {
                 val arm = unit * 4.4f * RuntimeIslandStyle.SCALE
@@ -309,7 +309,7 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
         }
     }
 
-    /** 停止图标：iOS 那种圆角方块。 */
+    /** Icon dừng: khối vuông bo góc kiểu iOS. */
     private fun drawStopGlyph(canvas: Canvas, cx: Float, cy: Float, unit: Float) {
         val half = unit * RuntimeIslandStyle.STOP_GLYPH_SIZE_DP / 2f
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -326,11 +326,11 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
 
     fun pointerBitmapPng(): ByteArray = pointerPng
 
-    /** 主屏小手位图：与虚拟屏预览层共用 [HandCursorBitmap] 的同一张 PNG 素材。 */
+    /** Bitmap bàn tay nhỏ trên màn hình chính: dùng chung cùng một PNG với lớp xem trước màn hình ảo qua [HandCursorBitmap]. */
     private fun renderPointerBitmap(): ByteArray =
         HandCursorBitmap.of(context, dp(POINTER_SIZE_DP)).toPng()
 
-    // sidecar 贴图用的是物理屏幕坐标，所以取整块屏幕而不是应用可用区域。
+    // Sidecar dán ảnh theo tọa độ màn hình vật lý, nên lấy toàn bộ màn hình thay vì vùng khả dụng của ứng dụng.
     internal fun screenBounds(): android.graphics.Rect {
         val display = context.getSystemService(android.hardware.display.DisplayManager::class.java)
             .getDisplay(android.view.Display.DEFAULT_DISPLAY)
@@ -352,7 +352,7 @@ class RuntimeSurfaceBitmapRenderer @Inject constructor(
     private fun dpFloat(value: Float): Float = value * density
 
     private companion object {
-        /** 主屏小手位图边长；sidecar 按 (0.28w, 0.20h) 当指尖热点贴到落点上。 */
+        /** Cạnh của bitmap bàn tay nhỏ trên màn hình chính; sidecar dán theo (0.28w, 0.20h) làm điểm nóng đầu ngón tay vào điểm rơi. */
         const val POINTER_SIZE_DP = 36f
 
         const val ISLAND_SHADOW_PADDING_DP = 12f

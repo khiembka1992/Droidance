@@ -27,9 +27,9 @@ class AirAdbClient(
     private lateinit var outputStream: DataOutputStream
     private val nextLocalId = AtomicInteger(1)
     @Volatile private var connected = false
-    // 整条 ADB socket 是单连接复用，多线程同时 shell() 会让 header/payload 在 stream 上交错，
-    // 导致一个命令读到另一个命令的 stdout（典型表现：base64 输出里夹着 dumpsys 输出和
-    // __DROIDANCE_EXIT_ marker）。这把锁让 shell() 调用一次只跑一个，避免命令交错。
+    // Toàn bộ socket ADB là một kết nối dùng lại, nhiều luồng gọi shell() cùng lúc sẽ làm header/payload xen kẽ trên stream,
+    // khiến một lệnh đọc được stdout của lệnh khác (biểu hiện điển hình: đầu ra base64 lẫn đầu ra dumpsys và
+    // marker __DROIDANCE_EXIT_). Khóa này cho mỗi lần gọi shell() chỉ chạy một lệnh, tránh xen kẽ lệnh.
     private val shellLock = Any()
 
     fun connect() {
@@ -37,11 +37,11 @@ class AirAdbClient(
         val tcpSocket = Socket().also {
             it.tcpNoDelay = true
             it.connect(InetSocketAddress(host, port), CONNECT_TIMEOUT_MS)
-            // 关键修复：给 socket 设读超时。半开连接(对端 wifi 掉线/睡眠且未发 RST)下，
-            // readFully 没有读超时会一直阻塞到 OS 级 TCP 超时(数分钟)——这是后台任务
-            // "执行得非常慢、基本不成功"的真凶(一次截图/注入卡死 6 分钟直到 wall 超时)。
-            // 设了 soTimeout 后任何卡死的读会在秒级抛 SocketTimeoutException，上层据此
-            // markShellDown + 重连，循环不再被一次读永久挂死。
+            // Bản sửa quan trọng: đặt timeout đọc cho socket. Với kết nối nửa mở (wifi phía đối tác rớt/mất kết nối và chưa gửi RST),
+            // readFully không có timeout đọc sẽ chặn mãi đến timeout TCP của OS (vài phút) — đây chính là thủ phạm
+            // khiến tác vụ nền "chạy rất chậm, gần như không thành công" (một lần chụp màn hình/inject treo 6 phút cho đến timeout wall).
+            // Sau khi đặt soTimeout, mọi lần đọc bị treo sẽ ném SocketTimeoutException trong vài giây, tầng trên dựa vào đó
+            // markShellDown + kết nối lại, vòng lặp không còn bị một lần đọc treo vĩnh viễn.
             it.soTimeout = READ_TIMEOUT_MS
             socket = it
         }
@@ -106,10 +106,10 @@ class AirAdbClient(
 
         while (true) {
             val message = readMessage()
-            // ADB 协议中 server → client 的所有响应包 arg1 = client 的 local-id。
-            // 如果不是我们这条流的消息，说明是上一次 shell() 留在 socket 缓冲里的
-            // 残留 A_WRTE / A_CLSE（典型表现：dumpsys 的输出泄漏到 screencap+base64 里）。
-            // 直接跳过，不要拌进 output；不需要 ACK，server 那边的流早已关闭。
+            // Trong giao thức ADB, mọi gói phản hồi server → client đều có arg1 = local-id của client.
+            // Nếu không phải tin nhắn của stream của chúng ta, nghĩa là A_WRTE / A_CLSE còn sót lại trong bộ đệm socket
+            // từ lần shell() trước (biểu hiện điển hình: đầu ra dumpsys rò rỉ vào screencap+base64).
+            // Bỏ qua thẳng, đừng trộn vào output; không cần ACK, stream phía server đã đóng từ trước.
             if (message.arg1 != localId) continue
             when (message.command) {
                 A_OKAY -> accepted = true
@@ -235,9 +235,9 @@ class AirAdbClient(
         const val ADB_AUTH_SIGNATURE = 2
         const val ADB_AUTH_RSAPUBLICKEY = 3
         const val CONNECT_TIMEOUT_MS = 5_000
-        // 单次 socket 读的硬上限。正常 screencap 首字节 ~1-2s、健康检查近乎瞬时，
-        // 10s 足以覆盖任何合法读，又能把半死连接的卡死收敛到秒级而非数分钟。
-        // 截图/注入等热路径另有更紧的 wrapper 超时(8s/15s)，此值是覆盖全部读路径的兜底地板。
+        // Giới hạn cứng cho một lần đọc socket. Bình thường screencap có byte đầu sau ~1-2s, health check gần như tức thời,
+        // 10s đủ phủ mọi lần đọc hợp lệ, đồng thời gom tình trạng treo của kết nối nửa chết về mức vài giây thay vì vài phút.
+        // Các đường dẫn nóng như chụp màn hình/inject có timeout wrapper chặt hơn riêng (8s/15s), giá trị này là mức sàn dự phòng phủ mọi đường đọc.
         const val READ_TIMEOUT_MS = 10_000
 
         fun String.adbPayload(): ByteArray = toByteArray(Charsets.UTF_8) + 0.toByte()

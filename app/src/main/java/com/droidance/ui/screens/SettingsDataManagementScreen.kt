@@ -27,7 +27,7 @@ import com.droidance.R
 import com.droidance.ui.viewmodel.SettingsViewModel
 import com.droidance.ui.viewmodel.UsageRange
 
-// ── 数据管理（用量 + 导出 + 清理）───────────────────────────────────────────────
+// ── Quản lý dữ liệu (sử dụng + xuất + dọn dẹp)───────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

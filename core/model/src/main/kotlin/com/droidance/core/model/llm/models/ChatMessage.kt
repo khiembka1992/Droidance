@@ -6,47 +6,47 @@ package com.droidance.core.model.llm.models
 import kotlinx.serialization.Serializable
 
 /**
- * 统一聊天消息模型
- * 用于在 Agent 和 LLM Provider 之间传递消息
+ * Mô hình tin nhắn trò chuyện thống nhất
+ * Dùng để truyền tin nhắn giữa Agent và LLM Provider
  */
 @Serializable
 data class ChatMessage(
     val role: Role,
     val content: String,
-    val toolCalls: List<ToolCall>? = null,    // LLM 返回的工具调用
-    val toolCallId: String? = null,           // 工具执行结果对应的 ID
-    val imageBase64: String? = null,          // 可选的图片内容（截图）
+    val toolCalls: List<ToolCall>? = null,    // Lệnh gọi công cụ do LLM trả về
+    val toolCallId: String? = null,           // ID tương ứng với kết quả thực thi công cụ
+    val imageBase64: String? = null,          // Nội dung ảnh tùy chọn (ảnh chụp màn hình)
     val historicalImage: Boolean = false, // Historical evidence, never the current computer frame
-    val imageBase64List: List<String> = emptyList(), // 可选的多图内容
-    val reasoningContent: String? = null,     // Provider 推理内容，多轮协议需要时回传
+    val imageBase64List: List<String> = emptyList(), // Nội dung nhiều ảnh tùy chọn
+    val reasoningContent: String? = null,     // Nội dung suy luận của Provider, gửi lại khi giao thức nhiều lượt cần
     val timestamp: Long = System.currentTimeMillis(),
     /** Request-local cache eligibility; never persisted as conversation content. */
     @kotlinx.serialization.Transient val cacheablePrefix: Boolean = false
 )
 
 /**
- * 消息角色
+ * Vai trò tin nhắn
  */
 @Serializable
 enum class Role {
-    SYSTEM,     // 系统提示词（SOUL.md 内容）
-    USER,       // 用户消息
-    ASSISTANT,  // LLM 回复
-    TOOL        // 工具调用结果
+    SYSTEM,     // system prompt (nội dung SOUL.md)
+    USER,       // Tin nhắn người dùng
+    ASSISTANT,  // Phản hồi của LLM
+    TOOL        // Kết quả gọi công cụ
 }
 
 /**
- * 工具调用定义
+ * Định nghĩa lệnh gọi công cụ
  */
 @Serializable
 data class ToolCall(
-    val id: String,            // 工具调用 ID
-    val name: String,          // 工具名称，如 "screenshot", "click"
-    val arguments: String      // JSON 格式的参数
+    val id: String,            // ID lệnh gọi công cụ
+    val name: String,          // Tên công cụ, ví dụ "screenshot", "click"
+    val arguments: String      // Tham số định dạng JSON
 )
 
 /**
- * 工具定义（发送给 LLM 的工具清单）
+ * Định nghĩa công cụ (danh sách công cụ gửi cho LLM)
  */
 @Serializable
 data class ToolDefinition(
@@ -56,11 +56,11 @@ data class ToolDefinition(
 )
 
 /**
- * 工具参数定义
+ * Định nghĩa tham số công cụ
  */
 @Serializable
 data class ToolParameter(
-    val type: String,           // "string", "integer", "boolean" 等
+    val type: String,           // "string", "integer", "boolean" v.v.
     val description: String,
     val required: Boolean = true,
     val enumValues: List<String>? = null,

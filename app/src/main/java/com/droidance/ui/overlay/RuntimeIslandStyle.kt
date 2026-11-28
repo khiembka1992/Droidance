@@ -10,11 +10,11 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 
 /**
- * 灵动岛视觉令牌。主屏运行岛（sidecar 合成位图）、接管镜像控制岛、虚拟空间查看页控制岛共用
- * 同一套配色与圆角，三处不再各写一遍十六进制。
+ * Token thị giác runtime island. Đảo runtime màn hình chính (bitmap tổng hợp từ sidecar), đảo điều khiển mirror tiếp quản, đảo điều khiển trang xem không gian ảo dùng chung
+ * một bộ màu và bo góc, ba nơi không còn viết lại mã hex riêng.
  *
- * 语汇是 iOS 灵动岛式的克制：一体式深色胶囊 + 白字，角色直接融入岛体，操作按钮统一采用等尺寸中性圆圈底座。
- * 暂停/接管与停止按钮保持统一的半透明中性底色与纯白图标，不随接管状态变黄。
+ * Ngôn ngữ hình ảnh tiết chế kiểu runtime island iOS: viên nang tối liền khối + chữ trắng, nhân vật hòa thẳng vào thân đảo, nút thao tác dùng chung đế tròn trung tính cùng kích thước.
+ * Nút tạm dừng/tiếp quản và nút dừng giữ nền trung tính bán trong suốt và biểu tượng trắng thuần thống nhất, không ngả vàng theo trạng thái tiếp quản.
  */
 object RuntimeIslandStyle {
     const val PILL_FILL = "#0D0E10"
@@ -26,7 +26,7 @@ object RuntimeIslandStyle {
     const val NEUTRAL_CHIP_FILL = "#1FFFFFFF"
     const val PAUSED_CHIP_FILL = "#1FFFFFFF"
 
-    // ── 岛的几何：主屏与虚拟空间共用同一套，任何状态下都不伸缩 ──────────────
+    // ── Hình học của đảo: màn hình chính và không gian ảo dùng chung một bộ, không co giãn ở mọi trạng thái ──────────────
     // Scale the whole composition together, including text, mascot, controls and their glyphs.
     const val SCALE = 1.25f
     const val WIDTH_DP = 172f * SCALE
@@ -47,7 +47,7 @@ object RuntimeIslandStyle {
     const val MASCOT_LABEL_GAP_DP = 4f * SCALE
     const val LABEL_INSET_DP = MASCOT_LEFT_DP + MASCOT_SIZE_DP + MASCOT_LABEL_GAP_DP
     const val LABEL_TEXT_SP = 11f * SCALE
-    /** 窄屏上左右各至少留这么多，否则岛会贴死在屏幕边上。 */
+    /** Trên màn hình hẹp phải chừa ít nhất ngần này mỗi bên, nếu không đảo sẽ dính sát mép màn hình. */
     const val SIDE_MIN_MARGIN_DP = 16f
     /** The default island center sits one fifth of the screen height above the bottom. */
     const val BOTTOM_POSITION_FRACTION = .2f
@@ -97,7 +97,7 @@ object RuntimeIslandStyle {
 
     fun fillColor(): Int = Color.parseColor(PILL_FILL)
 
-    /** 岛内按钮：全圆角中性胶囊。 */
+    /** Nút trong đảo: viên nang trung tính bo tròn hoàn toàn. */
     fun chip(density: Float, fill: String, radiusDp: Float = 13f): GradientDrawable =
         GradientDrawable().apply {
             setColor(Color.parseColor(fill))

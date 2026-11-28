@@ -27,9 +27,9 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.coroutineContext
 
 /**
- * LLM 路由器（重构版）
- * 直接从 ProviderConfigManager 获取动态配置，
- * 使用 OpenAI 兼容格式发起 HTTP 调用
+ * Router LLM (bản tái cấu trúc)
+ * Lấy cấu hình động trực tiếp từ ProviderConfigManager,
+ * dùng định dạng tương thích OpenAI để phát lệnh gọi HTTP
  */
 class LLMRouter(
     private val httpClient: OkHttpClient,
@@ -41,7 +41,7 @@ class LLMRouter(
         const val FINAL_USAGE_GRACE_MS = 1_000L
     }
 
-    /** 模型切换事件回调（供 UI 监听，显示切换通知） */
+    /** Callback sự kiện chuyển mô hình (cho UI lắng nghe, hiển thị thông báo chuyển đổi) */
     private val switchEvents = kotlinx.coroutines.flow.MutableSharedFlow<ModelSwitchEvent>(extraBufferCapacity = 16)
     override val modelSwitches: kotlinx.coroutines.flow.SharedFlow<ModelSwitchEvent> = switchEvents
 
@@ -277,7 +277,7 @@ class LLMRouter(
         return isVisionEnabled(config, configManager.getCurrentModel(config))
     }
 
-    /** 当前操作 Provider 的上下文窗口（token），供自动压缩按 60% 阈值判断。 */
+    /** Cửa sổ ngữ cảnh (token) của Provider đang thao tác, để nén tự động xét theo ngưỡng 60%. */
     override fun currentContextWindowTokens(): Int {
         synchronized(turnPlanLock) {
             frozenTurnPlan?.contextWindowTokens?.let { return it.coerceAtLeast(8_000) }
@@ -311,9 +311,9 @@ class LLMRouter(
     }
 
     /**
-     * 流式聊天（支持同 Provider 内模型自动降级）
-     * 当流式调用失败且错误为额度/模型不可用时，自动切换到下一个模型重试
-     * 降级逻辑在 Flow 内部完成（因为 SSE 错误在 collect 时才触发）
+     * Chat streaming (hỗ trợ tự động hạ cấp mô hình trong cùng Provider)
+     * Khi lệnh gọi streaming thất bại với lỗi hết hạn mức/mô hình không khả dụng, tự chuyển sang mô hình kế tiếp để thử lại
+     * Logic hạ cấp nằm bên trong Flow (vì lỗi SSE chỉ kích hoạt lúc collect)
      */
     override suspend fun streamChat(
         messages: List<ChatMessage>,
@@ -474,7 +474,7 @@ class LLMRouter(
                             config, currentModel, imageDetail, returnedModel
                         )
                     }
-                    // 流完整结束，调用成功，重置降级状态
+                    // Stream kết thúc trọn vẹn, lệnh gọi thành công, đặt lại trạng thái hạ cấp
                     configManager.resetModelFallback(config.id)
                     return@flow
                 } catch (e: Exception) {
@@ -549,7 +549,7 @@ class LLMRouter(
                             }
                             imageDetailIndex = 0
                             switchEvents.emit(ModelSwitchEvent(oldModel, nextModel, errMsg.take(80)))
-                            continue // 用下一个模型重试
+                            continue // Thử lại với mô hình kế tiếp
                         }
                     }
                     val boundedRequestTimeout = requestTimeoutMs != null &&
@@ -562,7 +562,7 @@ class LLMRouter(
                         delay(250)
                         continue
                     }
-                    // 不是额度错误 或 所有模型都试完了
+                    // Không phải lỗi hạn mức hoặc đã thử hết mọi mô hình
                     throw lastError
                 }
             }
@@ -638,10 +638,10 @@ class LLMRouter(
             ProviderErrorCategory.PREVIOUS_RESPONSE_NOT_FOUND
     }
 
-    // ====== OpenAI 兼容 HTTP 调用 ======
+    // ====== Gọi HTTP tương thích OpenAI ======
 
     /**
-     * 流式调用 OpenAI 兼容 API（SSE）
+     * Gọi streaming API tương thích OpenAI (SSE)
      */
     private fun streamOpenAICompatible(
         endpointUrl: String,
@@ -748,14 +748,14 @@ class LLMRouter(
                         break
                     }
 
-                    // 先解析 JSON，JSON 格式错误才静默跳过
+                    // Phân giải JSON trước, chỉ khi JSON sai định dạng mới bỏ qua im lặng
                     val json = try {
                         Json.parseToJsonElement(data).jsonObject
                     } catch (_: Exception) {
-                        continue  // 非 JSON 行，跳过
+                        continue  // Dòng không phải JSON, bỏ qua
                     }
 
-                    // 检查 stream body 中的错误字段，通过 ProviderHttpException 保留状态码与结构化分类供瞬态重试
+                    // Kiểm tra trường error trong stream body, dùng ProviderHttpException để giữ mã trạng thái và phân loại có cấu trúc cho thử lại tạm thời
                     (json["error"] as? JsonObject)?.let { errObj ->
                         val codeRaw = errObj["code"]?.jsonPrimitive?.contentOrNull
                         val codeInt = (errObj["code"] as? JsonPrimitive)?.intOrNull ?: codeRaw?.toIntOrNull()
@@ -763,7 +763,7 @@ class LLMRouter(
                         throw ProviderHttpException.fromResponse(statusCode, providerName, data, redactor = redactor)
                     }
 
-                    // 解析 usage（出现在最后一个有效 chunk，需 stream_options.include_usage=true）
+                    // Phân giải usage (xuất hiện ở chunk hợp lệ cuối cùng, cần stream_options.include_usage=true)
                     val usage = json["usage"] as? JsonObject
                     val choice = (json["choices"] as? JsonArray)?.firstOrNull() as? JsonObject
                     val reportedFinishReason = (choice?.get("finish_reason") as? JsonPrimitive)?.contentOrNull
@@ -1040,10 +1040,10 @@ class LLMRouter(
         "LLM request cancelled before registration"
     )
 
-    // ====== JSON 构建 ======
+    // ====== Dựng JSON ======
 
     /**
-     * 构建 OpenAI 兼容格式的请求体
+     * Dựng body request theo định dạng tương thích OpenAI
      */
     private fun buildRequestJson(
         messages: List<ChatMessage>,
@@ -1062,7 +1062,7 @@ class LLMRouter(
             reasoningEffort.wireValue?.let { put("reasoning_effort", it) }
             putJsonObject("stream_options") { put("include_usage", true) }
             putJsonArray("messages") {
-                // 系统提示词
+                // System prompt
                 systemPrompt?.let {
                     addJsonObject {
                         put("role", "system")
@@ -1081,7 +1081,7 @@ class LLMRouter(
                         val images = msg.imageBase64List.ifEmpty {
                             msg.imageBase64?.let { listOf(it) } ?: emptyList()
                         }
-                        // 带图片的 user 消息用 content array 格式（仅当 Provider 支持视觉时）
+                        // Tin nhắn user kèm ảnh dùng định dạng content array (chỉ khi Provider hỗ trợ thị giác)
                         if (images.isNotEmpty() && msg.role == Role.USER && supportsVision) {
                             putJsonArray("content") {
                                 if (msg.content.isNotBlank()) {
@@ -1131,7 +1131,7 @@ class LLMRouter(
                 }
             }
 
-            // 工具定义
+            // Định nghĩa công cụ
             if (tools.isNotEmpty()) {
                 putJsonArray("tools") {
                     tools.forEach { tool ->

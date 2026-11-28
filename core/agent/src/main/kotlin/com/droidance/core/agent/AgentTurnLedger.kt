@@ -68,10 +68,10 @@ private fun detectUserImageMimeType(bytes: ByteArray): String = when {
 }
 
 /**
- * Thread/Turn 的唯一运行时边界。
+ * Ranh giới runtime duy nhất của Thread/Turn.
  *
- * AgentRuntime 仍然可以保留用于 UI 的 StateFlow，但所有可恢复的用户消息、模型会话
- * 身份和最终回执必须先进入 EventStore。这个类只负责建立和关闭 Turn，不参与模型决策。
+ * AgentRuntime vẫn có thể giữ StateFlow dùng cho UI, nhưng mọi tin nhắn người dùng có thể khôi phục, phiên của mô hình
+ * danh tính và biên nhận cuối cùng đều phải vào EventStore trước. Lớp này chỉ lo mở và đóng Turn, không tham gia quyết định của mô hình.
  */
 @Singleton
 class AgentTurnLedger @Inject constructor(
@@ -136,7 +136,7 @@ class AgentTurnLedger @Inject constructor(
             eventStore.createThread(threadId, userText.trim().take(120).ifBlank { "Droidance" })
         }
 
-        // beginTurn 已经冻结了 Provider 选择；先取一次同一冻结配置，后续所有恢复轮次都复用它。
+        // beginTurn đã đóng băng lựa chọn Provider; lấy một lần cùng cấu hình đã đóng băng đó, mọi lượt khôi phục sau này đều dùng lại.
         val plan = modelClient.planStreamChat(messages = emptyList(), hasImage = false)
         val identity = createIdentity(threadId, plan, stablePrefix)
         val session = FrozenTurnModelSession(

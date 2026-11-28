@@ -111,8 +111,8 @@ public final class VirtualSpaceSidecarMain {
                 System.exit(RESTARTABLE_FAILURE_EXIT_CODE);
             }
             reportInfo("sidecar binder broadcast sent");
-            // 持续重发 binder 广播：防 app receiver 第一次未就绪而丢失 binder，
-            // 让 app 在轮询窗口内总能收到一个存活的 binder。
+            // Liên tục phát lại broadcast binder: tránh việc receiver của app lần đầu chưa sẵn sàng làm mất binder,
+            // để app luôn nhận được một binder còn sống trong cửa sổ polling.
             startRebroadcast(service, sidecarContext, targetPackage, packageIdentity);
             Looper.loop();
         } catch (Throwable t) {
@@ -440,9 +440,9 @@ public final class VirtualSpaceSidecarMain {
             SidecarPackageIdentity packageIdentity
     ) {
         Thread t = new Thread(() -> {
-            // 前 15 秒快频(1s)吸收 app receiver 首次未就绪，之后转慢频(5s)长驻。
-            // 关键 WiFi 无关性：sidecar 用 setsid 长活，app 进程重启后错过首轮广播也能在数秒内重新收到
-            // 一个存活的 binder，无需再经 ADB/无线调试(WiFi 关也成立)。广播是本机 IPC，与网络无关。
+            // 15 giây đầu tần suất nhanh (1s) để hấp thụ lúc receiver của app chưa sẵn sàng lần đầu, sau đó chuyển tần suất chậm (5s) thường trú.
+            // Điểm then chốt về tính độc lập WiFi: sidecar sống lâu bằng setsid, app sau khi tiến trình khởi động lại lỡ vòng broadcast đầu vẫn nhận lại được trong vài giây
+            // một binder còn sống, không cần qua ADB/gỡ lỗi không dây nữa (tắt WiFi vẫn đúng). Broadcast là IPC nội bộ máy, không liên quan mạng.
             int i = 0;
             PowerManager powerManager = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
             int observedAppPid = -1;
@@ -461,8 +461,8 @@ public final class VirtualSpaceSidecarMain {
                     return;
                 }
                 if (packageState == SidecarPackageIdentity.State.UNAVAILABLE) continue;
-                // 熄屏时不向挂起的目标应用发送周期广播，防止 OEM 功耗冻结管理器代理队列打满(如 ColorOS bcMax)强制唤醒
-                // 但无 ADB 时重启后的 app 只能等这里：熄屏时 app 进程号变化才补发一次，不走周期广播。
+                // Khi tắt màn hình không gửi broadcast định kỳ tới ứng dụng đích đang treo, tránh bộ quản lý đóng băng tiết kiệm điện của OEM làm đầy hàng đợi proxy (như ColorOS bcMax) và đánh thức cưỡng bức
+                // Nhưng khi không có ADB, app sau khi khởi động lại chỉ còn chờ chỗ này: khi tắt màn hình chỉ gửi bù một lần nếu số tiến trình app thay đổi, không đi theo broadcast định kỳ.
                 if (powerManager != null && !powerManager.isInteractive()) {
                     int appPid = readAppPid(targetPackage);
                     boolean restarted = observedAppPid >= 0 && appPid > 0 && appPid != observedAppPid;
@@ -494,7 +494,7 @@ public final class VirtualSpaceSidecarMain {
 
     private static java.io.PrintWriter logWriter;
 
-    /** 直接写文件(像 aladdin)，不依赖 stdout 重定向——realme app_process 的 System.out 走 logcat 不进 >log。 */
+    /** Ghi thẳng vào file (như aladdin), không dựa vào chuyển hướng stdout — System.out của app_process trên realme đi vào logcat chứ không vào >log. */
     private static synchronized void writeLog(String line, Throwable t) {
         try {
             if (logWriter == null) {

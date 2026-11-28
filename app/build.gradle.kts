@@ -53,7 +53,7 @@ android {
         applicationId = "com.droidance"
         minSdk = 28
         targetSdk = 35
-        resourceConfigurations += listOf("en", "zh")
+        resourceConfigurations += listOf("en", "vi")
         buildConfigField("String", "UPDATE_REPOSITORY", "\"$updateRepository\"")
         versionCode = 18
         versionName = "0.3.2"
@@ -103,7 +103,7 @@ android {
 
     packaging {
         jniLibs {
-            // 16 KB 页大小设备兼容性：.so 文件以未压缩方式内嵌，确保页对齐生效
+            // Tương thích thiết bị có trang 16 KB: tệp .so được nhúng không nén để bảo đảm căn lề trang có hiệu lực
             useLegacyPackaging = false
         }
         resources {
@@ -141,7 +141,7 @@ dependencies {
     implementation(project(":core:device"))
     implementation(project(":core:knowledge"))
     implementation(project(":core:persistence"))
-    // AndroidX 核心
+    // AndroidX lõi
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime)
@@ -161,7 +161,7 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
-    // Hilt 依赖注入
+    // Tiêm phụ thuộc Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
@@ -169,23 +169,23 @@ dependencies {
     // HTTP transport
     implementation(libs.okhttp)
 
-    // Room 数据库
+    // Cơ sở dữ liệu Room
     implementation(libs.room.runtime)
 
-    // WorkManager 定时任务
+    // Tác vụ theo lịch WorkManager
     implementation(libs.work.manager)
 
-    // 序列化
+    // Tuần tự hóa
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.snakeyaml.engine)
 
-    // 图片加载
+    // Tải hình ảnh
     implementation(libs.coil.compose)
 
-    // 协程
+    // Coroutine
     implementation(libs.kotlinx.coroutines.android)
 
-    // Markdown 渲染
+    // Render Markdown
     implementation(libs.markdown.renderer.m3)
 
     testImplementation(libs.junit)

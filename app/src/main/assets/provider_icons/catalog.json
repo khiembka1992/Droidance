@@ -7,7 +7,7 @@
     {
       "slug": "deepseek",
       "drawable": "provider_deepseek",
-      "aliases": ["deepseek", "深度求索"],
+      "aliases": ["deepseek"],
       "domains": ["deepseek.com"]
     },
     {
@@ -19,7 +19,7 @@
     {
       "slug": "volcengine",
       "drawable": "provider_volcengine",
-      "aliases": ["volcengine", "volces", "volces ark", "火山引擎", "火山方舟"],
+      "aliases": ["volcengine", "volces", "volces ark"],
       "domains": ["volces.com", "volcengine.com"]
     },
     {
@@ -49,31 +49,31 @@
     {
       "slug": "minimax",
       "drawable": "provider_minimax",
-      "aliases": ["minimax", "稀宇科技"],
+      "aliases": ["minimax"],
       "domains": ["minimax.chat", "minimaxi.com", "minimax.io", "minimax.cn"]
     },
     {
       "slug": "qwen",
       "drawable": "provider_qwen",
-      "aliases": ["qwen", "通义千问"],
+      "aliases": ["qwen"],
       "domains": []
     },
     {
       "slug": "kimi",
       "drawable": "provider_kimi",
-      "aliases": ["kimi", "moonshot", "月之暗面"],
+      "aliases": ["kimi", "moonshot"],
       "domains": ["moonshot.cn", "moonshot.ai", "kimi.com", "kimi.ai"]
     },
     {
       "slug": "zhipu",
       "drawable": "provider_zhipu",
-      "aliases": ["zhipu", "bigmodel", "智谱", "智谱清言"],
+      "aliases": ["zhipu", "bigmodel"],
       "domains": ["bigmodel.cn", "zhipuai.cn", "z.ai"]
     },
     {
       "slug": "siliconcloud",
       "drawable": "provider_siliconcloud",
-      "aliases": ["siliconcloud", "silicon cloud", "siliconflow", "硅基流动"],
+      "aliases": ["siliconcloud", "silicon cloud", "siliconflow"],
       "domains": ["siliconflow.cn"]
     },
     {
@@ -109,7 +109,7 @@
     {
       "slug": "alibabacloud",
       "drawable": "provider_alibabacloud",
-      "aliases": ["alibaba cloud", "aliyun", "阿里云", "阿里云百炼"],
+      "aliases": ["alibaba cloud", "aliyun"],
       "domains": ["dashscope.aliyuncs.com", "maas.aliyuncs.com"]
     },
     {
@@ -121,25 +121,25 @@
     {
       "slug": "tencentcloud",
       "drawable": "provider_tencentcloud",
-      "aliases": ["tencent cloud", "腾讯云", "tokenhub"],
+      "aliases": ["tencent cloud", "tokenhub"],
       "domains": ["lkeap.cloud.tencent.com", "tokenhub.tencentmaas.com"]
     },
     {
       "slug": "hunyuan",
       "drawable": "provider_hunyuan",
-      "aliases": ["hunyuan", "混元"],
+      "aliases": ["hunyuan"],
       "domains": ["hunyuan.cloud.tencent.com"]
     },
     {
       "slug": "baidu",
       "drawable": "provider_baidu",
-      "aliases": ["baidu", "qianfan", "百度", "千帆"],
+      "aliases": ["baidu", "qianfan"],
       "domains": ["baidubce.com"]
     },
     {
       "slug": "stepfun",
       "drawable": "provider_stepfun",
-      "aliases": ["stepfun", "阶跃星辰"],
+      "aliases": ["stepfun"],
       "domains": ["stepfun.com"]
     },
     {
@@ -169,7 +169,7 @@
     {
       "slug": "modelscope",
       "drawable": "provider_modelscope",
-      "aliases": ["modelscope", "魔搭"],
+      "aliases": ["modelscope"],
       "domains": ["modelscope.cn"]
     },
     {

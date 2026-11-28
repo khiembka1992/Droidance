@@ -14,12 +14,12 @@ import javax.inject.Singleton
 /** The empty locale list means that Android chooses from the system languages. */
 enum class AppLanguage(val tag: String) {
     SYSTEM(""),
-    SIMPLIFIED_CHINESE("zh"),
+    VIETNAMESE("vi"),
     ENGLISH("en")
 }
 
 enum class ResolvedLanguage(val tag: String, val promptName: String) {
-    SIMPLIFIED_CHINESE("zh", "Simplified Chinese"),
+    VIETNAMESE("vi", "Vietnamese"),
     ENGLISH("en", "English")
 }
 
@@ -45,8 +45,8 @@ class LanguageManager @Inject constructor(
         fun resolvedTag(context: Context): String {
             val requested = LocaleManagerCompat.getApplicationLocales(context)
             val locales = if (requested.isEmpty) LocaleManagerCompat.getSystemLocales(context) else requested
-            return when (locales.getFirstMatch(arrayOf("en", "zh"))?.language) {
-                "zh" -> "zh"
+            return when (locales.getFirstMatch(arrayOf("en", "vi"))?.language) {
+                "vi" -> "vi"
                 else -> "en"
             }
         }

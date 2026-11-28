@@ -124,7 +124,7 @@ class AirModePairingManager @Inject constructor(
             shellHealthState == ShellHealthState.READY &&
             activeConnection != null
 
-    // 带超时的 shell 在独立线程跑阻塞的 conn.shell；超时后任务可能仍占用线程，故用可回收的 cached 池
+    // shell có timeout chạy conn.shell dạng chặn trên một luồng riêng; sau khi timeout, tác vụ có thể vẫn chiếm luồng, nên dùng pool cached có thể thu hồi
     private val shellTimeoutExecutor = Executors.newCachedThreadPool { r ->
         Thread(r, "air-shell-timeout").apply { isDaemon = true }
     }
@@ -485,8 +485,8 @@ class AirModePairingManager @Inject constructor(
     }.getOrNull()
 
     /**
-     * 首次 ADB 连通后已经授予 WRITE_SECURE_SETTINGS；以后 App/保活服务可以在本机恢复无线调试。
-     * 这里只恢复开关，不伪造端口：设备重启后的动态端口仍由 Settings/mDNS 发现。
+     * Sau khi ADB kết nối lần đầu đã cấp WRITE_SECURE_SETTINGS; về sau app/dịch vụ giữ sống có thể khôi phục gỡ lỗi không dây trên máy.
+     * Ở đây chỉ khôi phục công tắc, không làm giả cổng: cổng động sau khi thiết bị khởi động lại vẫn do Settings/mDNS phát hiện.
      */
     fun ensureWirelessDebuggingEnabled(): Boolean {
         if (!isPreviouslyPaired || !isWifiTransportAvailable() || !hasSecureSettingsPermission() ||
@@ -1071,8 +1071,8 @@ class AirModePairingManager @Inject constructor(
     }
 
     /**
-     * 带硬超时的 shell：ADB over TLS 的 socket 读在弱网/异常页（如反爬验证页）下可能长时间阻塞，
-     * 截图等对时延敏感的调用用此版本兜底，超时返回 [AIR_TIMEOUT]，避免整个执行循环被一次截图挂死几十秒。
+     * shell có timeout cứng: việc đọc socket của ADB over TLS có thể chặn lâu trên mạng yếu/trang bất thường (như trang xác minh chống crawl),
+     * các lệnh gọi nhạy cảm với độ trễ như chụp màn hình dùng bản này làm dự phòng, khi timeout trả về [AIR_TIMEOUT], tránh toàn bộ vòng thực thi bị treo vài chục giây vì một lần chụp màn hình.
      */
     fun shell(command: String, timeoutMs: Long, service: String = "shell"): String {
         if (timeoutMs <= 0) return shell(command, service)

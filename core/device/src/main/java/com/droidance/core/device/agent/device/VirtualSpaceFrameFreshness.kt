@@ -90,6 +90,6 @@ object VirtualSpaceFrameFreshness {
         return result(false)
     }
 
-    // 连续两次可读即可；不能要求 PNG 字节相同，否则含动画/时钟的正常页面永远无法就绪。
+    // Hai lần đọc được liên tiếp là đủ; không thể đòi byte PNG giống nhau, nếu không trang bình thường có hoạt ảnh/đồng hồ sẽ mãi không bao giờ sẵn sàng.
     private const val REQUIRED_FRESH_POLLS = 2
 }

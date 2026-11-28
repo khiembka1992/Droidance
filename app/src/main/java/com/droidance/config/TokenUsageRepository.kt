@@ -74,7 +74,7 @@ class TokenUsageRepository @Inject constructor(
     private val _turnRecords = MutableStateFlow(loadTurnUsage())
     val turnRecords: StateFlow<List<TurnUsage>> get() = runtimeClient?.get()?.takeUnless { it.isOwner }?.turnUsage ?: _turnRecords.asStateFlow()
 
-    /** 每次实际发出的模型 HTTP 请求只记一次；Token 与缓存只采用 Provider 返回值。 */
+    /** Mỗi yêu cầu HTTP tới mô hình thực sự gửi đi chỉ ghi một lần; Token và bộ nhớ đệm chỉ lấy giá trị Provider trả về. */
     @Synchronized
     fun recordRequest(usage: ModelRequestUsage) {
         val date = today()

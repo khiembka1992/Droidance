@@ -79,7 +79,7 @@ class ModelCoordinateMapper(
         }
     }
 
-    /** 将物理屏幕坐标统一投影到模型可见的 0..1000 坐标系。 */
+    /** Chiếu thống nhất tọa độ màn hình vật lý sang hệ tọa độ 0..1000 mà mô hình nhìn thấy. */
     fun toModel(x: Int, y: Int): Point {
         val effectiveScale = scale.takeIf { it > 0f } ?: 1f
         val rawX = ((x - physicalOrigin.x) * effectiveScale).roundToInt()

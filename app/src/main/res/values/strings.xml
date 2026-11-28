@@ -302,7 +302,7 @@
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">Follow system</string>
-    <string name="settings_language_zh">Simplified Chinese</string>
+    <string name="settings_language_vi">Vietnamese</string>
     <string name="settings_selected">Selected</string>
     <string name="settings_usage_range">Range</string>
     <string name="settings_usage_7_days">7 days</string>

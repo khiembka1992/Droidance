@@ -125,8 +125,8 @@ internal suspend fun TaskTurnSession.runModelRound(repairPurpose: RepairPurpose)
                 )
             }
         }
-        // 只等待上一动作已安排的观测，不因为“进入下一轮”就主动读取当前屏幕。
-        // 新任务的虚拟 display 可能仍显示上一任务的 App；无条件补帧会把旧页面注入当前目标。
+        // Chỉ chờ quan sát mà hành động trước đã lên lịch, không chủ động đọc màn hình hiện tại chỉ vì "vào lượt tiếp theo".
+        // display ảo của tác vụ mới có thể vẫn hiển thị App của tác vụ trước; bổ sung frame vô điều kiện sẽ inject trang cũ vào mục tiêu hiện tại.
         val pendingObservationReady = if (freshObservationRequired && forceFreshObservationCapture) {
             false
         } else {
@@ -135,13 +135,13 @@ internal suspend fun TaskTurnSession.runModelRound(repairPurpose: RepairPurpose)
         if (freshObservationRequired) {
             freshObservationRequired = false
             if (forceFreshObservationCapture) {
-                // 坐标协议失败或计划拒绝后，待消费 envelope 可能仍是失败动作之前的画面。
-                // 只在这些恢复路径丢弃旧 envelope；普通状态变化优先复用动作后的 settled frame。
+                // Sau khi giao thức tọa độ thất bại hoặc kế hoạch bị từ chối, envelope chờ tiêu thụ có thể vẫn là khung hình trước hành động thất bại.
+                // Chỉ vứt bỏ envelope cũ trên các đường khôi phục này; thay đổi trạng thái thông thường ưu tiên tái dùng settled frame sau hành động.
                 toolExecutor.invalidatePendingObservation()
                 forceFreshObservationCapture = false
             }
             if (!pendingObservationReady && toolExecutor.pendingScreenshotBase64 == null) {
-                // 人工接管期间界面可能已变化，恢复后必须先取得同一执行空间的新帧。
+                // Trong lúc tiếp quản thủ công giao diện có thể đã thay đổi, sau khi khôi phục phải lấy frame mới trong cùng không gian thực thi trước tiên.
                 try {
                     ensureExecutionStarted(DeviceToolNames.ANDROID_READ)
                     // This is a synthetic observation call, so its durable call/observation
@@ -1119,7 +1119,7 @@ internal suspend fun TaskTurnSession.runModelRound(repairPurpose: RepairPurpose)
             streamProgress.toolCalls.isEmpty() && streamProgress.content.isBlank() -> "first byte arrived but no content/tool_call followed"
             else -> "partial content received"
         }
-        debugLogManager.appendEvent("⚠️ Operator LLM timeout: ${roundTimeoutMs}ms image=$canAttachScreenshot, phase=「$phase」, firstByte=${firstByteMs}ms, discardedToolCalls=${streamProgress.toolCalls.size}, discardedContentLen=${streamProgress.content.length}")
+        debugLogManager.appendEvent("⚠️ Operator LLM timeout: ${roundTimeoutMs}ms image=$canAttachScreenshot, phase=“$phase”, firstByte=${firstByteMs}ms, discardedToolCalls=${streamProgress.toolCalls.size}, discardedContentLen=${streamProgress.content.length}")
         if (retryModelRequest("LLM_TIMEOUT_RETRY", e)) return ModelRoundOutcome.RestartRound
         settlePendingDurableRound("LLM_TIMEOUT")
         return ModelRoundOutcome.Terminal(modelTimeoutTerminal(fullContent))
@@ -1159,7 +1159,7 @@ internal suspend fun TaskTurnSession.runModelRound(repairPurpose: RepairPurpose)
         }
         debugLogManager.appendEvent("❌ Operator LLM exception: ${e::class.java.simpleName}: ${e.message?.take(2000)}")
         val transportTimeout = isLlmTransportTimeout(e)
-        // 详细打印发往 LLM 的 messages 结构（截短），方便定位 400
+        // In chi tiết cấu trúc messages gửi tới LLM (cắt ngắn), thuận tiện định vị lỗi 400
         runCatching {
             val structure = messagesForLLM.joinToString(" → ") { m ->
                 val tcCount = m.toolCalls?.size ?: 0

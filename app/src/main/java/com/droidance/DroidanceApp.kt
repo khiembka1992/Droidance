@@ -102,7 +102,7 @@ class DroidanceApp : Application(), Configuration.Provider {
             return
         }
         runtimeProcessClient.startPresentation()
-        // 追踪自身 Activity 前台状态，用于悬浮窗可见性判断
+        // Theo dõi trạng thái foreground của Activity của chính mình, dùng để xét khả năng hiển thị của cửa sổ nổi
         val foregroundActivities = RuntimeForegroundActivities<Activity>()
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityResumed(activity: Activity) {
@@ -178,7 +178,7 @@ class DroidanceApp : Application(), Configuration.Provider {
                 wifiNetworkCallback = wifiCallback
                 scheduleAirWifiTransportRefresh("registered")
             } catch (e: Exception) {
-                Log.w("DroidanceApp", "注册 WiFi 监听失败: ${e.message}")
+                Log.w("DroidanceApp", "Đăng ký lắng nghe WiFi thất bại: ${e.message}")
             }
         }
     }

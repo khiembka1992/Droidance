@@ -36,9 +36,9 @@ data class RetainedVirtualExecution(
 )
 
 /**
- * 虚拟空间核心原语：通过 Standard ADB shell sidecar 创建不可见 VirtualDisplay。
- * App 启动、输入和截图都在 sidecar/displayId 路径内完成；主屏由系统合成层展示状态，
- * 查看页按生命周期挂接独立的合成器镜像。
+ * Ngên thủy cốt lõi của không gian ảo: tạo VirtualDisplay vô hình qua Standard ADB shell sidecar.
+ * Việc khởi chạy app, nhập liệu và chụp màn hình đều diễn ra trong đường dẫn sidecar/displayId; màn hình chính hiển thị trạng thái nhờ lớp tổng hợp của hệ thống,
+ * trang xem gắn một bản sao compositor riêng theo vòng đời.
  */
 @Singleton
 class VirtualSpaceManager @Inject constructor(
@@ -167,7 +167,7 @@ class VirtualSpaceManager @Inject constructor(
     fun lastFailureReason(): String = lastFailureReason
 
     /**
-     * 创建虚拟显示并记录其 displayId。成功返回 displayId，失败返回 null。
+     * Tạo màn hình ảo và ghi lại displayId của nó. Trả về displayId khi thành công, null khi thất bại.
      */
     fun start(mode: RuntimeMode?): Int? {
         if (active) {
@@ -211,15 +211,15 @@ class VirtualSpaceManager @Inject constructor(
     }
 
     /**
-     * 为新的执行尝试建立执行代际：保留登录态、保留同一块 VirtualDisplay。
+     * Thiết lập thế hệ thực thi cho lần thử thực thi mới: giữ trạng thái đăng nhập, giữ nguyên cùng một VirtualDisplay.
      *
-     * **不换屏**：20260726-V3 试过每次执行 release 旧屏重建一块，真机实测把冷启动打断了——
-     * 空屏上 `am start` 深链只会起一个 router/trampoline activity 然后 finish，屏上一帧都不产生，
-     * 模型连屏幕都看不到（日志：连续 5 次 VIRTUAL_SPACE_FRAME_FAILED 后 ask_human）。
-     * 启动目标时使用调用方选择的模式，不因执行代际变化自动清空目标任务栈。
-     * 新任务能否覆盖上一任务的页面，前提是该屏电源组处于 interactive（见 sidecar 的唤醒锁）。
+     * **Không đổi màn hình**: 20260726-V3 từng thử release màn hình cũ rồi dựng lại một màn hình mới mỗi lần thực thi, nhưng đã kiểm chứng trên thiết bị thật là nó làm đứt khởi chạy nguội—
+     * trên màn hình trống, deep link `am start` chỉ khởi chạy một router/trampoline activity rồi finish, không sinh ra một frame nào trên màn hình,
+     * mô hình thậm chí không nhìn thấy màn hình (log: 5 lần VIRTUAL_SPACE_FRAME_FAILED liên tiếp rồi ask_human).
+     * Khi khởi chạy mục tiêu, dùng chế độ do bên gọi chọn, không tự động xóa sạch ngăn xếp tác vụ đích chỉ vì thế hệ thực thi thay đổi.
+     * Việc tác vụ mới có thể phủ lên trang của tác vụ trước hay không phụ thuộc vào việc nhóm nguồn (power group) của màn hình đó đang ở trạng thái interactive (xem wake lock của sidecar).
      *
-     * 这里也不再注入 HOME：私有虚拟屏上没有 launcher，HOME 键没有可回的 home activity。
+     * Ở đây cũng không inject HOME nữa: màn hình ảo riêng không có launcher, phím HOME không có home activity nào để quay về.
      */
     @Synchronized
     fun beginExecution(executionId: String, threadId: String): VirtualSpaceLaunchResult {
@@ -245,7 +245,7 @@ class VirtualSpaceManager @Inject constructor(
         return VirtualSpaceLaunchResult(true, true, "execution boundary established on displayId=$id")
     }
 
-    /** 把目标 App 启动到虚拟显示上。返回启动命令成功且在预算内出现新鲜可渲染帧。 */
+    /** Khởi chạy app đích trên màn hình ảo. Trả về việc lệnh khởi chạy thành công và có frame mới có thể kết xuất trong ngân sách thời gian. */
     fun launchApp(
         packageName: String,
         launchMode: AppLaunchMode,
@@ -291,7 +291,7 @@ class VirtualSpaceManager @Inject constructor(
         )
     }
 
-    /** 从当前冻结的 sidecar 通道在主屏启动宿主 Activity，不依赖后台启动豁免或悬浮窗权限。 */
+    /** Từ kênh sidecar đang bị đóng băng, khởi chạy Activity máy chủ trên màn hình chính, không phụ thuộc vào miễn trừ khởi chạy nền hay quyền cửa sổ nổi. */
     @Synchronized
     fun launchHostActivity(component: String, expectedOwner: RetainedVirtualExecution? = null): Boolean {
         if (!active) return false
@@ -308,7 +308,7 @@ class VirtualSpaceManager @Inject constructor(
         return result.ok
     }
 
-    /** 把指定 Activity 启动到虚拟显示上。返回启动命令成功且在预算内出现新鲜可渲染帧。 */
+    /** Khởi chạy Activity chỉ định trên màn hình ảo. Trả về việc lệnh khởi chạy thành công và có frame mới có thể kết xuất trong ngân sách thời gian. */
     fun launchActivity(component: String): VirtualSpaceLaunchResult {
         if (!active) return VirtualSpaceLaunchResult(false, false, "virtual space is inactive")
         val id = capabilityRegistry.getVirtualDisplayId()
@@ -342,7 +342,7 @@ class VirtualSpaceManager @Inject constructor(
         )
     }
 
-    /** 全屏镜像视图里用户手势转发进虚拟屏（tap/swipe 等 native 命令），不拉主屏、原地远程操作。 */
+    /** Chuyển tiếp cử chỉ người dùng trong view phản chiếu toàn màn hình vào màn hình ảo (lệnh native như tap/swipe), không kéo màn hình chính, thao tác từ xa tại chỗ. */
     fun injectNative(nativeArgs: String): Boolean {
         if (!active) return false
         val id = capabilityRegistry.getVirtualDisplayId() ?: return false
@@ -351,10 +351,10 @@ class VirtualSpaceManager @Inject constructor(
         return sidecarBridge.injectNative(binding, nativeArgs).ok
     }
 
-    // ── 人工接管面板专用（§5.4）：全部作用于当前 active session 的 displayId，同屏原地操作。
-    // session/display 失效即返回 false，绝不新建 display，也绝不迁移到主屏。
+    // ── Dành riêng cho bảng tiếp quản thủ công (§5.4): tất cả tác động lên displayId của session đang active, thao tác tại chỗ trên cùng màn hình.
+    // session/display mất hiệu lực thì trả về false, tuyệt đối không tạo display mới, cũng tuyệt đối không di chuyển sang màn hình chính.
 
-    /** 拉取当前虚拟屏最新一帧 PNG，供接管面板渲染；无活动 session 或 display 时返回 null。 */
+    /** Lấy frame PNG mới nhất của màn hình ảo hiện tại cho bảng tiếp quản kết xuất; trả về null khi không có session hoặc display hoạt động. */
     fun captureLatestPng(): ByteArray? {
         if (!active) return null
         val id = capabilityRegistry.getVirtualDisplayId() ?: return null
@@ -362,7 +362,7 @@ class VirtualSpaceManager @Inject constructor(
         return sidecarBridge.captureLatestPng(id, mode = session.mode)
     }
 
-    /** 接管面板专用轻量帧；与 Agent 的全尺寸观察绑定同一个 sidecar/display。 */
+    /** Frame nhẹ dành riêng cho bảng tiếp quản; ràng buộc cùng một sidecar/display với quan sát kích thước đầy đủ của Agent. */
     fun captureLatestPreviewJpeg(): ByteArray? {
         if (!active) return null
         val id = capabilityRegistry.getVirtualDisplayId() ?: return null
@@ -561,9 +561,9 @@ class VirtualSpaceManager @Inject constructor(
     }
 
     /**
-     * 任务开始时唤醒虚拟屏电源组，返回是否确实拿到 interactive。
-     * 唤醒锁 10 分钟超时，任务之间隔久了电源组会 DOZING；此时 am start 会返回 Success 却不
-     * resume 新 activity，截图拿到的是上一个任务的残留帧。必须在任何观察/操作之前调一次。
+     * Đánh thức nhóm nguồn (power group) của màn hình ảo khi tác vụ bắt đầu, trả về việc có thực sự đạt được interactive hay không.
+     * Wake lock hết hạn sau 10 phút, nếu các tác vụ cách nhau quá lâu thì nhóm nguồn sẽ DOZING; lúc đó am start sẽ trả về Success nhưng không
+     * resume activity mới, ảnh chụp màn hình nhận được là frame sót lại của tác vụ trước. Phải gọi một lần trước bất kỳ quan sát/thao tác nào.
      */
     fun ensureDisplayInteractive(): Boolean {
         val session = sidecarSession?.takeIf { active } ?: return false
@@ -589,9 +589,9 @@ class VirtualSpaceManager @Inject constructor(
     }
 
     /**
-     * 重置帧通道：截图连续拿不到内容时，由 harness 主动把 display 的输出面重新挂一次，
-     * 而不是让模型一直空转（真机日志里连续 7 次 FRAME_EMPTY，harness 一次恢复动作都没做）。
-     * 复用与锁屏/解锁相同的重挂路径，返回是否重新拿到可渲染帧。
+     * Đặt lại kênh frame: khi chụp màn hình liên tiếp không lấy được nội dung, harness chủ động gắn lại mặt xuất của display một lần,
+     * thay vì để mô hình quay vòng vô ích (trong log thiết bị thật có 7 lần FRAME_EMPTY liên tiếp mà harness không thực hiện động tác khôi phục nào).
+     * Dùng lại cùng đường dẫn gắn lại như khóa máy/mở khóa, trả về việc có lấy lại được frame có thể kết xuất hay không.
      */
     fun resetFrameChannel(): Boolean {
         val session = sidecarSession?.takeIf { active } ?: return false
@@ -605,7 +605,7 @@ class VirtualSpaceManager @Inject constructor(
         return result.ok
     }
 
-    /** 销毁虚拟显示。 */
+    /** Hủy màn hình ảo. */
     @Synchronized
     fun stop() {
         stopSidecarSession()
@@ -662,7 +662,7 @@ class VirtualSpaceManager @Inject constructor(
         sidecarSession = null
     }
 
-    /** 主屏分辨率/密度，作为后台显示规格。 */
+    /** Độ phân giải/mật độ của màn hình chính, dùng làm thông số hiển thị nền. */
     private fun resolveScreenSpec(): ScreenSpec {
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val size = if (com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner) {

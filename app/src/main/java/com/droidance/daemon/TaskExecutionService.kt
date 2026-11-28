@@ -27,10 +27,10 @@ import kotlinx.coroutines.channels.Channel
 import javax.inject.Inject
 
 /**
- * 前台常驻服务
- * 双重职责：
- * 1. 保活 — 常驻通知栏，防止系统杀掉进程
- * 2. 任务执行 — 执行自动化任务时更新通知显示当前状态
+ * Dịch vụ thường trú foreground
+ * Hai nhiệm vụ:
+ * 1. Giữ sống — thông báo thường trú trên thanh thông báo, ngăn hệ thống kill tiến trình
+ * 2. Thực thi tác vụ — cập nhật thông báo hiển thị trạng thái hiện tại khi thực thi tác vụ tự động
  */
 @AndroidEntryPoint
 class TaskExecutionService : Service() {
@@ -39,24 +39,24 @@ class TaskExecutionService : Service() {
         const val CHANNEL_ID = "droidance_task_channel"
         const val NOTIFICATION_ID = 1001
 
-        /** Intent action：更新通知文本 */
+        /** Intent action: cập nhật văn bản thông báo */
 
-        /** Intent action：切换到待命模式 */
+        /** Intent action: chuyển sang chế độ chờ */
         const val ACTION_STANDBY = "com.droidance.STANDBY"
         const val ACTION_RESTORE = "com.droidance.RESTORE"
 
-        /** Intent action：开始执行任务（进入前台服务） */
+        /** Intent action: bắt đầu thực thi tác vụ (vào dịch vụ foreground) */
         const val ACTION_START_EXECUTION = "com.droidance.START_EXECUTION"
-        /** Intent action：停止执行任务（退出前台服务） */
+        /** Intent action: dừng thực thi tác vụ (thoát dịch vụ foreground) */
         const val ACTION_STOP_EXECUTION = "com.droidance.STOP_EXECUTION"
         const val EXTRA_TASK_TITLE = "task_title"
 
-        /** 静态实例引用，供其他组件检查服务是否在运行 */
+        /** Tham chiếu instance tĩnh để thành phần khác kiểm tra dịch vụ có đang chạy không */
         @Volatile
         var instance: TaskExecutionService? = null
             private set
 
-        /** 便捷方法：启动常驻服务（待命模式） */
+        /** Phương thức tiện lợi: khởi động dịch vụ thường trú (chế độ chờ) */
         fun startStandby(context: Context, restoreSchedules: Boolean = false) {
             if (com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner) return
             val appContext = context.applicationContext
@@ -67,11 +67,11 @@ class TaskExecutionService : Service() {
             try {
                 appContext.startForegroundService(intent)
             } catch (e: Exception) {
-                Log.w("TaskExecutionService", "启动常驻服务失败: ${e.message}")
+                Log.w("TaskExecutionService", "Khởi động dịch vụ thường trú thất bại: ${e.message}")
             }
         }
 
-        /** 便捷方法：开始前台任务执行（按需前台服务） */
+        /** Phương thức tiện lợi: bắt đầu thực thi tác vụ foreground (dịch vụ foreground theo nhu cầu) */
         fun startExecution(context: Context, taskTitle: String? = null) {
             if (com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner) {
                 com.droidance.runtime.RuntimeNotifications.post(context, NOTIFICATION_ID, R.string.app_name, taskTitle.orEmpty(), true)
@@ -87,11 +87,11 @@ class TaskExecutionService : Service() {
             try {
                 appContext.startForegroundService(intent)
             } catch (e: Exception) {
-                Log.w("TaskExecutionService", "启动任务执行前台服务失败: ${e.message}")
+                Log.w("TaskExecutionService", "Khởi động dịch vụ foreground thực thi tác vụ thất bại: ${e.message}")
             }
         }
 
-        /** 便捷方法：停止前台任务执行并清除常驻通知 */
+        /** Phương thức tiện lợi: dừng thực thi tác vụ foreground và xóa thông báo thường trú */
         fun stopExecution(context: Context) {
             if (com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner) {
                 com.droidance.runtime.RuntimeNotifications.cancel(context, NOTIFICATION_ID)
@@ -104,11 +104,11 @@ class TaskExecutionService : Service() {
             try {
                 appContext.startService(intent)
             } catch (e: Exception) {
-                Log.w("TaskExecutionService", "停止任务执行前台服务失败: ${e.message}")
+                Log.w("TaskExecutionService", "Dừng dịch vụ foreground thực thi tác vụ thất bại: ${e.message}")
             }
         }
 
-        /** 任务完成通知 ID（独立于常驻通知，可被用户划掉） */
+        /** ID thông báo hoàn thành tác vụ (tách khỏi thông báo thường trú, người dùng có thể vuốt bỏ) */
         const val TASK_DONE_NOTIFICATION_ID = 1002
         // Use a result-alert channel so an earlier ordinary-priority channel cannot
         // keep completion notices from appearing as heads-up alerts.
@@ -140,9 +140,9 @@ class TaskExecutionService : Service() {
             ContextCompat.getContextForLanguage(context)
 
         /**
-         * 通知发送结果之前被静默吞掉(SecurityException 直接 catch 忽略)，真机上通知到底有没有
-         * 发出去完全不可见。这里把结果(含"通知总开关是否关闭"这个比异常更常见的沉默失败原因)
-         * 记进 debugLogManager，让下次 debug 导出能直接看到。
+         * Trước đây kết quả gửi thông báo bị nuốt im lặng (SecurityException bị catch bỏ qua trực tiếp), trên thiết bị thật không thể biết thông báo có
+         * thực sự được gửi đi hay không. Ở đây ghi kết quả (gồm "công tắc thông báo tổng có bị tắt không" — nguyên nhân thất bại im lặng phổ biến hơn cả exception)
+         * vào debugLogManager để lần xuất debug sau thấy được ngay.
          */
         private fun logNotifyResult(context: Context, kind: String, result: Result<Unit>) {
             runCatching {
@@ -156,7 +156,7 @@ class TaskExecutionService : Service() {
             }
         }
 
-        /** 发送定时任务启动通知（场景 b） */
+        /** Gửi thông báo bắt đầu tác vụ theo lịch (tình huống b) */
         fun notifyAutomationStarted(context: Context, taskTitle: String): Boolean {
             if (com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner)
                 return com.droidance.runtime.RuntimeNotifications.post(context, TASK_STARTED_NOTIFICATION_ID, R.string.automation_started_notification_title, taskTitle)
@@ -202,7 +202,7 @@ class TaskExecutionService : Service() {
             return result.isSuccess && nm.areNotificationsEnabled()
         }
 
-        /** 发送任务完成通知（场景 e） */
+        /** Gửi thông báo hoàn thành tác vụ (tình huống e) */
         fun notifyTaskCompleted(context: Context, taskTitle: String? = null, summary: String): Boolean {
             if (com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner)
                 return com.droidance.runtime.RuntimeNotifications.post(context, TASK_DONE_NOTIFICATION_ID, R.string.task_completed_notification_title, summary)
@@ -246,7 +246,7 @@ class TaskExecutionService : Service() {
             return result.isSuccess && nm.areNotificationsEnabled()
         }
 
-        /** 发送任务中断/失败通知（场景 c） */
+        /** Gửi thông báo tác vụ bị ngắt/thất bại (tình huống c) */
         fun notifyTaskInterrupted(context: Context, taskTitle: String? = null, reason: String): Boolean {
             if (com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner)
                 return com.droidance.runtime.RuntimeNotifications.post(context, TASK_DONE_NOTIFICATION_ID, R.string.task_interrupted_notification_title, reason)
@@ -308,19 +308,19 @@ class TaskExecutionService : Service() {
         }
 
         /**
-         * 发送任务结束通知（独立通知，非常驻）。
+         * Gửi thông báo kết thúc tác vụ (thông báo độc lập, không thường trú).
          *
-         * 任务完成时：若应用在界面前台（即在对话窗口）已显示在应用界面里，不用再弹窗通知；
-         * 若应用不在前台（即在应用外面），才需要弹窗通知。
+         * Khi tác vụ hoàn thành: nếu ứng dụng đang ở foreground giao diện (tức đang trong cửa sổ trò chuyện) và đã hiển thị trong giao diện ứng dụng thì không cần bật thông báo nữa;
+         * chỉ khi ứng dụng không ở foreground (tức đang ở ngoài ứng dụng) mới cần bật thông báo.
          *
-         * 正文就是模型最终给用户的那段话本身：不带成败标题、不加前缀，展开即全文。
+         * Nội dung chính là đoạn văn bản cuối cùng mà mô hình gửi cho người dùng: không có tiêu đề thành công/thất bại, không thêm tiền tố, mở rộng là toàn văn.
          */
         fun notifyTaskDone(context: Context, text: String): Boolean {
             if (com.droidance.core.device.agent.device.RuntimeProcessRole.isOwner)
                 return com.droidance.runtime.RuntimeNotifications.post(context, TASK_DONE_NOTIFICATION_ID, R.string.task_completed_notification_title, text)
             if (suppressForegroundNotification(context, "task_complete")) return true
             val l10n = localizedContext(context)
-            // 创建通知渠道（高优先级，有声音）
+            // Tạo kênh thông báo (ưu tiên cao, có âm thanh)
             val channel = NotificationChannelCompat.Builder(
                 TASK_DONE_CHANNEL_ID,
                 NotificationManagerCompat.IMPORTANCE_HIGH
@@ -331,7 +331,7 @@ class TaskExecutionService : Service() {
             val nm = NotificationManagerCompat.from(context)
             nm.createNotificationChannel(channel)
 
-            // 点击跳回主界面
+            // Nhấn để quay lại màn hình chính
             val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
             val pendingIntent = if (launchIntent != null) {
                 PendingIntent.getActivity(
@@ -462,7 +462,7 @@ class TaskExecutionService : Service() {
             try {
                 NotificationManagerCompat.from(context).cancel(MANUAL_TAKEOVER_NOTIFICATION_ID)
             } catch (_: SecurityException) {
-                // 通知权限被拒
+                // Quyền thông báo bị từ chối
             }
         }
     }
@@ -518,7 +518,7 @@ class TaskExecutionService : Service() {
                     try {
                         startForeground(NOTIFICATION_ID, notification)
                     } catch (e: Exception) {
-                        Log.w("TaskExecutionService", "进入待命前台失败: ${e.message}")
+                        Log.w("TaskExecutionService", "Vào foreground chế độ chờ thất bại: ${e.message}")
                     }
                     acquireKeepAliveWakeLock()
                     acquireKeepAliveWifiLock()
@@ -542,7 +542,7 @@ class TaskExecutionService : Service() {
                 try {
                     startForeground(NOTIFICATION_ID, notification)
                 } catch (e: Exception) {
-                    Log.w("TaskExecutionService", "进入前台执行服务失败: ${e.message}")
+                    Log.w("TaskExecutionService", "Vào dịch vụ foreground thực thi thất bại: ${e.message}")
                 }
                 acquireKeepAliveWakeLock()
                 acquireKeepAliveWifiLock()
@@ -554,7 +554,7 @@ class TaskExecutionService : Service() {
                 try {
                     startForeground(NOTIFICATION_ID, notification)
                 } catch (e: Exception) {
-                    Log.w("TaskExecutionService", "进入待命前台失败: ${e.message}")
+                    Log.w("TaskExecutionService", "Vào foreground chế độ chờ thất bại: ${e.message}")
                 }
                 acquireKeepAliveWakeLock()
                 acquireKeepAliveWifiLock()
@@ -589,7 +589,7 @@ class TaskExecutionService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun buildNotification(l10n: Context, @StringRes statusResource: Int, vararg arguments: String): android.app.Notification {
-        // 点击通知跳回主界面
+        // Nhấn thông báo để quay lại màn hình chính
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
         val pendingIntent = if (launchIntent != null) {
             PendingIntent.getActivity(

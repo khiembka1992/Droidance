@@ -9,14 +9,14 @@ import android.content.Intent
 import android.util.Log
 
 /**
- * 开机广播接收器
- * 在设备启动后恢复定时任务和心跳机制
+ * Bộ nhận broadcast khởi động máy
+ * Khôi phục tác vụ theo lịch và cơ chế heartbeat sau khi thiết bị khởi động
  */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action !in SUPPORTED_ACTIONS) return
         Log.i("BootReceiver", "Device boot detected; restoring Droidance background work")
-        // HeartbeatManager 使用 WorkManager，系统会自动恢复
+        // HeartbeatManager dùng WorkManager, hệ thống sẽ tự khôi phục
         KeepAliveJobService.schedule(context)
         // Returning releases the broadcast queue needed by the runtime's Binder handoff.
         TaskExecutionService.startStandby(context, restoreSchedules = true)

@@ -49,8 +49,8 @@ import com.droidance.ui.components.DroidanceDialog
 import com.droidance.ui.viewmodel.SettingsViewModel
 
 /**
- * 无线调试配对向导：初始化和设置→执行共用同一页。
- * 一页只做一件事——把「开发者选项 → 无线调试 → 通知栏填码」三步讲清楚，并把状态和唯一主操作摆在固定位置。
+ * Trình hướng dẫn ghép nối gỡ lỗi không dây: khởi tạo và thiết lập → thực thi dùng chung một trang.
+ * Mỗi trang chỉ làm một việc — nói rõ ba bước "Tùy chọn nhà phát triển → Gỡ lỗi không dây → Nhập mã trên thanh thông báo", đồng thời đặt trạng thái và thao tác chính duy nhất ở vị trí cố định.
  */
 @Composable
 fun AirPairingScreen(
@@ -224,7 +224,7 @@ fun AirPairingScreen(
     }
 }
 
-/** 状态卡：与权限行同一形态（图标块 + 标题 + 状态副标题），进行中的提示挂在同一张卡里 */
+/** Thẻ trạng thái: cùng dạng với dòng quyền (khối icon + tiêu đề + phụ đề trạng thái), gợi ý đang thực hiện nằm ngay trong cùng thẻ */
 @Composable
 private fun AirPairingStatusCard(
     state: com.droidance.ui.viewmodel.SettingsUiState,
@@ -269,7 +269,7 @@ private fun AirPairingStatusCard(
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }
-                // 进行中留一条回到系统无线调试页的通路——用户切回 App 后不必取消重来
+                // Khi đang thực hiện vẫn để một đường quay về trang gỡ lỗi không dây của hệ thống — người dùng chuyển lại App không phải hủy làm lại
                 when {
                     (pairingState == PairingState.IDLE || pairingState == PairingState.CONNECTED) &&
                         state.airPreviouslyPaired -> {
@@ -478,7 +478,7 @@ private fun AirPairingStepRow(index: Int, title: String, desc: String) {
     }
 }
 
-/** 已连接时仅展示结果，不提供会破坏当前连接的操作。 */
+/** Khi đã kết nối chỉ hiển thị kết quả, không cung cấp thao tác có thể phá vỡ kết nối hiện tại. */
 @Composable
 private fun AirPairingConnectedStatus() {
     Surface(
@@ -517,7 +517,7 @@ private fun AirPairingConnectedStatus() {
     }
 }
 
-/** 底部唯一主操作：推进动作用石墨黑实心，取消操作用中性描边。 */
+/** Thao tác chính duy nhất ở đáy: hành động tiến tới dùng đen than chì đặc, thao tác hủy dùng viền trung tính. */
 @Composable
 private fun AirPairingPrimaryAction(
     label: String,

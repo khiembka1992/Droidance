@@ -9,10 +9,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 任务证据抽取器。
+ * Bộ trích xuất bằng chứng của tác vụ.
  *
- * 它不是摘要器：输出必须绑定原文片段，且原文片段必须能在工具结果里找到。
- * 这样最终回答可以引用证据，而不是引用模型改写后的“看起来合理”的总结。
+ * Nó không phải bộ tóm tắt: đầu ra phải gắn với đoạn văn bản gốc, và đoạn gốc đó phải tìm thấy được trong kết quả công cụ.
+ * Nhờ vậy câu trả lời cuối cùng có thể trích dẫn bằng chứng, thay vì trích dẫn bản tóm tắt "có vẻ hợp lý" do mô hình viết lại.
  */
 @Singleton
 class EvidenceFactExtractor @Inject constructor() {

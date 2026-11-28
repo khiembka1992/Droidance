@@ -12,12 +12,12 @@ import android.view.WindowInsets
 import android.view.animation.LinearInterpolator
 
 /**
- * 虚拟空间镜像面板的梦幻流光边缘 View（Siri / 小布助手风格）。
+ * View viền sáng chảy mộng ảo của panel mirror không gian ảo (phong cách Siri / trợ lý Xiaobu).
  *
- * - 紧贴屏幕物理边缘的圆角描边，动态适配宿主设备屏幕物理 R 角；
- * - 两层 BlurMaskFilter 柔光以不同速度反向流动，色相错开的渐变相互晕染，产生持续变换的氛围光；
- * - 最上层一条细亮边勾勒轮廓，整体低透明度并叠加缓慢呼吸；
- * - 不处理触摸，事件穿透给下层镜像画面。
+ * - Nét viền bo góc bám sát cạnh vật lý của màn hình, thích ứng động với bán kính góc R vật lý của màn hình thiết bị chủ;
+ * - Hai lớp sáng mềm BlurMaskFilter chảy ngược chiều với tốc độ khác nhau, các gradient lệch tông màu loang vào nhau, tạo ánh sáng không gian liên tục biến đổi;
+ * - Lớp trên cùng là một viền sáng mảnh phác đường nét, tổng thể độ trong suốt thấp và chồng thêm nhịp thở chậm;
+ * - Không xử lý chạm, sự kiện xuyên xuống khung hình mirror bên dưới.
  */
 class AuroraEdgeView(context: Context) : View(context) {
     private var lastDrawAtMs = 0L
@@ -31,11 +31,11 @@ class AuroraEdgeView(context: Context) : View(context) {
     private var phase = 0f
 
     private companion object {
-        /** 装饰流光约 30fps，避免在 120Hz 主屏上做无收益的全屏重绘。 */
+        /** Hiệu ứng sáng trang trí khoảng 30fps, tránh vẽ lại toàn màn hình vô ích trên màn hình chính 120Hz. */
         const val ANIMATION_FRAME_INTERVAL_MS = com.droidance.core.device.agent.device.AuroraEdgePainter.FRAME_INTERVAL_MS
     }
 
-    // 一个周期内主环转两圈、副环反向一圈、呼吸整数次，重启无跳变
+    // Trong một chu kỳ vòng chính quay hai vòng, vòng phụ quay ngược một vòng, nhịp thở nguyên lần, khởi động lại không bị nhảy
     private val flowAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
         duration = com.droidance.core.device.agent.device.AuroraEdgePainter.CYCLE_MS
         interpolator = LinearInterpolator()
@@ -54,7 +54,7 @@ class AuroraEdgeView(context: Context) : View(context) {
         alpha = 0f
     }
 
-    /** 更新设备屏幕 Insets 并动态适配四角 R 角 */
+    /** Cập nhật Insets màn hình thiết bị và thích ứng động bán kính R của bốn góc */
     fun updateWindowInsets(insets: WindowInsets?) {
         val resolved = DeviceCornerRadius.resolve(context, insets)
         if (resolved != cornerRadii) {

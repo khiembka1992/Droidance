@@ -10,8 +10,8 @@ import com.droidance.core.model.llm.models.ToolDefinition
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 面向 Agent 决策循环与上层业务的稳定模型传输接口。
- * 隐藏底层 HTTP 连接池与 Provider 专有网络传输细节。
+ * Giao diện truyền tải mô hình ổn định hướng tới vòng lặp quyết định của Agent và nghiệp vụ tầng trên.
+ * Ẩn đi chi tiết bể kết nối HTTP tầng dưới và truyền tải mạng riêng của Provider.
  */
 interface ModelClient {
     val modelSwitches: kotlinx.coroutines.flow.SharedFlow<ModelSwitchEvent>

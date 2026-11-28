@@ -102,7 +102,7 @@ fun droidanceFieldColors(): TextFieldColors {
     )
 }
 
-/** 全局开关配色：开启 = 当前主题主色，未开启 = 可见的中性灰轨道。 */
+/** Bộ màu công tắc toàn cục: bật = màu chính của giao diện hiện tại, tắt = rãnh xám trung tính dễ thấy. */
 @Composable
 fun droidanceSwitchColors(): SwitchColors = SwitchDefaults.colors(
     checkedThumbColor = MaterialTheme.colorScheme.onPrimary,

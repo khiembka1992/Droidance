@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1223" viewBox="0 0 2400 1223" role="img" aria-label="Droidance architecture: wireless debugging or Root starts a shared shell Sidecar for virtual-space control">
+<rect width="2400" height="1223" fill="#0e1218"/>
+<style>text{font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;}</style>
+<rect x="60" y="60" width="360" height="130" rx="20" fill="#171d26" stroke="#37414c" stroke-width="2"/>
+<text x="92" y="112" font-size="32" font-weight="700" fill="#edf1f6" text-anchor="start">Bạn</text>
+<text x="92" y="156" font-size="24" font-weight="400" fill="#a5b0c0" text-anchor="start">Lệnh một câu · Tiếp quản</text>
+<rect x="1980" y="60" width="360" height="130" rx="20" fill="#192c4d" stroke="#77a7ff" stroke-width="2"/>
+<text x="2012" y="112" font-size="29" font-weight="700" fill="#edf1f6" text-anchor="start">LLM đa phương thức</text>
+<text x="2012" y="156" font-size="22" font-weight="400" fill="#a5b0c0" text-anchor="start">Key riêng · mọi nhà cung cấp</text>
+<text x="1390" y="135" font-size="28" font-weight="650" fill="#77a7ff" text-anchor="middle">Ảnh chụp &amp; ngữ cảnh  ⇄  Hành động tiếp theo (HTTPS)</text>
+<rect x="60" y="220" width="2280" height="800" rx="40" fill="#0e1218" stroke="#edf1f6" stroke-width="3"/>
+<text x="100" y="290" font-size="34" font-weight="700" fill="#edf1f6" text-anchor="start">Điện thoại Android của bạn</text>
+<text x="590" y="290" font-size="27" font-weight="650" fill="#35d294" text-anchor="start">Không cần máy tính · Root tùy chọn · Không cần trợ năng</text>
+<rect x="100" y="330" width="455" height="650" rx="26" fill="#171d26" stroke="#37414c" stroke-width="2"/>
+<text x="125" y="390" font-size="33" font-weight="700" fill="#edf1f6" text-anchor="start">Droidance App</text>
+<text x="125" y="435" font-size="24" font-weight="400" fill="#a5b0c0" text-anchor="start">Ứng dụng thông thường</text>
+<rect x="125" y="465" width="405" height="108" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="144" y="508" font-size="28" font-weight="650" fill="#edf1f6" text-anchor="start">Vòng lặp một tác nhân</text>
+<text x="144" y="545" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Xem → Nghĩ → Làm</text>
+<rect x="125" y="588" width="405" height="108" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="144" y="631" font-size="28" font-weight="650" fill="#edf1f6" text-anchor="start">Công cụ &amp; kỹ năng</text>
+<text x="144" y="668" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Quy tắc Markdown · Skill</text>
+<rect x="125" y="711" width="405" height="108" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="144" y="754" font-size="28" font-weight="650" fill="#edf1f6" text-anchor="start">Script cô lập</text>
+<text x="144" y="791" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Chạy JS trong isolatedProcess</text>
+<rect x="125" y="834" width="405" height="108" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="144" y="877" font-size="28" font-weight="650" fill="#edf1f6" text-anchor="start">Nhật ký cục bộ</text>
+<text x="144" y="914" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Truy vết từng bước</text>
+<rect x="650" y="330" width="520" height="650" rx="26" fill="#132a23" stroke="#35d294" stroke-width="2"/>
+<text x="675" y="390" font-size="33" font-weight="700" fill="#edf1f6" text-anchor="start">Kết nối thiết bị</text>
+<text x="675" y="435" font-size="24" font-weight="400" fill="#a5b0c0" text-anchor="start">Chọn một cách khởi chạy</text>
+<rect x="675" y="465" width="470" height="140" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="696" y="507" font-size="28" font-weight="700" fill="#edf1f6" text-anchor="start">Gỡ lỗi không dây</text>
+<text x="696" y="543" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">mDNS · SPAKE2 · TLS ADB</text>
+<text x="696" y="579" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Ghép nối là chạy, không cần Root</text>
+<rect x="675" y="620" width="470" height="140" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="696" y="662" font-size="28" font-weight="700" fill="#edf1f6" text-anchor="start">Root</text>
+<text x="696" y="698" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Máy đã Root cấp quyền</text>
+<text x="696" y="734" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Không cần gỡ lỗi không dây</text>
+<rect x="675" y="775" width="470" height="140" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="696" y="817" font-size="28" font-weight="700" fill="#edf1f6" text-anchor="start">Khởi chạy cùng một Sidecar</text>
+<text x="696" y="853" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Hai cách dùng chung năng lực thiết bị</text>
+<text x="696" y="889" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Chạy dưới quyền Shell</text>
+<rect x="1255" y="330" width="490" height="650" rx="26" fill="#132a23" stroke="#35d294" stroke-width="2"/>
+<text x="1280" y="390" font-size="33" font-weight="700" fill="#edf1f6" text-anchor="start">Sidecar</text>
+<text x="1280" y="435" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Quyền Shell thường trú · Binder về App</text>
+<rect x="1280" y="465" width="440" height="108" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="1299" y="508" font-size="28" font-weight="650" fill="#edf1f6" text-anchor="start">Tạo màn hình ảo</text>
+<text x="1299" y="545" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Tách khỏi màn hình chính</text>
+<rect x="1280" y="588" width="440" height="108" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="1299" y="631" font-size="28" font-weight="650" fill="#edf1f6" text-anchor="start">Ảnh chụp sạch</text>
+<text x="1299" y="668" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Khung hình mô hình nhận được</text>
+<rect x="1280" y="711" width="440" height="108" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="1299" y="754" font-size="28" font-weight="650" fill="#edf1f6" text-anchor="start">Chèn thao tác nhập</text>
+<text x="1299" y="791" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Chạm · Vuốt · Văn bản</text>
+<rect x="1280" y="834" width="440" height="108" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="1299" y="877" font-size="28" font-weight="650" fill="#edf1f6" text-anchor="start">Shell &amp; năng lực hệ thống</text>
+<text x="1299" y="914" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Gọi theo quyền được cấp</text>
+<rect x="1845" y="330" width="455" height="650" rx="26" fill="#171d26" stroke="#37414c" stroke-width="2"/>
+<text x="1870" y="390" font-size="33" font-weight="700" fill="#edf1f6" text-anchor="start">Không gian ảo</text>
+<text x="1870" y="435" font-size="24" font-weight="400" fill="#a5b0c0" text-anchor="start">Chạy nền</text>
+<rect x="1870" y="465" width="405" height="231" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="1890" y="570" font-size="28" font-weight="650" fill="#edf1f6" text-anchor="start">App đã cài đặt</text>
+<text x="1890" y="611" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Dùng chính tài khoản của bạn</text>
+<rect x="1870" y="711" width="405" height="231" rx="17" fill="#111820" stroke="#37414c" stroke-width="1.5"/>
+<text x="1890" y="816" font-size="28" font-weight="650" fill="#edf1f6" text-anchor="start">Màn hình chính vẫn rảnh</text>
+<text x="1890" y="857" font-size="23" font-weight="400" fill="#a5b0c0" text-anchor="start">Bạn vẫn dùng điện thoại</text>
+<text x="602" y="663" font-size="47" font-weight="400" fill="#a5b0c0" text-anchor="middle">⇄</text>
+<text x="1212" y="663" font-size="47" font-weight="400" fill="#a5b0c0" text-anchor="middle">→</text>
+<text x="1212" y="699" font-size="19" font-weight="400" fill="#a5b0c0" text-anchor="middle">Khởi</text>
+<text x="1212" y="723" font-size="19" font-weight="400" fill="#a5b0c0" text-anchor="middle">chạy</text>
+<text x="1795" y="663" font-size="47" font-weight="400" fill="#a5b0c0" text-anchor="middle">⇄</text>
+<text x="1795" y="699" font-size="19" font-weight="400" fill="#a5b0c0" text-anchor="middle">Hiển thị</text>
+<text x="1795" y="723" font-size="19" font-weight="400" fill="#a5b0c0" text-anchor="middle">&amp; nhập</text>
+<line x1="60" y1="1055" x2="420" y2="1055" stroke="#35d294" stroke-width="4"/>
+<text x="62" y="1102" font-size="27" font-weight="700" fill="#edf1f6" text-anchor="start">Cảm nhận thị giác</text>
+<text x="62" y="1144" font-size="22" font-weight="400" fill="#a5b0c0" text-anchor="start">Không đọc cây UI, không OCR</text>
+<line x1="442" y1="1055" x2="802" y2="1055" stroke="#35d294" stroke-width="4"/>
+<text x="444" y="1102" font-size="27" font-weight="700" fill="#edf1f6" text-anchor="start">Chạy nền</text>
+<text x="444" y="1144" font-size="22" font-weight="400" fill="#a5b0c0" text-anchor="start">Không chiếm màn hình chính</text>
+<line x1="824" y1="1055" x2="1184" y2="1055" stroke="#35d294" stroke-width="4"/>
+<text x="826" y="1102" font-size="27" font-weight="700" fill="#edf1f6" text-anchor="start">Mất kết nối là dừng</text>
+<text x="826" y="1144" font-size="22" font-weight="400" fill="#a5b0c0" text-anchor="start">Mất liên kết thì đóng an toàn</text>
+<line x1="1206" y1="1055" x2="1566" y2="1055" stroke="#35d294" stroke-width="4"/>
+<text x="1208" y="1102" font-size="27" font-weight="700" fill="#edf1f6" text-anchor="start">Người trong vòng lặp</text>
+<text x="1208" y="1144" font-size="22" font-weight="400" fill="#a5b0c0" text-anchor="start">Xác nhận &amp; tiếp quản khi cần</text>
+<line x1="1588" y1="1055" x2="1948" y2="1055" stroke="#35d294" stroke-width="4"/>
+<text x="1590" y="1102" font-size="27" font-weight="700" fill="#edf1f6" text-anchor="start">Điều khiển bằng cấu hình</text>
+<text x="1590" y="1144" font-size="22" font-weight="400" fill="#a5b0c0" text-anchor="start">Chính sách nằm trong Markdown</text>
+<line x1="1970" y1="1055" x2="2330" y2="1055" stroke="#35d294" stroke-width="4"/>
+<text x="1972" y="1102" font-size="27" font-weight="700" fill="#edf1f6" text-anchor="start">Nguồn có thể xác minh</text>
+<text x="1972" y="1144" font-size="22" font-weight="400" fill="#a5b0c0" text-anchor="start">Kiểm tra hash libadb</text>
+</svg>

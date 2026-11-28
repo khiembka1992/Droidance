@@ -90,11 +90,11 @@ class DeviceShellCommandChannel internal constructor(
         val available: Boolean get() = backend != Backend.NONE
         val success: Boolean get() = available && exitCode == 0
 
-        /** stdout 优先，为空时回退 stderr（与 AdbShellExecutor.Result.output 语义一致）。 */
+        /** Ưu tiên stdout, khi rỗng thì lùi về stderr (cùng ngữ nghĩa với AdbShellExecutor.Result.output). */
         val output: String get() = stdout.ifBlank { stderr }
     }
 
-    /** 通道可用性：健康的常驻 Binder 或冻结模式对应的 shell 任一即可。 */
+    /** Tính khả dụng của kênh: Binder thường trú khỏe mạnh hoặc shell tương ứng chế độ đóng băng, một trong hai là đủ. */
     fun isAvailable(): Boolean = binderAvailable() || shellAvailable()
 
     fun exec(command: String, timeoutMs: Long = 15_000L): Outcome {

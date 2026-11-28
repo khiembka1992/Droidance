@@ -1110,9 +1110,9 @@ object AgentEventReadModelProjector {
             if (payload.name != ResultCardToolArguments.TOOL_NAME) return null
             val result = finished?.second?.result ?: return null
             if (!result.isVerifiedSuccess) return null
-            // 结果卡片只是展示数据：参数不合法时跳过该卡片，而不是让整个线程投影失败。
-            // 否则历史里任何一条参数不完整的 present_result_card 都会让后续任务在
-            // 回放该线程时启动即崩（曾表现为通知接管任务 44ms 内自动终止）。
+            // Thẻ kết quả chỉ là dữ liệu hiển thị: khi tham số không hợp lệ thì bỏ qua thẻ đó, chứ không để toàn bộ projection của luồng thất bại.
+            // Nếu không, bất kỳ present_result_card nào có tham số không đầy đủ trong lịch sử cũng sẽ khiến các tác vụ sau
+            // phát nổ ngay khi khởi chạy lúc phát lại luồng đó (từng biểu hiện là tác vụ tiếp quản thông báo tự kết thúc trong 44ms).
             val card = try {
                 ResultCardToolArguments.parse(payload.argumentsJson)
             } catch (_: IllegalArgumentException) {

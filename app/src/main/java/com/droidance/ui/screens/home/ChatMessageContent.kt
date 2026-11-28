@@ -659,7 +659,7 @@ private fun PermissionActionBlock(
     }
     val reasonText = buildString {
         if (permissionNames.isNotEmpty()) {
-            append(context.getString(R.string.chat_permission_names_format, permissionNames.joinToString("、")))
+            append(context.getString(R.string.chat_permission_names_format, permissionNames.joinToString(", ")))
         }
         if (pendingPermission.reason.isNotBlank()) {
             if (isNotEmpty()) append("\n")
@@ -1085,7 +1085,7 @@ internal fun formatMessageTimestamp(
 ): String {
     if (timestampMs <= 0L) return fallbackLabel
 
-    // 今天的消息只显示时间，不显示日期；往日的才显示日期+时间。
+    // Tin nhắn hôm nay chỉ hiển thị giờ, không hiển thị ngày; tin nhắn những ngày trước mới hiển thị ngày+giờ.
     val dayFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     if (dayFmt.format(Date(timestampMs)) == dayFmt.format(Date(nowMs))) {
         return SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(timestampMs))
@@ -1337,7 +1337,7 @@ internal fun ChatBubble(
                     }
                 }
             }
-            // 只在回复完成后(非 streaming)显示时间，执行过程中不显示。
+            // Chỉ hiển thị thời gian sau khi phản hồi hoàn tất (không streaming), không hiển thị trong quá trình thực thi.
             if (!isUser && !isThinking && !isStreaming && messageTimeText.isNotBlank()) {
                 Text(
                     text = messageTimeText,

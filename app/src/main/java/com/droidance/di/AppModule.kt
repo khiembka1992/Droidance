@@ -33,8 +33,8 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 /**
- * Hilt 依赖注入模块
- * 提供全局单例依赖
+ * Module tiêm phụ thuộc (dependency injection) Hilt
+ * Cung cấp các phụ thuộc singleton toàn cục
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -165,14 +165,14 @@ object AppModule {
         context.getString(com.droidance.R.string.execution_interrupted_result)
     }
 
-    /** 提供 OkHttpClient 单例 */
+    /** Cung cấp singleton OkHttpClient */
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
         // Keep provider credentials and request contents out of logcat.
         return com.droidance.core.model.llm.CleartextNetworkPolicy.configure(OkHttpClient.Builder())
             .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(120, TimeUnit.SECONDS)     // LLM 响应可能较慢
+            .readTimeout(120, TimeUnit.SECONDS)     // phản hồi LLM có thể khá chậm
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }

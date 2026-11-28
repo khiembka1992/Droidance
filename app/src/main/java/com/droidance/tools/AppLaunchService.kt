@@ -240,8 +240,8 @@ class AppLaunchService(
                 localActionVerifier.currentForegroundPackageForContext())) {
             landAppEntry(resolution.route.packageName, launchMode)
         } else null
-        // 入口帧只提供诊断；即使虚拟屏 launcher 首帧晚到也继续发送路由。
-        // 入口已按 launchMode 重置过，后续路由不能再 FRESH 清掉刚落地的页面。
+        // Frame đầu vào chỉ để chẩn đoán; kể cả frame đầu của launcher màn hình ảo đến muộn vẫn tiếp tục gửi route.
+        // Điểm vào đã được đặt lại theo launchMode, các route sau đó không được FRESH xóa mất trang vừa hạ cánh.
         val routeLaunchMode = if (entryLanding != null) AppLaunchMode.RESUME else launchMode
         val launchResult = preflight ?: launchExplicitIntent(
             uri = resolved.takeIf { hasUriScheme },
@@ -283,7 +283,7 @@ class AppLaunchService(
             append("source_type=${resolution.route.sourceType} score=${resolution.score}")
         })
     }
-    /** 把 App 的 launcher activity 显式启动到当前执行显示上，返回一行回执。见 [AppEntryLanding]。 */
+    /** Khởi chạy tường minh launcher activity của App trên display đang thực thi, trả về một dòng biên nhận. Xem [AppEntryLanding]. */
     private suspend fun landAppEntry(packageName: String, launchMode: AppLaunchMode): AppEntryLandingResult? {
         val component = AppEntryLanding.launcherComponent(context, packageName) ?: return null
         val result = launchExplicitIntent(

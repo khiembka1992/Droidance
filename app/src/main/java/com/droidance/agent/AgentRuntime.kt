@@ -74,11 +74,11 @@ private const val DEVICE_SNAPSHOT_INIT_FAILED = "DEVICE_SNAPSHOT_INIT_FAILED"
 internal const val INTERNAL_SKILL_THREAD_ID = "droidance-internal:skill-drafts"
 
 /**
- * Agent 运行时
- * Droidance 的大脑，负责：
- * 1. 接收用户指令
- * 2. 将用户目标交给单一 Operator
- * 3. 执行工具调用并记录结果
+ * Runtime của Agent
+ * Bộ não của Droidance, chịu trách nhiệm:
+ * 1. Nhận lệnh từ người dùng
+ * 2. Giao mục tiêu của người dùng cho một Operator duy nhất
+ * 3. Thực thi lệnh gọi công cụ và ghi lại kết quả
  */
 @Singleton
 class AgentRuntime @Inject constructor(
@@ -98,7 +98,7 @@ class AgentRuntime @Inject constructor(
     private val capabilityRegistry: RuntimeCapabilityRegistry,
     private val virtualSpaceManager: VirtualSpaceManager,
     val debugLogManager: DebugLogManager,
-    // ── Operator Agent（UI 自动化执行） ──────────────────────────
+    // ── Operator Agent (thực thi tự động hóa UI) ──────────────────────────
     private val taskCoordinator: TaskCoordinator,
     private val latencyTracker: com.droidance.core.agent.debug.TaskLatencyTracker,
     private val diagnostics: DiagnosticsCollector,
@@ -190,19 +190,19 @@ class AgentRuntime @Inject constructor(
 
     private val pendingUserSteer = java.util.concurrent.atomic.AtomicBoolean(false)
 
-    /** 当前激活的 Agent 名称 */
+    /** Tên Agent đang được kích hoạt */
     private var activeAgent: String = "default"
 
-    /** 对话历史 */
+    /** Lịch sử cuộc trò chuyện */
     private val conversationHistory = mutableListOf<ChatMessage>()
 
     /**
-     * 会话上下文代数。显式新对话会递增它；被取消的旧 Turn 即使进入 finally，也不能把取消回执
-     * 追加到新 Turn 的全局历史，避免新任务继承旧任务的最后一句话。
+     * Thế hệ ngữ cảnh của cuộc trò chuyện. Một cuộc trò chuyện mới tường minh sẽ tăng nó; Turn cũ bị hủy dù có đi vào finally cũng không được ghi biên nhận hủy
+     * vào lịch sử toàn cục của Turn mới, tránh để tác vụ mới kế thừa câu cuối cùng của tác vụ cũ.
      */
     @Volatile private var conversationEpoch: Long = 0L
 
-    /** 当前可恢复 Turn；接管恢复消息必须写入同一 EventStore Turn。 */
+    /** Turn hiện có thể khôi phục; tin nhắn khôi phục khi tiếp quản phải được ghi vào cùng Turn của EventStore. */
     private val activeTurnClock = MutableStateFlow<AgentTurnLedger.ActiveTurn?>(null)
     @Volatile private var activeDurableTurn: AgentTurnLedger.ActiveTurn? = null
         set(value) {
@@ -226,8 +226,8 @@ class AgentRuntime @Inject constructor(
     }
 
     /**
-     * AgentRuntime 持有宿主会话状态；工具状态由当前任务上下文持有。
-     * 同一进程内一次只允许一个任务进入主循环，避免 UI 会话、定时任务互相污染上下文。
+     * AgentRuntime giữ trạng thái cuộc trò chuyện của host; trạng thái công cụ do ngữ cảnh tác vụ hiện tại giữ.
+     * Trong cùng một tiến trình chỉ cho phép một tác vụ vào vòng lặp chính tại một thời điểm, tránh để cuộc trò chuyện UI và tác vụ theo lịch làm nhiễm ngữ cảnh của nhau.
      */
     private val idleWorkScheduler = IdleWorkScheduler(finishScope)
     val skillDraftWorkState = if (!processClient.isOwner) processClient.skillDraftWorkState else kotlinx.coroutines.flow.combine(idleWorkScheduler.state, knowledge.skillReflectionQueue.sources) { state, sources ->
@@ -268,30 +268,30 @@ class AgentRuntime @Inject constructor(
         }
     }
 
-    /** Agent 运行状态 */
+    /** Trạng thái chạy của Agent */
     private val _state = MutableStateFlow(AgentState.IDLE)
     override val state: StateFlow<AgentState> = if (processClient.isOwner) _state else processClient.state
 
-    /** 当前活动会话 ID；任务入口在执行锁内绑定。 */
+    /** ID cuộc trò chuyện đang hoạt động; điểm vào của tác vụ bind nó bên trong khóa thực thi. */
     private val _currentConversationId = MutableStateFlow<String?>(null)
     override val currentConversationId: StateFlow<String?> = if (processClient.isOwner) _currentConversationId else processClient.currentConversationId
     private val _currentTaskExecutionSpace = MutableStateFlow<ExecutionSpace?>(null)
     val currentTaskExecutionSpace: StateFlow<ExecutionSpace?> = if (processClient.isOwner) _currentTaskExecutionSpace else processClient.currentTaskExecutionSpace
 
-    /** 最近一次响应 */
+    /** Phản hồi gần nhất */
     private val _lastResponse = MutableStateFlow<String>("")
     val lastResponse: StateFlow<String> = if (processClient.isOwner) _lastResponse else processClient.lastResponse
 
-    /** 当前正在执行的动作描述（工具名/推理状态），供任务详情显示 */
+    /** Mô tả hành động đang thực thi (tên công cụ/trạng thái suy luận), dùng cho phần chi tiết tác vụ */
     private val _currentAction = MutableStateFlow("")
     val currentAction: StateFlow<String> = if (processClient.isOwner) _currentAction else processClient.currentAction
-    /** 同一 Agent 生成一次的任务短标题，供运行岛显示 */
+    /** Tiêu đề ngắn của tác vụ do cùng Agent sinh ra một lần, dùng cho runtime island hiển thị */
     private val _currentTaskTitle = MutableStateFlow("")
     val currentTaskTitle: StateFlow<String> = if (processClient.isOwner) _currentTaskTitle else processClient.currentTaskTitle
     private val _isMobileUseTaskActive = MutableStateFlow(false)
     val isMobileUseTaskActive: StateFlow<Boolean> = if (processClient.isOwner) _isMobileUseTaskActive else processClient.isMobileUseTaskActive
 
-    /** 持久 App 接管的岛内空闲态；每次唤醒仍创建一个普通 Agent Turn。 */
+    /** Trạng thái rảnh trong island của chế độ tiếp quản App thường trú; mỗi lần đánh thức vẫn tạo một Agent Turn thông thường. */
     private val _takeoverResidentStatus = MutableStateFlow<String?>(null)
     val takeoverResidentStatus: StateFlow<String?> = if (processClient.isOwner) _takeoverResidentStatus else processClient.takeoverResidentStatus
     private val _appTakeoverTurnActive = MutableStateFlow(false)
@@ -308,29 +308,29 @@ class AgentRuntime @Inject constructor(
         }
     }
 
-    /** 当前流式输出的最新片段（最多 80 字符），供悬浮窗实时显示 */
+    /** Đoạn mới nhất của đầu ra streaming hiện tại (tối đa 80 ký tự), dùng cho cửa sổ nổi hiển thị theo thời gian thực */
     private val _streamingOutput = MutableStateFlow("")
     val streamingOutput: StateFlow<String> = if (processClient.isOwner) _streamingOutput else processClient.streamingOutput
 
-    /** 当前工具调用参数摘要，供外部执行悬浮窗展示“正在做什么”和关键入参。 */
+    /** Bản tóm tắt tham số của lệnh gọi công cụ hiện tại, dùng cho cửa sổ nổi thực thi bên ngoài hiển thị "đang làm gì" và các tham số đầu vào chính. */
     private val _currentActionDetail = MutableStateFlow("")
     val currentActionDetail: StateFlow<String> = if (processClient.isOwner) _currentActionDetail else processClient.currentActionDetail
 
-    /** 是否处于暂停状态（用户可接管） */
+    /** Có đang ở trạng thái tạm dừng hay không (người dùng có thể tiếp quản) */
     private val _isPaused = MutableStateFlow(false)
     val isPaused: StateFlow<Boolean> = if (processClient.isOwner) _isPaused else processClient.isPaused
     private val _manualTakeoverState = MutableStateFlow(ManualTakeoverState.RUNNING)
     val manualTakeoverState: StateFlow<ManualTakeoverState> = if (processClient.isOwner) _manualTakeoverState else processClient.manualTakeoverState
 
-    /** 当前是否需要暴露人工接管入口。仅由明确的用户介入请求驱动，不写业务场景规则。 */
+    /** Hiện có cần hiển thị lối vào tiếp quản thủ công hay không. Chỉ do yêu cầu can thiệp rõ ràng của người dùng điều khiển, không đưa quy tắc kịch bản nghiệp vụ vào. */
     private val _manualTakeoverAvailable = MutableStateFlow(false)
     val manualTakeoverAvailable: StateFlow<Boolean> = if (processClient.isOwner) _manualTakeoverAvailable else processClient.manualTakeoverAvailable
     private val _userInteractionRequest = MutableStateFlow<UserInteractionRequest?>(null)
     val userInteractionRequest: StateFlow<UserInteractionRequest?> = if (processClient.isOwner) _userInteractionRequest else processClient.userInteractionRequest
     @Volatile private var manualResumeRequiresObservation = false
     @Volatile private var manualTakeoverResumedAtElapsedMs = 0L
-    /** 用户在接管期间或恢复时补充的上下文。 */
-    /** waitIfPaused 等待超时后置位，供任务收尾时选择"等待接管超时"而非通用"已取消"文案；每次任务结束后消费并复位。 */
+    /** Ngữ cảnh người dùng bổ sung trong lúc tiếp quản hoặc khi khôi phục. */
+    /** Được bật sau khi waitIfPaused chờ quá thời gian, để lúc kết thúc tác vụ chọn văn bản "hết thời gian chờ tiếp quản" thay vì "đã hủy" chung; được tiêu thụ và đặt lại sau mỗi lần tác vụ kết thúc. */
     @Volatile private var manualTakeoverWaitTimedOut = false
 
     @Synchronized
@@ -352,7 +352,7 @@ class AgentRuntime @Inject constructor(
         _currentActionDetail.value = reason.trim()
     }
 
-    /** Agent 确实需要用户介入时才发布接管请求；用户主动暂停不走此入口。 */
+    /** Chỉ phát yêu cầu tiếp quản khi Agent thực sự cần người dùng can thiệp; người dùng tự tạm dừng không đi qua lối vào này. */
     private fun requestManualTakeover(reason: String): Boolean {
         val firstRequest = !_manualTakeoverAvailable.value
         pauseForManualControl(reason)
@@ -587,18 +587,18 @@ class AgentRuntime @Inject constructor(
     private val cancelRequested: Boolean get() = runningTurnJob?.isCancelled == true
     @Volatile private var lastCancellationOrigin: String? = null
 
-    /** 注册当前任务 Job（由应用任务入口调用） */
+    /** Đăng ký Job của tác vụ hiện tại (do điểm vào tác vụ của ứng dụng gọi) */
     fun registerActiveJob(job: Job) {
         registerActiveJob("ui", job)
     }
 
-    /** 注册指定任务 Job，用于本地对话和定时任务按来源定向取消 */
+    /** Đăng ký Job của tác vụ được chỉ định, dùng để hủy có định hướng theo nguồn cho cuộc trò chuyện cục bộ và tác vụ theo lịch */
     override fun registerActiveJob(taskId: String, job: Job) = turnJobs.register(taskId, job)
 
     override fun unregisterActiveJob(taskId: String, expectedJob: Job) =
         turnJobs.release(taskId, expectedJob)
 
-    /** 取消当前正在运行的任务（包括 AI 决策循环） */
+    /** Hủy tác vụ đang chạy hiện tại (bao gồm vòng lặp quyết định của AI) */
     override fun cancelCurrentTask(taskId: String?, origin: String) {
         if (!processClient.isOwner) { processClient.send("cancel", android.os.Bundle().apply { putString("origin", origin); putString("taskId", taskId) }); return }
         finishScope.launch {
@@ -614,7 +614,7 @@ class AgentRuntime @Inject constructor(
 
         val shouldResetUiState = cancelsRunningTurn || (taskId == null && runningTurnJob == null)
         if (shouldResetUiState) {
-            // 立即重置所有状态，确保悬浮窗立刻关闭
+            // Đặt lại toàn bộ trạng thái ngay lập tức, đảm bảo cửa sổ nổi đóng ngay
             _isPaused.value = false
             _manualTakeoverState.value = ManualTakeoverState.RUNNING
             cancelPendingUserInteraction()
@@ -687,7 +687,7 @@ class AgentRuntime @Inject constructor(
         evidenceLedger.addFacts(facts)
     }
 
-    /** 切换暂停/恢复状态 */
+    /** Chuyển đổi trạng thái tạm dừng/khôi phục */
     fun togglePause() {
         if (!processClient.isOwner) { processClient.send("pause", android.os.Bundle()); return }
         if (_isPaused.value) {
@@ -746,9 +746,9 @@ class AgentRuntime @Inject constructor(
 
     fun beginManualTakeoverFromOverlay(): Boolean {
         if (!processClient.isOwner) return processClient.command("takeControl", android.os.Bundle().apply {  }).getBoolean("result")
-        // 同 display 接管（§5.4）：只暂停 Agent，把当前虚拟 display 的画面与输入权临时交给用户。
-        // 绝不再把 App 迁移到主屏 0——那会让人与 Agent 操作在不同 display，恢复后 Agent 又回到旧虚拟
-        // display。接管面板通过 VirtualSpaceManager 直接读写同一 display。
+        // Tiếp quản cùng display (§5.4): chỉ tạm dừng Agent, tạm thời giao khung hình và quyền nhập liệu của display ảo hiện tại cho người dùng.
+        // Tuyệt đối không chuyển App về màn hình chính 0 nữa — làm vậy sẽ khiến người và Agent thao tác trên display khác nhau, sau khi khôi phục Agent lại quay về display
+        // ảo cũ. Bảng tiếp quản đọc ghi trực tiếp trên cùng display thông qua VirtualSpaceManager.
         val accepted = ManualTakeoverTransitionPolicy.shouldAcceptOverlayTakeover(
             isPaused = _isPaused.value,
             lastResumeElapsedMs = manualTakeoverResumedAtElapsedMs,
@@ -761,7 +761,7 @@ class AgentRuntime @Inject constructor(
     }
 
     /**
-     * 如果处于暂停状态则挂起等待，直到恢复。
+     * Nếu đang ở trạng thái tạm dừng thì treo chờ cho đến khi khôi phục.
      * Human takeover ends only through explicit user resume/cancel. No timeout, model call,
      * polling observation or automatic tool retry is allowed while awaiting that response.
      */
@@ -816,8 +816,8 @@ class AgentRuntime @Inject constructor(
     }
 
     /**
-     * 切换当前激活的 Agent
-     * 切换后自动清空对话历史（新 Agent 有不同的人格和记忆）
+     * Chuyển Agent đang được kích hoạt
+     * Sau khi chuyển sẽ tự động xóa lịch sử cuộc trò chuyện (Agent mới có nhân cách và ký ức khác)
      */
     fun switchAgent(agentName: String) {
         if (!processClient.isOwner) { processClient.send("switchAgent", android.os.Bundle().apply { putString("name", agentName) }); return }
@@ -826,7 +826,7 @@ class AgentRuntime @Inject constructor(
         conversationHistory.clear()
     }
 
-    /** 获取当前激活的 Agent 名称 */
+    /** Lấy tên Agent đang được kích hoạt */
     fun getActiveAgent(): String = if (processClient.isOwner) activeAgent else processClient.activeAgent
 
     suspend fun clearLogData() = withContext(Dispatchers.IO) { processClient.command("clearLogs"); Unit }
@@ -921,7 +921,7 @@ class AgentRuntime @Inject constructor(
         val notifyUser: Boolean?
     )
 
-    /** 持久会话只负责触发；每次运行复用普通 AgentRuntime，并与其他设备任务串行。 */
+    /** Cuộc trò chuyện thường trú chỉ chịu trách nhiệm kích hoạt; mỗi lần chạy đều tái dùng AgentRuntime thông thường và tuần tự với các tác vụ thiết bị khác. */
     suspend fun processAppTakeoverInput(
         userInput: String,
         conversationId: String,
@@ -1289,7 +1289,7 @@ class AgentRuntime @Inject constructor(
                 )
                 ensureTaskActive()
 
-                // 所有普通交互只进入一次 Operator。是否需要设备由同一次模型响应的工具调用决定。
+                // Mọi tương tác thông thường chỉ vào Operator một lần. Việc có cần thiết bị hay không do lệnh gọi công cụ trong cùng một phản hồi của mô hình quyết định.
                 val uiResult = runUiTask(
                     instruction = request.rawText,
                     onStreamContent = onStreamContent,
@@ -1412,9 +1412,9 @@ class AgentRuntime @Inject constructor(
                 }
                 if (!isChatMode && !taskFinalized) {
                     val status = unfinishedTaskStatus
-                    // 任务被取消（如用户点了停止）会以 CancellationException 中断 try 块，永远走不到上面
-                    // 正常完成路径里的对话历史与通知不会执行；这里补一条轻量总结，不再调用 LLM
-                    // （用户已经主动要求停止，不该再等一轮生成），只用已有的运行时状态拼装。
+                    // Tác vụ bị hủy (ví dụ người dùng bấm dừng) sẽ ngắt khối try bằng CancellationException, không bao giờ đi tới phần trên
+                    // Lịch sử cuộc trò chuyện và thông báo trong đường hoàn thành bình thường sẽ không chạy; ở đây bổ sung một bản tóm tắt nhẹ, không gọi LLM nữa
+                    // (người dùng đã chủ động yêu cầu dừng, không nên chờ thêm một lượt sinh nữa), chỉ ghép từ trạng thái runtime đã có.
                     if ((status == ExecutionTerminalStatus.CANCELED || timedOutWaitingForTakeover) && cancelSummary != null) {
                         if (turnEpoch == conversationEpoch) {
                             conversationHistory.add(ChatMessage(role = Role.ASSISTANT, content = cancelSummary))
@@ -1638,9 +1638,9 @@ host = object : com.droidance.core.agent.TurnHost {
 
             val summary = result.summary.trim()
 
-            // 完成判断完全交给显式终态，不再用 completionMode / postconditionVerifier /
-            // validateUiResult / completedWithoutAnyTool 等"完成条件规则"否决。正常结果只接受
-            // 模型公开输出；模型通道失败时只返回本地异常说明，不把证据文本伪造成总结。
+            // Việc đánh giá hoàn thành hoàn toàn giao cho trạng thái kết thúc tường minh, không còn dùng completionMode / postconditionVerifier /
+            // validateUiResult / completedWithoutAnyTool và các "quy tắc điều kiện hoàn thành" khác để phủ quyết. Kết quả bình thường chỉ chấp nhận
+            // đầu ra công khai của mô hình; khi kênh mô hình thất bại chỉ trả về mô tả ngoại lệ cục bộ, không ngụy tạo văn bản bằng chứng thành bản tóm tắt.
             val outcome = RuntimeUiResultPolicy.outcome(
                 terminal = result.terminal,
                 failureReason = result.failureReason
@@ -1667,7 +1667,7 @@ host = object : com.droidance.core.agent.TurnHost {
                 )
             }
 
-            // 非成功终态只使用模型已给出的公开失败说明，或 Markdown 本地异常文案。
+            // Trạng thái kết thúc không thành công chỉ dùng mô tả thất bại công khai mà mô hình đã đưa ra, hoặc văn bản ngoại lệ cục bộ dạng Markdown.
             val systemError = outcome == RuntimeUiOutcome.SYSTEM_ERROR
             val rescueTerminal = if (systemError) {
                 TurnTerminal.SYSTEM_ERROR
@@ -1858,13 +1858,13 @@ host = object : com.droidance.core.agent.TurnHost {
         }
     }
 
-    /** 清空对话历史 */
+    /** Xóa lịch sử cuộc trò chuyện */
     override fun clearConversation() {
         if (!processClient.isOwner) { processClient.send("clearConversation", android.os.Bundle()); return }
         conversationEpoch += 1L
         conversationHistory.clear()
         _currentConversationId.value = null
-        evidenceLedger.clear() // 清空当前任务证据账本
+        evidenceLedger.clear() // Xóa sổ bằng chứng của tác vụ hiện tại
     }
 
     // Restore only after every runtime field is initialized; IO work can start immediately.

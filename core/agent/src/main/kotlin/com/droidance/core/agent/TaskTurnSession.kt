@@ -120,7 +120,7 @@ internal class TaskTurnSession(
         }
     }
 
-    // 当前回合先使用最小入口消息；回合关闭后由 EventStore typed projection 重建历史。
+    // Lượt hiện tại trước hết dùng tin nhắn đầu vào tối thiểu; sau khi lượt đóng, lịch sử được dựng lại từ EventStore typed projection.
     val messages = mutableListOf<ChatMessage>()
     internal val requestHistory = com.droidance.core.agent.context.CacheableRequestHistory()
     internal val conversationTitles = ConversationTitleSession(eventStore, durableTurn.scope)
@@ -156,15 +156,15 @@ internal class TaskTurnSession(
     var totalToolCalls = 0
     var executionToolCalls = 0
     val executedToolNames = mutableListOf<String>()
-    // 只有后台调度轮才把接管配置视为它自己的任务生命周期；普通交互中的接管
-    // 调用仍需由模型明确判断并收尾，不能用配置回执绕过一次性设备任务的证据门槛。
+    // Chỉ lượt lập lịch nền mới coi cấu hình tiếp quản là vòng đời tác vụ của chính nó; việc tiếp quản trong tương tác thường
+    // vẫn cần mô hình tự đánh giá rõ ràng và kết thúc, không được dùng biên nhận cấu hình để lách ngưỡng bằng chứng của tác vụ thiết bị một lần.
     var takeoverManaged = false
-    // 动作叙事：跨轮保留"做过什么、结果如何"的一行式记录，替代把多张历史帧塞回请求。
+    // Tường thuật hành động: giữ qua các lượt bản ghi một dòng "đã làm gì, kết quả ra sao", thay cho việc nhồi nhiều khung hình lịch sử trở lại request.
     val actionNarrative = ArrayDeque<String>()
-    // 保留最近的本地拒绝原因，跨上下文压缩提示模型，避免
-    // 只看到“已有结果”却忘了某个限定条件仍未被当前画面证明。
+    // Giữ lại lý do từ chối cục bộ gần nhất, nhắc mô hình qua các lần nén ngữ cảnh, tránh việc
+    // chỉ thấy "đã có kết quả" mà quên rằng một điều kiện ràng buộc nào đó vẫn chưa được khung hình hiện tại chứng minh.
     val blockedActionNarrative = ArrayDeque<String>()
-    // 只记录本地验证明确确认推动了用户目标的动作；普通运行时生效或页面观察不算进展。
+    // Chỉ ghi lại những hành động được xác minh cục bộ xác nhận rõ ràng là đã đẩy mục tiêu người dùng tiến lên; có hiệu lực lúc runtime thông thường hay quan sát trang không tính là tiến triển.
     var channelUnavailableRepeats = 0
     var lastMemoryRefreshInput = 0L
     var lastMemoryRefreshPackage: String? = null

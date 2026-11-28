@@ -63,20 +63,20 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     private static final String DISPLAY_NAME = "Wireless Display";
     private static final String CLIP_LABEL = "text";
     private static final int WAKE_REASON_APPLICATION = 2;
-    // PowerManager.SCREEN_BRIGHT_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP：唯一能把虚拟屏所在
-    // power group 拉成 interactive 的等级（真机 dumpsys 验证，见 keepDisplayInteractive）。
+    // PowerManager.SCREEN_BRIGHT_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP: mức duy nhất có thể kéo
+    // power group chứa màn hình ảo lên interactive (đã kiểm chứng bằng dumpsys trên thiết bị thật, xem keepDisplayInteractive).
     private static final int SCREEN_BRIGHT_WAKE_LOCK = 0x0000000a;
     private static final int ACQUIRE_CAUSES_WAKEUP = 0x10000000;
     private static final String DISPLAY_WAKE_LOCK_TAG = "WindowManager-Display";
     private static final String VIEWER_WAKE_LOCK_TAG = "Droidance:VirtualSpaceViewer";
-    // 带超时持锁：任务里每个动作都会刷新它，任务结束后自动过期，避免空闲期一直吊着电源组耗电。
+    // Giữ khóa kèm timeout: mỗi thao tác trong tác vụ đều làm mới nó, sau khi tác vụ kết thúc sẽ tự hết hạn, tránh việc giữ nhóm nguồn suốt thời gian rảnh gây tốn pin.
     private static final long DISPLAY_WAKE_LOCK_TIMEOUT_MS = 10 * 60 * 1000L;
     private static final long DISPLAY_INTERACTIVE_SETTLE_MS = 120L;
     private static final int DISPLAY_INTERACTIVE_ATTEMPTS = 3;
     private static final long DISPLAY_INTERACTIVE_REUSE_MS = 800L;
     private static final String INPUT_PATH_REFLECTION = "reflection";
     private static final String INPUT_PATH_INPUT_COMMAND = "input_cmd";
-    // 虚拟屏窗口就绪前 injectInputEvent 可能返回 false，做有界重试吸收时序竞态。
+    // Trước khi cửa sổ màn hình ảo sẵn sàng, injectInputEvent có thể trả về false, nên thử lại có giới hạn để hấp thụ race về thời điểm.
     private static final int INJECT_MAX_ATTEMPTS = 4;
     private static final long INJECT_RETRY_DELAY_MS = 120L;
     private static final long TEXT_CLIPBOARD_HANDOFF_MS = 350L;
@@ -117,8 +117,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     private final SidecarViewerMirror viewerMirror = new SidecarViewerMirror(this::holdViewerDisplayAwake);
     private SidecarViewerIme viewerIme;
     private boolean manualTouchActive;
-    // 每次注入记录走了哪条通道：反射成功和"反射失败静默回退 input 命令"对外消息完全一样，
-    // 没有这条证据时 debug 包无法区分"注入到了但被忽略"和"通道降级了"。
+    // Mỗi lần inject đều ghi lại đã đi qua kênh nào: reflection thành công và "reflection thất bại âm thầm lùi về lệnh input" có thông điệp ra ngoài hoàn toàn giống nhau,
+    // thiếu bằng chứng này thì bản debug không phân biệt được "đã inject nhưng bị bỏ qua" và "kênh đã bị hạ cấp".
     private volatile String lastInputEvidence = "";
     private volatile String lastReflectionFailure = "";
     private volatile String displayWakeEvidence = "";
@@ -321,13 +321,13 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 主动把虚拟屏电源组唤醒，供任务开始时调用。
+     * Chủ động đánh thức nhóm nguồn của màn hình ảo, dùng để gọi khi tác vụ bắt đầu.
      *
-     * keepDisplayInteractive 原本只有注入路径（acceptsInteractiveDisplay）会顺带触发，
-     * 而 DeepLink / 开应用走的是 execShellCommand 转发的 `am start --display N`——sidecar 只是
-     * fork 一个 sh，看不懂命令内容，没有任何机会插入唤醒。唤醒锁 10 分钟超时，任务间隔一长
-     * 电源组必然 DOZING，于是任务第一步的 am start 返回 Success 却不 resume，harness 截到的
-     * 还是上一个任务的残留帧，模型基于过期画面推理并脱靶。锁屏场景必现（设备闲置远超 10 分钟）。
+     * keepDisplayInteractive trước đây chỉ được kích hoạt gián tiếp bởi đường inject (acceptsInteractiveDisplay),
+     * còn DeepLink / mở ứng dụng đi qua `am start --display N` do execShellCommand chuyển tiếp - sidecar chỉ
+     * fork một sh, không hiểu nội dung lệnh, không có cơ hội nào để chèn đánh thức. Wake lock hết hạn sau 10 phút, khoảng cách giữa các tác vụ dài
+     * thì nhóm nguồn chắc chắn DOZING, nên bước am start đầu tiên của tác vụ trả về Success mà không resume, harness chụp được
+     * vẫn là frame còn sót của tác vụ trước, mô hình suy luận trên khung hình quá hạn và lạc đích. Tình huống khóa máy luôn tái hiện (thiết bị rảnh lâu hơn 10 phút).
      */
     @Override
     public synchronized boolean ensureDisplayInteractive(int targetDisplayId) {
@@ -390,7 +390,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         if (!acceptsInteractiveDisplay(targetDisplayId)) return false;
         beginRuntimeInputDispatch();
         try {
-            // 20260722-V6/V7 的真机日志已验证这条路径可在虚拟屏产生真实画面变化。
+            // Log trên thiết bị thật của 20260722-V6/V7 đã xác minh đường dẫn này tạo ra thay đổi khung hình thực trên màn hình ảo.
             int dur = 55 + (int) (Math.random() * 25);
             if (injectTapSafely(targetDisplayId, x, y, dur)) return true;
             boolean ok = runInputCommand(targetDisplayId, "tap", Integer.toString(x), Integer.toString(y));
@@ -543,7 +543,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     public boolean key(int targetDisplayId, int keycode) {
         if (!acceptsInteractiveDisplay(targetDisplayId)) return false;
         claimInputFocus();
-        // 反射注入为主(与阿拉丁一致)；失败再退 input 命令兜底。
+        // Lấy inject bằng reflection làm chính (nhất quán với Aladdin); nếu thất bại mới lùi về lệnh input làm dự phòng.
         try {
             injectKey(targetDisplayId, keycode);
             noteInputEvidence("key", INPUT_PATH_REFLECTION, true, "");
@@ -1427,10 +1427,10 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 本机执行一条 shell 命令（用于 am start 打开 App，绕开 ADB/AIR 实时连接依赖，WiFi 关闭也能用）。
-     * 走 /system/bin/sh -c 而不是进程内 startActivity：sidecar 是 shell 身份(uid=2000)进程，
-     * 进程内 startActivity 的 callingPackage 会取自 base context(=android)，被 AMS 拒绝；
-     * 真正 fork 一个 sh 子进程运行 am，calling package 才会正确解析成 com.android.shell。
+     * Thực thi một lệnh shell ngay trên máy (dùng để am start mở App, tránh phụ thuộc kết nối thời gian thực của ADB/AIR, tắt WiFi vẫn dùng được).
+     * Đi qua /system/bin/sh -c thay vì startActivity trong tiến trình: sidecar là tiến trình mang danh tính shell (uid=2000),
+     * callingPackage của startActivity trong tiến trình sẽ lấy từ base context (=android), bị AMS từ chối;
+     * chỉ khi thật sự fork một tiến trình con sh để chạy am thì calling package mới được phân giải đúng thành com.android.shell.
      * Returns a typed Bundle; arbitrary command output cannot alter the transport fields.
      */
     private final ManagedShellCommands shellCommands = new ManagedShellCommands();
@@ -1559,7 +1559,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         return releaseDisplay();
     }
 
-    /** 只回收虚拟屏本身（含唤醒锁与帧通道），不动主屏的运行时浮层。 */
+    /** Chỉ thu hồi bản thân màn hình ảo (gồm wake lock và kênh frame), không đụng tới lớp phủ runtime của màn hình chính. */
     private synchronized boolean releaseDisplay() {
         if (viewerIme != null) {
             try { viewerIme.close(); }
@@ -1733,7 +1733,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         }
     }
 
-    /** 注入证据：op + 实际通道 + 成败 + 细节，供 App 侧写进任务诊断，让通道降级不再无声。 */
+    /** Bằng chứng inject: op + kênh thực tế + thành bại + chi tiết, để phía App ghi vào chẩn đoán tác vụ, giúp việc hạ cấp kênh không còn im lặng. */
     private void noteInputEvidence(String op, String path, boolean ok, String detail) {
         StringBuilder evidence = new StringBuilder()
                 .append(op)
@@ -1767,24 +1767,24 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 让虚拟屏所在的电源组保持 interactive，这是注入能否被系统派发的**唯一前置条件**。
+     * Giữ nhóm nguồn chứa màn hình ảo ở trạng thái interactive, đây là **điều kiện tiên quyết duy nhất** để hệ thống có thể phân phát inject.
      *
-     * OWN_DISPLAY_GROUP 让虚拟屏独占一个 power group，而这个组和主屏一样受息屏超时管辖：
-     * 建屏时唤醒一次之后，没有任何"用户活动"再喂给它，几十秒后就 DOZING。真机 dumpsys 实证：
+     * OWN_DISPLAY_GROUP cho màn hình ảo độc chiếm một power group, và nhóm này cũng chịu sự quản lý của timeout tắt màn hình như màn hình chính:
+     * sau lần đánh thức lúc tạo màn hình, không còn "hoạt động người dùng" nào được nạp vào, vài chục giây sau là DOZING. Đã kiểm chứng bằng dumpsys trên thiết bị thật:
      *
      *   dumpsys power  -> Power Group 1: wakefulness=3(DOZING), mIsInteractive=false
      *   dumpsys input  -> Display not interactive: {14, 15}
-     *   注入触摸        -> TouchStatesByDisplay: <no displays touched>   // 被 InputDispatcher 丢弃
+     *   chạm            -> TouchStatesByDisplay: <no displays touched>   // bị InputDispatcher loại bỏ
      *
-     * 后果是两个症状同源：agent 与人工接管一起点不动/滑不动；并且 ActivityTaskManager 不会在
-     * 非 interactive 的屏上 resume 新 activity，深链 am start 返回 Success 却永远不渲染，
-     * 屏上仍是上一任务最后一帧，于是"新任务里出现上一次的 App"。
+     * Hệ quả là hai triệu chứng cùng một gốc: agent và tiếp quản thủ công cùng không nhấn được/vuốt được; thêm nữa ActivityTaskManager sẽ không
+     * resume activity mới trên màn hình không interactive, deep link am start trả về Success mà không bao giờ render,
+     * trên màn hình vẫn là frame cuối của tác vụ trước, nên "trong tác vụ mới lại xuất hiện App của lần trước".
      *
-     * 修法（同一台真机验证通过）：以 displayId 为作用域持一把 SCREEN_BRIGHT 唤醒锁。
-     *   acquire 后 dumpsys power -> wakefulness=1(AWAKE)；dumpsys input -> not interactive: {}
-     *   注入触摸 -> TouchStatesByDisplay: 15 -> 目标窗口 touchingPointers=[FINGER]
-     * 执行锁带超时，每个动作刷新一次，任务结束后自动过期。
-     * 可见查看页另持一把随镜像生命周期释放的锁，静止查看不受执行锁超时影响。
+     * Cách sửa (đã xác minh trên cùng thiết bị thật): giữ một wake lock SCREEN_BRIGHT với phạm vi là displayId.
+     *   sau acquire dumpsys power -> wakefulness=1(AWAKE); dumpsys input -> not interactive: {}
+     *   inject chạm -> TouchStatesByDisplay: 15 -> cửa sổ mục tiêu touchingPointers=[FINGER]
+     * Khóa thực thi có timeout, mỗi thao tác làm mới một lần, sau khi tác vụ kết thúc sẽ tự hết hạn.
+     * Trang xem hiển thị giữ thêm một khóa được nhả theo vòng đời của mirror, việc xem tĩnh không bị ảnh hưởng bởi timeout của khóa thực thi.
      */
     private boolean keepDisplayInteractive(String reason) {
         if (displayId < 0) return false;
@@ -1827,7 +1827,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         return false;
     }
 
-    /** 持锁/续期。锁的作用域是 displayId 所在的 power group；带超时，靠动作反复刷新。 */
+    /** Giữ khóa/gia hạn. Phạm vi khóa là power group chứa displayId; có timeout, được làm mới liên tục nhờ thao tác. */
     private boolean refreshDisplayWakeLock(Object powerManager) {
         try {
             if (displayWakeLock == null) {
@@ -1889,7 +1889,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
             Method isInteractive = powerManager.getClass().getMethod("isInteractive", int.class);
             return (Boolean) isInteractive.invoke(powerManager, displayId);
         } catch (Throwable ignored) {
-            // 拿不到按 display 的查询能力时不阻断注入：让动作照常执行，由上层的画面比对判定结果。
+            // Khi không lấy được khả năng truy vấn theo display thì không chặn inject: để thao tác chạy như bình thường, kết quả do lớp trên so sánh khung hình phán định.
             return null;
         }
     }
@@ -1912,7 +1912,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         }
     }
 
-    /** 喂一次"用户活动"，让电源组的息屏计时从现在重新开始算。 */
+    /** Nạp một lần "hoạt động người dùng" để bộ đếm tắt màn hình của nhóm nguồn bắt đầu tính lại từ bây giờ. */
     private void reportUserActivity() {
         int targetDisplayId = displayId;
         if (targetDisplayId <= Display.DEFAULT_DISPLAY) return;
@@ -1956,8 +1956,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 注入前置：目标是虚拟屏时，先确认它 interactive。做不到就**明确失败**，不能报"点击成功"
-     * ——系统丢弃触摸时注入侧看不出任何异常，无声成功会让 agent 在死屏上空转整轮预算。
+     * Tiền đề inject: khi đích là màn hình ảo, trước hết xác nhận nó interactive. Không làm được thì **thất bại rõ ràng**, không được báo "nhấn thành công"
+     * - khi hệ thống loại bỏ cú chạm, phía inject không thấy bất thường nào, thành công im lặng sẽ khiến agent quay vô ích cả lượt ngân sách trên màn hình chết.
      */
     private boolean acceptsInteractiveDisplay(int targetDisplayId) {
         if (!acceptsDisplay(targetDisplayId)) return false;
@@ -2138,8 +2138,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         int holdDuration = 25 + (int) (Math.random() * 20);
         KeyEvent down = new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN, keycode, 0);
         KeyEvent up = new KeyEvent(downTime, downTime + holdDuration, KeyEvent.ACTION_UP, keycode, 0);
-        // 必须显式声明键盘来源：source 为 UNKNOWN 的按键事件会被输入框/IME 丢弃，
-        // 导致文本注入的 KEYCODE_PASTE 无声失效（粘贴不进字段）。与 injectKeyCombo 对齐。
+        // Phải khai báo rõ nguồn bàn phím: sự kiện phím có source là UNKNOWN sẽ bị ô nhập liệu/IME loại bỏ,
+        // khiến KEYCODE_PASTE của việc inject văn bản mất hiệu lực im lặng (dán không vào được trường). Đồng bộ với injectKeyCombo.
         down.setSource(InputDevice.SOURCE_KEYBOARD);
         up.setSource(InputDevice.SOURCE_KEYBOARD);
         setInputEventDisplayId(down, targetDisplayId);
@@ -2208,8 +2208,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
             return evidence;
         }
 
-        // 剪贴板回退保持原子校验：写入 → 同身份回读 → 精确比较 → 只有相等才粘贴。
-        // 厂商系统可能静默拒绝后台剪贴板写入，退出码和无异常都不能代表写入成功。
+        // Đường lùi clipboard giữ xác minh nguyên tử: ghi → đọc lại cùng danh tính → so sánh chính xác → chỉ khi bằng nhau mới dán.
+        // Hệ thống của hãng có thể âm thầm từ chối ghi clipboard ở nền, mã thoát và việc không có ngoại lệ đều không thể đại diện cho ghi thành công.
         ClipboardManager clipboard = shellClipboardManager();
         if (clipboard == null) {
             Bundle evidence = emptyTextEvidence();
@@ -2373,12 +2373,12 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         }
     }
 
-    /** 原始剪贴板快照：readable=false 时 failureDetail 携带 write_failed 诊断。 */
+    /** Ảnh chụp trạng thái (snapshot) clipboard gốc: khi readable=false thì failureDetail mang chẩn đoán write_failed. */
     private static final class OriginalClipboard {
         final boolean readable;
-        final String text;          // 剪贴板文本；可读且剪贴板为空时为 null
-        final String failureDetail; // readable=false 时的失败证据
-        final ClipData clipData;    // shell 直读时保留完整原始剪贴板，恢复用
+        final String text;          // văn bản clipboard; null khi đọc được và clipboard trống
+        final String failureDetail; // bằng chứng thất bại khi readable=false
+        final ClipData clipData;    // giữ nguyên clipboard gốc đầy đủ khi shell đọc trực tiếp, dùng để khôi phục
 
         OriginalClipboard(boolean readable, String text, String failureDetail, ClipData clipData) {
             this.readable = readable;
@@ -2389,8 +2389,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 读取原始剪贴板：shell 身份直读并保留完整 ClipData。
-     * readable=false 表示剪贴板不可读（写入前置检查失败，必须中止，不能盲粘）。
+     * Đọc clipboard gốc: đọc trực tiếp với danh tính shell và giữ nguyên ClipData đầy đủ.
+     * readable=false nghĩa là clipboard không đọc được (kiểm tra tiền đề ghi thất bại, phải hủy bỏ, không được dán mù).
      */
     private static OriginalClipboard readOriginalClipboard(ClipboardManager clipboard) {
         if (clipboard == null) {
@@ -2431,7 +2431,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         return evidence;
     }
 
-    /** shell 身份 ClipboardManager：SidecarShellContext.getSystemService 已把其 mContext 换成 shell 身份。 */
+    /** ClipboardManager với danh tính shell: SidecarShellContext.getSystemService đã thay mContext của nó bằng danh tính shell. */
     private ClipboardManager shellClipboardManager() {
         try {
             return (ClipboardManager) resolveContext().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -2447,7 +2447,7 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
         try {
             clipboard.setPrimaryClip(ClipData.newPlainText(CLIP_LABEL, target));
         } catch (Throwable ignored) {
-            // 写异常时回读会拿到旧值 → matches 失败 → 触发兜底或 readback_mismatch，不会盲粘。
+            // Khi ghi ngoại lệ, đọc lại sẽ nhận giá trị cũ → matches thất bại → kích hoạt dự phòng hoặc readback_mismatch, không dán mù.
         }
         return ClipboardTextVerifier.awaitMatch(target, () -> readPrimaryClipText(clipboard),
                 SystemClock::elapsedRealtime, SystemClock::sleep, TEXT_CLIPBOARD_HANDOFF_MS);
@@ -2511,9 +2511,9 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     /**
-     * 用 shell input 命令注入到指定 display（sidecar 是 shell uid，可直接 exec，WiFi 无关）。
-     * 反射 injectInputEvent 是 20260722-V6/V7 真机验证过的首选路径；
-     * 只有反射返回 false 或抛出时才用带 displayId 的系统 input 命令兜底。
+     * Inject bằng lệnh shell input vào display chỉ định (sidecar có uid shell, exec trực tiếp được, không liên quan WiFi).
+     * reflection injectInputEvent là đường dẫn ưu tiên đã được kiểm chứng trên thiết bị thật ở 20260722-V6/V7;
+     * chỉ khi reflection trả về false hoặc ném ngoại lệ mới dùng lệnh input hệ thống kèm displayId làm dự phòng.
      */
     private static boolean runInputCommand(int targetDisplayId, String... args) {
         java.lang.Process proc = null;
@@ -2614,8 +2614,8 @@ public final class VirtualSpaceSidecarService extends IVirtualSpaceSidecar.Stub 
     }
 
     private static void injectInputEventWithRetry(InputEvent event, int mode) throws Exception {
-        // Agent 的离散 tap/swipe 等待系统处理完整事件，避免异步 DOWN/UP 被厂商系统无声丢弃；
-        // 人工接管的连续 DOWN/MOVE 保持异步，仅在 UP/CANCEL 等待队列完成。
+        // tap/swipe rời rạc của Agent chờ hệ thống xử lý xong sự kiện, tránh DOWN/UP bất đồng bộ bị hệ thống của hãng âm thầm loại bỏ;
+        // chuỗi DOWN/MOVE liên tục của tiếp quản thủ công vẫn bất đồng bộ, chỉ chờ hàng đợi hoàn tất ở UP/CANCEL.
         Exception lastError = null;
         for (int attempt = 0; attempt < INJECT_MAX_ATTEMPTS; attempt++) {
             try {

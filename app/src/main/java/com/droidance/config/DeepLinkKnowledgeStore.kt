@@ -23,11 +23,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Deep Link 知识库。
+ * Cơ sở tri thức Deep Link.
  *
- * 内置资产放在 assets/deeplinks，启动后导入 droidance-data/deeplinks。
- * Agent 只拿第三方 App URI 目录索引，具体 URI 由 android_act(open) 按需解析。
- * Android 平台 Intent 不属于 Deep Link，由 android_act(open, intent_action=...) 的 native 路径执行。
+ * Tài nguyên đi kèm nằm trong assets/deeplinks và được nhập vào droidance-data/deeplinks khi khởi động.
+ * Tác nhân chỉ nhận chỉ mục danh mục URI của ứng dụng bên thứ ba; URI cụ thể do android_act(open) phân giải theo nhu cầu.
+ * Intent của nền tảng Android không thuộc Deep Link và được thực thi qua đường dẫn native của android_act(open, intent_action=...).
  */
 @Singleton
 class DeepLinkKnowledgeStore @Inject constructor(
@@ -35,7 +35,7 @@ class DeepLinkKnowledgeStore @Inject constructor(
     private val fileManager: MarkdownFileManager
 ) {
     companion object {
-        private const val BUILTIN_VERSION = "2026-10-20-02"
+        private const val BUILTIN_VERSION = "2026-11-28-01"
         private const val ASSET_DIR = "deeplinks"
         private const val LOCAL_DIR = "deeplinks"
         private const val BUILTIN_ROUTES = "$LOCAL_DIR/builtin/ROUTES.jsonl"
@@ -456,8 +456,8 @@ class DeepLinkKnowledgeStore @Inject constructor(
                 if (normalizedAction != null && route.depth != "app_home") {
                     score += 40
                 }
-                // 深度策略：deep_entry > app_home > search_results
-                // 官方路由的 search_results 已验证可用，不扣分
+                // Chính sách độ sâu: deep_entry > app_home > search_results
+                // search_results của tuyến chính thức đã được xác minh là dùng được nên không bị trừ điểm
                 score += when {
                     route.depth == "deep_entry" -> 60
                     route.depth == "app_home" -> 30
@@ -467,7 +467,7 @@ class DeepLinkKnowledgeStore @Inject constructor(
                 }
                 score += reliabilityScore(route)
                 score += route.successCount * 15
-                // failureCount 超过 5 次后额外加速衰减，确保多次失败路由被过滤
+                // Sau 5 lần thất bại, điểm bị trừ nhanh hơn để loại bỏ các tuyến thất bại nhiều lần
                 score -= route.failureCount * 18
                 if (route.failureCount >= 5) score -= (route.failureCount - 5) * 30
                 DeepLinkResolution(route, materialize(route, keyword, cleanParams), score)
@@ -698,7 +698,7 @@ class DeepLinkKnowledgeStore @Inject constructor(
                 resolved = resolved.replace("{$name}", URLEncoder.encode(value, "UTF-8"))
             }
         }
-        // 如果还有未解析的占位符，返回空串让调用层跳过这条路由
+        // Nếu còn placeholder chưa phân giải, trả về chuỗi rỗng để tầng gọi bỏ qua route này
         if (Regex("""\{[A-Za-z_][A-Za-z0-9_]*\}""").containsMatchIn(resolved)) return ""
         return resolved
     }

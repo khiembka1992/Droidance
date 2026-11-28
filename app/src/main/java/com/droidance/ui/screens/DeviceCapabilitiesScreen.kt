@@ -96,7 +96,7 @@ internal fun PermissionsScreen(
     }
 }
 
-/** 连接只留一行入口，配对全过程在独立向导页完成（初始化页进的是同一页） */
+/** Phần kết nối chỉ để lại một dòng vào, toàn bộ quá trình ghép nối diễn ra ở trang hướng dẫn riêng (trang khởi tạo cũng vào chính trang đó) */
 @Composable
 private fun ReadinessSection(
     state: SettingsUiState,
@@ -375,7 +375,7 @@ private fun ExecutionLimitSetting(
     }
 }
 
-/** 轻量图标块：30dp 圆角方形淡灰底 + 单色 outlined 图标，Notion 式行首视觉锚点 */
+/** Khối biểu tượng nhẹ: nền xám nhạt hình vuông bo góc 30dp + biểu tượng outlined một màu, điểm neo thị giác đầu dòng kiểu Notion */
 @Composable
 internal fun SettingsIconTile(icon: ImageVector) {
     Box(

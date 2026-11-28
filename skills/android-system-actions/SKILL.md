@@ -3,8 +3,8 @@ name: android-system-actions
 version: 2
 source: system
 description: Use Android system interfaces, ContentProviders, Intents and device Shell commands for alarms, timers, calendar events, contacts, messages, settings and device data; verify the actual result.
-display_names: {"zh": "安卓系统操作", "en": "Android system actions"}
-display_descriptions: {"zh": "通过系统接口与设备命令处理闹钟、日程、联系人等任务，并核验结果。", "en": "Use system interfaces and device commands for alarms, calendar, contacts and device tasks, with result verification."}
+display_names: {"vi": "Thao tác hệ thống Android", "en": "Android system actions"}
+display_descriptions: {"vi": "Xử lý các tác vụ như báo thức, lịch, danh bạ qua giao diện hệ thống và lệnh thiết bị, đồng thời xác minh kết quả.", "en": "Use system interfaces and device commands for alarms, calendar, contacts and device tasks, with result verification."}
 required_capabilities: ["android_act", "android_read"]
 parameters: {}
 ---

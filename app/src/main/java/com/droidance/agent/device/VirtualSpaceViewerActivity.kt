@@ -79,7 +79,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * 虚拟空间的普通 Activity 查看页。画面和输入始终绑定当前 VirtualDisplay；本页本身不创建悬浮窗。
+ * Trang xem Activity thông thường của không gian ảo. Khung hình và nhập liệu luôn gắn với VirtualDisplay hiện tại; bản thân trang này không tạo cửa sổ nổi.
  */
 @AndroidEntryPoint
 class VirtualSpaceViewerActivity : AppCompatActivity() {
@@ -330,7 +330,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         previewContainer.addView(navigationBackground,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, Gravity.BOTTOM))
 
-        // 小手画在镜像之上、不可点击（触摸照常穿透给下面的预览做人工接管）。
+        // Bàn tay nhỏ vẽ đè lên lớp mirror, không nhấn được (chạm vẫn xuyên xuống phần xem trước bên dưới để tiếp quản thủ công).
         handView = TouchIndicatorView(this@VirtualSpaceViewerActivity)
         handView.addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
@@ -345,8 +345,8 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
             )
         )
 
-        // 执行中的边缘呼吸流光：虚拟空间只在这块投屏里发光，主屏不亮。
-        // 与接管镜像面板用的是同一个 View，不处理触摸。
+        // Hiệu ứng sáng chảy viền dạng thở khi đang thực thi: không gian ảo chỉ phát sáng trong vùng chiếu màn hình này, màn hình chính không sáng.
+        // Dùng cùng một View với panel mirror tiếp quản, không xử lý chạm.
         auroraView = AuroraEdgeView(this@VirtualSpaceViewerActivity)
         previewContainer.addView(
             auroraView,
@@ -431,7 +431,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
                 applyIslandOffset(islandDragOffsetPx)
             }
         }
-        // 存下来的偏移可能来自别的屏幕尺寸或方向，布局出来后先钳回屏内再用。
+        // Độ lệch đã lưu có thể đến từ kích thước hoặc hướng màn hình khác, sau khi layout xong phải kẹp lại trong màn hình rồi mới dùng.
         islandView.post { applyIslandOffset(islandDragOffsetPx) }
 
         ViewCompat.setOnApplyWindowInsetsListener(rootContainer) { _, insets ->
@@ -516,8 +516,8 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         currentRightInsetPx = rightInset
 
         var layoutChanged = false
-        // 投屏画面保持全屏贴合（与主屏 Edge-to-Edge 视觉一致，绝不对画面强行缩进产生黑边），
-        // 仅对操作悬浮层（错误条、操作岛）做系统栏安全区避让。
+        // Khung hình chiếu giữ bám toàn màn hình (đồng nhất thị giác Edge-to-Edge với màn hình chính, tuyệt đối không ép thụt khung hình sinh viền đen),
+        // Chỉ né vùng an toàn của thanh hệ thống cho lớp phủ thao tác (thanh lỗi, đảo thao tác).
         (errorView.layoutParams as? FrameLayout.LayoutParams)?.let { lp ->
             val targetTop = topInset + dp(18)
             val targetStart = leftInset + dp(20)
@@ -546,7 +546,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         }
     }
 
-    /** 岛宽定死，只有窄屏才收：左右各留 [RuntimeIslandStyle.SIDE_MIN_MARGIN_DP]。 */
+    /** Chiều rộng đảo cố định, chỉ thu lại trên màn hình hẹp: mỗi bên chừa [RuntimeIslandStyle.SIDE_MIN_MARGIN_DP]. */
     private fun islandWidthPx(): Int {
         val maxWidth = resources.displayMetrics.widthPixels - currentLeftInsetPx - currentRightInsetPx -
             dp(RuntimeIslandStyle.SIDE_MIN_MARGIN_DP.toInt()) * 2
@@ -564,7 +564,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
     private fun refreshControlState(manual: Boolean = agentRuntime.isPaused.value) {
         val teaching = isTeaching()
         val inputEnabled = manual || teaching
-        // 接管状态一变就算活跃：岛淡下去之后也要立刻亮回来把这件事说清楚。
+        // Hễ trạng thái tiếp quản thay đổi là tính là hoạt động: sau khi đảo mờ đi cũng phải sáng lại ngay để nói rõ việc này.
         if (manual != lastManualState) {
             lastManualState = manual
             markIslandActive()
@@ -594,7 +594,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
             manual = manual, teaching = teaching, state = presentationState
         )
         islandView.post { applyIslandOffset(islandDragOffsetPx) }
-        // 暂停条 = 交给我操作，播放三角 = 把控制交回 agent，与主屏运行岛的 drawActionGlyph 同义。
+        // Thanh tạm dừng = giao cho tôi thao tác, tam giác phát = trả quyền điều khiển lại cho agent, cùng nghĩa với drawActionGlyph của runtime island trên màn hình chính.
     }
 
     private fun stopTaskFromIsland() {
@@ -643,7 +643,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         applyIslandOffset(islandDragStartOffsetPx + (rawY - islandDragStartRawY).toInt())
     }
 
-    /** translationY 往下为正，岛贴在底部，往上拖是负偏移；整体必须留在屏幕内。 */
+    /** translationY dương là hướng xuống, đảo bám đáy, kéo lên là độ lệch âm; toàn bộ phải nằm trong màn hình. */
     private fun applyIslandOffset(offsetPx: Int) {
         val parent = islandView.parent as? View ?: rootContainer
         val parentHeight = parent.height.takeIf { it > 0 } ?: previewView.height.takeIf { it > 0 } ?: return
@@ -888,7 +888,7 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         showChannelError()
     }
 
-    /** 把虚拟屏坐标的动作换算到镜像视图坐标，让小手在预览上跟着 agent 走。 */
+    /** Quy đổi thao tác theo toạ độ màn hình ảo sang toạ độ view mirror, để bàn tay nhỏ bám theo agent trên phần xem trước. */
     private fun replayHandCue(cue: VirtualSpaceHandCue?) {
         if (!::handView.isInitialized) return
         if (cue == null) {
@@ -1129,6 +1129,6 @@ class VirtualSpaceViewerActivity : AppCompatActivity() {
         const val CONTENT_INSPECTION_INTERVAL_MS = 1_000L
         const val NATIVE_IME_INSPECTION_INTERVAL_MS = 100L
 
-        /** 岛内按钮是正圆底座：尺寸取一半做圆角，和主屏运行岛的图标按钮同形。 */
+        /** Nút trong đảo là đế tròn đều: lấy một nửa kích thước làm bo góc, đồng dạng với nút icon của runtime island trên màn hình chính. */
     }
 }

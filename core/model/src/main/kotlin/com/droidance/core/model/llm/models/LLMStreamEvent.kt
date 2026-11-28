@@ -4,7 +4,7 @@
 package com.droidance.core.model.llm.models
 
 /**
- * 流式输出事件
+ * Sự kiện đầu ra streaming
  */
 sealed class LLMStreamEvent {
     /** Local transport facts, not provider activity or proof of the model's internal effort. */
@@ -29,18 +29,18 @@ sealed class LLMStreamEvent {
         val cacheWriteTokens: Int? = null
     ) : LLMStreamEvent()
 
-    /** 文本内容分块 */
+    /** Khối nội dung văn bản */
     data class Content(val text: String) : LLMStreamEvent()
 
-    /** 工具调用分块 */
+    /** Khối lệnh gọi công cụ */
     data class ToolCallChunk(
-        val index: Int,          // 工具列表中的索引
-        val id: String? = null,  // 工具调用 ID（只有第一次块有）
-        val name: String? = null,// 工具名称（只有第一次块有）
-        val arguments: String    // 参数的增量部分
+        val index: Int,          // Chỉ mục trong danh sách công cụ
+        val id: String? = null,  // ID lệnh gọi công cụ (chỉ khối đầu tiên có)
+        val name: String? = null,// Tên công cụ (chỉ khối đầu tiên có)
+        val arguments: String    // Phần tăng dần của tham số
     ) : LLMStreamEvent()
 
-    /** Provider 推理内容分块，仅用于协议回传，不显示给用户。 */
+    /** Khối nội dung suy luận của Provider, chỉ dùng để truyền lại theo giao thức, không hiển thị cho người dùng. */
     data class ReasoningChunk(val text: String) : LLMStreamEvent()
 
     /** Transport activity without retaining or publishing provider reasoning text. */

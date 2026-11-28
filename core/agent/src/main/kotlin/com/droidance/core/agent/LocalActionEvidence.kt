@@ -81,17 +81,17 @@ object LocalActionEvidence {
             parts += "state=$progressState"
             parts += "reason=$reason"
             parts += "raw_changed=$rawChanged"
-            // 语义不可观测时不输出 semantic_changed：没有文字指纹时，
-            // 语义比较只剩包名/Activity，而把所有页面塞进一个 Activity 的 App（QQ 的
-            // SplashActivity 承载消息列表/聊天窗口/表情面板）里页面身份恒等，这个字段
-            // 物理上只会是 false。报出去等于把每一次点击都喂成"无进展"，连点四下必被
-            // 无进展守卫杀掉。判不了就不报，让无进展判定回落到工具结果，重复动作交给
-            // 屏幕无关的空间计数兜底。
+            // Không xuất semantic_changed khi ngữ nghĩa không quan sát được: khi không có dấu vân tay văn bản,
+            // so sánh ngữ nghĩa chỉ còn tên gói/Activity, mà với App nhồi mọi trang vào một Activity (như QQ với
+            // SplashActivity chứa danh sách tin nhắn/cửa sổ chat/bảng nhãn dán) thì danh tính trang luôn giống nhau, trường này
+            // về mặt vật lý chỉ có thể là false. Báo ra chẳng khác nào biến mỗi lần nhấn thành "không tiến triển", nhấn liền bốn lần chắc chắn bị
+            // guard không tiến triển giết. Không đánh giá được thì không báo, để việc xác định không tiến triển lùi về kết quả công cụ, còn hành động lặp lại giao cho
+            // bộ đếm không gian độc lập màn hình làm dự phòng.
             if (semanticObservable) parts += "semantic_changed=$semanticChanged"
             if (runtimeProgress) parts += "runtime_progress=true"
-            // 不输出 goal_progress 布尔字段：state=GOAL_PROGRESS 已经表达"本页内容被大面积替换"
-            // 这一可观察事实，而"用户目标是否已达成"仍由证据账本和 done gate 判定，本地验证器
-            // 不做这个断言。
+            // Không xuất trường boolean goal_progress: state=GOAL_PROGRESS đã diễn đạt "nội dung trang này bị thay thế diện rộng"
+            // như một sự thật quan sát được, còn "mục tiêu người dùng đã đạt được chưa" vẫn do sổ bằng chứng và done gate phán định, bộ xác minh cục bộ
+            // không đưa ra khẳng định này.
             if (!foregroundPackage.isNullOrBlank()) parts += "foreground=$foregroundPackage"
             if (!expectedPackage.isNullOrBlank()) parts += "target=$expectedPackage"
             if (noProgressCount > 0) parts += "noProgress=$noProgressCount"

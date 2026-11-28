@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 /**
- * Provider 列表页 ViewModel
+ * ViewModel trang danh sách Provider
  */
 @HiltViewModel
 class ProviderListViewModel @Inject constructor(
@@ -42,7 +42,7 @@ class ProviderListViewModel @Inject constructor(
         return succeeded
     }
 
-    /** 切换 Provider 启用/禁用 */
+    /** Bật/tắt Provider */
     fun toggleProvider(id: String) {
         val config = configManager.getConfig(id) ?: return
         val group = _providers.value.firstOrNull { it.configs.any { entry -> entry.id == id } } ?: return
@@ -57,13 +57,13 @@ class ProviderListViewModel @Inject constructor(
         change { configManager.setDefaultProvider(id) }
     }
 
-    /** 删除 Provider */
+    /** Xóa Provider */
     fun deleteProvider(id: String) {
         val group = _providers.value.firstOrNull { it.configs.any { entry -> entry.id == id } } ?: return
         change { configManager.deleteProviderGroup(group.configs.mapTo(mutableSetOf()) { it.id }) }
     }
 
-    /** 手动切换当前生效模型（更新 defaultModel 并重置自动降级状态） */
+    /** Chuyển thủ công mô hình đang có hiệu lực (cập nhật defaultModel và đặt lại trạng thái hạ cấp tự động) */
     fun selectModel(id: String, model: String) {
         val config = configManager.getConfig(id) ?: return
         if (model !in config.models || model == config.defaultModel) return

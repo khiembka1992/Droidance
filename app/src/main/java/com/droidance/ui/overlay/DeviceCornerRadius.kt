@@ -10,9 +10,9 @@ import android.view.WindowInsets
 import android.view.WindowManager
 
 /**
- * 屏幕物理四角 R 角（圆角半径）参数模型。
+ * Mô hình tham số bán kính góc R (bán kính bo góc) bốn góc vật lý của màn hình.
  *
- * 坐标系与 Android Path 一致：顺时针依次为左上、右上、右下、左下。
+ * Hệ tọa độ giống Android Path: theo chiều kim đồng hồ lần lượt là trên-trái, trên-phải, dưới-phải, dưới-trái.
  */
 data class DeviceCornerRadii(
     val topLeft: Float,
@@ -21,8 +21,8 @@ data class DeviceCornerRadii(
     val bottomLeft: Float
 ) {
     /**
-     * 生成供 [android.graphics.Path.addRoundRect] 使用的 8 元素半径数组：
-     * [tlX, tlY, trX, trY, brX, brY, blX, blY]。
+     * Tạo mảng bán kính 8 phần tử dùng cho [android.graphics.Path.addRoundRect]:
+     * [tlX, tlY, trX, trY, brX, brY, blX, blY].
      */
     fun toPathRadii(): FloatArray = floatArrayOf(
         topLeft, topLeft,
@@ -43,18 +43,18 @@ data class DeviceCornerRadii(
 }
 
 object DeviceCornerRadius {
-    /** 默认保底圆角（38dp），与原有视觉规范保持一致 */
+    /** Bán kính bo góc dự phòng mặc định (38dp), giữ nhất quán với chuẩn thị giác ban đầu */
     const val DEFAULT_FALLBACK_RADIUS_DP = 38f
 
     /**
-     * 解析当前设备的屏幕物理四角 R 角。
+     * Phân giải bán kính góc R bốn góc vật lý màn hình của thiết bị hiện tại.
      *
-     * 策略：
-     * 1. 优先使用 Android 12+ (API 31+) 官方 [WindowInsets.getRoundedCorner] 提取各角像素半径；
-     * 2. 低版本或 Insets 无圆角信息时，尝试读取系统内部资源（rounded_corner_radius / top / bottom）；
-     * 3. 若均未获取到有效信息，回退到 [fallbackRadiusPx]（默认 38dp）。
+     * Chiến lược:
+     * 1. Ưu tiên dùng [WindowInsets.getRoundedCorner] chính thức của Android 12+ (API 31+) để lấy bán kính pixel từng góc;
+     * 2. Với bản thấp hơn hoặc khi Insets không có thông tin bo góc, thử đọc tài nguyên nội bộ hệ thống (rounded_corner_radius / top / bottom);
+     * 3. Nếu đều không lấy được thông tin hợp lệ, lùi về [fallbackRadiusPx] (mặc định 38dp).
      *
-     * 如果设备明确为直角屏（API 31+ 提供了 Insets 且各角 radius 为 0），将忠实返回 0f 直角。
+     * Nếu thiết bị rõ ràng là màn hình góc vuông (API 31+ cung cấp Insets và radius các góc bằng 0), sẽ trả về trung thực 0f góc vuông.
      */
     fun resolve(
         context: Context,
@@ -63,7 +63,7 @@ object DeviceCornerRadius {
     ): DeviceCornerRadii {
         val windowInsets = insets ?: resolveWindowInsetsFromContext(context)
 
-        // 1. Android 12+ (API 31+) 官方 WindowInsets.getRoundedCorner
+        // 1. WindowInsets.getRoundedCorner chính thức của Android 12+ (API 31+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && windowInsets != null) {
             val tl = windowInsets.getRoundedCorner(RoundedCorner.POSITION_TOP_LEFT)
             val tr = windowInsets.getRoundedCorner(RoundedCorner.POSITION_TOP_RIGHT)
@@ -80,7 +80,7 @@ object DeviceCornerRadius {
             }
         }
 
-        // 2. 尝试读取系统内部资源 dimen
+        // 2. Thử đọc tài nguyên dimen nội bộ hệ thống
         val topDimen = getSystemDimenPx(context, "rounded_corner_radius_top")
         val bottomDimen = getSystemDimenPx(context, "rounded_corner_radius_bottom")
         val generalDimen = getSystemDimenPx(context, "rounded_corner_radius")
@@ -98,7 +98,7 @@ object DeviceCornerRadius {
             }
         }
 
-        // 3. 保底
+        // 3. Dự phòng
         return DeviceCornerRadii.uniform(fallbackRadiusPx)
     }
 

@@ -489,8 +489,8 @@ private fun MarkdownTableRow(
 }
 
 /**
- * 库默认按列表内位置重排序号（index + 1），有序列表一旦被无序列表或段落打断就会拆成多个
- * ORDERED_LIST 节点，第二段重新从 1 开始。解析器保留了原文序号，这里直接沿用。
+ * Thư viện mặc định đánh lại số thứ tự theo vị trí trong danh sách (index + 1); danh sách có thứ tự một khi bị danh sách không thứ tự hoặc đoạn văn cắt ngang sẽ tách thành nhiều
+ * node ORDERED_LIST, đoạn thứ hai bắt đầu lại từ 1. Bộ phân giải giữ nguyên số thứ tự trong văn bản gốc, ở đây dùng thẳng theo đó.
  */
 private val OriginalNumberBulletHandler = BulletHandler { _, bullet, index ->
     val raw = bullet?.trimEnd()
@@ -498,9 +498,9 @@ private val OriginalNumberBulletHandler = BulletHandler { _, bullet, index ->
 }
 
 /**
- * multiplatform-markdown-renderer 库在 buildMarkdownAnnotatedString 中只枚举了少数几个 Token，
- * 未枚举的 AST 叶子 Token（如 GFMTokenTypes.TILDE、DOLLAR、HTML_TAG、CHECK_BOX 等）会被静默丢弃。
- * 这里定义通用兜底回退：未被样式容器消费的叶子 Token，一律提取原始切片文本追加到输出流中。
+ * Thư viện multiplatform-markdown-renderer trong buildMarkdownAnnotatedString chỉ liệt kê một vài Token,
+ * các Token lá AST không được liệt kê (như GFMTokenTypes.TILDE, DOLLAR, HTML_TAG, CHECK_BOX, v.v.) sẽ bị bỏ qua im lặng.
+ * Ở đây định nghĩa fallback dự phòng chung: mọi Token lá không được container style tiêu thụ đều được trích đoạn văn bản gốc và nối vào luồng đầu ra.
  */
 private val LIBRARY_HANDLED_TYPES = setOf(
     MarkdownElementTypes.PARAGRAPH,

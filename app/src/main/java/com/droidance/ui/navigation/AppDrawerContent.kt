@@ -403,7 +403,7 @@ internal fun DrawerConversationItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            // 侧栏只保留对话摘要标题，不再显示时间。
+            // Thanh bên chỉ giữ tiêu đề tóm tắt cuộc trò chuyện, không hiển thị thời gian nữa.
             Text(
                 text = conv.title,
                 style = MaterialTheme.typography.bodyMedium,

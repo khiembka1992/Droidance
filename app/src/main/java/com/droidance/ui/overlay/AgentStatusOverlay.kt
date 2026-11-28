@@ -101,7 +101,7 @@ class AgentStatusOverlay @Inject constructor(
                     }
                 }
             }
-            // 运行岛随 mobile_use 执行空间与主屏生命周期更新。
+            // Runtime island cập nhật theo không gian thực thi mobile_use và vòng đời màn hình chính.
             appScope.launch {
                 agentRuntime.currentTaskTitle.collect {
                     mainHandler.post {
@@ -112,7 +112,7 @@ class AgentStatusOverlay @Inject constructor(
             appScope.launch {
                 agentRuntime.isPaused.collect { paused ->
                     mainHandler.post {
-                        // 接管 = 暂停 agent，让用户手动操作；再点「继续」交还给 agent
+                        // Tiếp quản = tạm dừng agent để người dùng thao tác thủ công; nhấn "Tiếp tục" để trả lại cho agent
                         if (shouldShowExternalTaskOverlay()) showRuntimeSurfaceIndicator()
                     }
                 }
@@ -132,7 +132,7 @@ class AgentStatusOverlay @Inject constructor(
                             runtimeSurfaceController.hideAll()
                             return@post
                         }
-                        // 小手只跟随真实输入生命周期，并挂到事件所属 display；它只做视觉反馈，不注入输入。
+                        // Bàn tay nhỏ chỉ theo vòng đời nhập liệu thật và gắn vào display của sự kiện; nó chỉ phản hồi trực quan, không inject nhập liệu.
                         when (event) {
                             is InputActionLifecycleEvent.Started ->
                                 runtimeSurfaceController.showAction(event)
@@ -264,7 +264,7 @@ class AgentStatusOverlay @Inject constructor(
         }
     }
 
-    /** 通过冻结的 sidecar 在主屏打开普通 Activity 查看页。 */
+    /** Mở trang xem Activity thường trên màn hình chính qua sidecar đang bị đóng băng. */
     private fun openVirtualSpaceViewer() {
         appScope.launch(Dispatchers.IO) {
             if (!virtualSpaceViewerLauncher.open()) {

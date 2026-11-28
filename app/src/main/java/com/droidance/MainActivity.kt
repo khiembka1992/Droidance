@@ -31,8 +31,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 /**
- * Droidance 主界面 Activity
- * 负责主导航宿主和启动参数转发
+ * Activity giao diện chính của Droidance
+ * Phụ trách máy chủ điều hướng chính và chuyển tiếp tham số khởi chạy
  */
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {

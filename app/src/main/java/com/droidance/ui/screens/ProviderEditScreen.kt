@@ -40,17 +40,17 @@ import com.droidance.ui.theme.*
 import com.droidance.ui.viewmodel.ProviderEditViewModel
 
 /**
- * Provider 编辑/新建子页面
+ * Trang con chỉnh sửa/tạo mới Provider
  * Provider connection and model editor.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderEditScreen(
-    providerId: String?,  // null = 新建
+    providerId: String?,  // null = tạo mới
     onNavigateBack: () -> Unit,
     viewModel: ProviderEditViewModel = hiltViewModel()
 ) {
-    // 加载已有配置
+    // Tải cấu hình đã có
     LaunchedEffect(providerId) {
         viewModel.loadProvider(providerId)
     }
@@ -109,7 +109,7 @@ fun ProviderEditScreen(
             )
         },
         bottomBar = {
-            // 底部按钮栏：顶部一条 hairline，取消 + 保存
+            // Thanh nút dưới cùng: một đường hairline phía trên, hủy + lưu
             Column(modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding()) {
                 // Every field is required; the next missing one is named only after editing starts.
                 val formMessage = when {
@@ -216,7 +216,7 @@ fun ProviderEditScreen(
                     }
                 }
             }
-            // ====== Provider 名称 ======
+            // ====== Tên Provider ======
             SectionField(label = stringResource(R.string.provider_name)) {
                 OutlinedTextField(
                     value = uiState.name,
@@ -229,7 +229,7 @@ fun ProviderEditScreen(
                 )
             }
 
-            // ====== API 地址 ======
+            // ====== Địa chỉ API ======
             SectionField(label = stringResource(R.string.provider_api_address)) {
                 val addresses = viewModel.addressPresets
                 if (addresses.isNotEmpty()) {
@@ -259,7 +259,7 @@ fun ProviderEditScreen(
                 }
             }
 
-            // ====== API 协议 ======
+            // ====== Giao thức API ======
             SectionField(label = stringResource(R.string.provider_protocol)) {
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
@@ -329,7 +329,7 @@ fun ProviderEditScreen(
                 )
             }
 
-            // ====== 模型 ======
+            // ====== Mô hình ======
             SectionField(label = stringResource(R.string.provider_model)) {
                 if (uiState.models.isNotEmpty()) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -385,7 +385,7 @@ fun ProviderEditScreen(
     }
 }
 
-// ====== 子组件 ======
+// ====== Thành phần con ======
 
 @androidx.annotation.StringRes
 private fun ModelTransport.protocolLabelRes(): Int = when (this) {
@@ -540,7 +540,7 @@ private fun addressLabel(endpoint: ProviderPreset, groupName: String): String = 
 }
 
 /**
- * 表单字段容器
+ * Vùng chứa trường biểu mẫu
  */
 @Composable
 private fun SectionField(

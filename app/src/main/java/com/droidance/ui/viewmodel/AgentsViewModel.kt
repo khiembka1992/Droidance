@@ -31,15 +31,15 @@ class AgentsViewModel @Inject constructor(
     private val _agents = MutableStateFlow<List<AgentInfo>>(emptyList())
     val agents: StateFlow<List<AgentInfo>> = _agents
 
-    /** 当前正在编辑的 Agent 名称（null = 未展开任何详情） */
+    /** Tên Agent đang được chỉnh sửa (null = chưa mở chi tiết nào) */
     private val _editingAgent = MutableStateFlow<String?>(null)
     val editingAgent: StateFlow<String?> = _editingAgent
 
-    /** 编辑中的 SOUL 内容 */
+    /** Nội dung SOUL đang chỉnh sửa */
     private val _editingSoul = MutableStateFlow("")
     val editingSoul: StateFlow<String> = _editingSoul
 
-    /** 是否正在保存 */
+    /** Có đang lưu hay không */
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving
     private var savedSoul = ""
@@ -67,13 +67,13 @@ class AgentsViewModel @Inject constructor(
         }
     }
 
-    /** 切换当前激活的 Agent */
+    /** Chuyển đổi Agent đang active hiện tại */
     fun switchAgent(name: String) {
         agentRuntime.switchAgent(name)
         loadAgents()
     }
 
-    /** 展开 Agent 详情编辑 */
+    /** Mở phần chỉnh sửa chi tiết Agent */
     fun openEdit(name: String) {
         _editingAgent.value = name
         _editingSoul.value = agentWorkspaceStore.readSoul(name)
@@ -88,7 +88,7 @@ class AgentsViewModel @Inject constructor(
         _saveFailure.value = null
     }
 
-    /** 保存 SOUL.md 修改 */
+    /** Lưu thay đổi SOUL.md */
     fun saveSoul() {
         val name = _editingAgent.value ?: return
         if (_isSaving.value) return

@@ -6,21 +6,21 @@
 
 ### Let your Droid dance.
 
-**装在手机上的安卓操作智能体，让手机自己干活。**
+**Tác nhân vận hành Android sống ngay trên điện thoại của bạn, để điện thoại tự làm việc.**
 
-纯视觉 · 后台运行 · 无需 Root · 无需电脑
+Chỉ dùng thị giác · Chạy nền · Không cần Root · Không cần máy tính
 
-简体中文 | [English](README.en.md)
+Tiếng Việt | [English](README.en.md)
 
 <br>
 
 <a href="https://github.com/YbbLab/Droidance/releases/latest">
-  <img src="https://img.shields.io/github/v/release/YbbLab/Droidance?include_prereleases&label=%E4%B8%8B%E8%BD%BD%20APK&style=for-the-badge&logo=android&logoColor=white&color=3DDC84" alt="下载 APK" height="40" />
+  <img src="https://img.shields.io/github/v/release/YbbLab/Droidance?include_prereleases&label=T%E1%BA%A3i%20APK&style=for-the-badge&logo=android&logoColor=white&color=3DDC84" alt="Tải APK" height="40" />
 </a>
 
 <br><br>
 
-[![Android 11+](https://img.shields.io/badge/Android-11%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](#-下载与上手)
+[![Android 11+](https://img.shields.io/badge/Android-11%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](#-tải-về-và-bắt-đầu)
 [![CI](https://img.shields.io/github/actions/workflow/status/YbbLab/Droidance/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/YbbLab/Droidance/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat-square)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/YbbLab/Droidance?style=flat-square&logo=github)](https://github.com/YbbLab/Droidance/stargazers)
@@ -30,33 +30,33 @@
 
 ---
 
-## 📖 项目介绍
+## 📖 Giới thiệu
 
-**Droidance 是一个运行在安卓手机上的开源 AI 智能体。** 你只需要说一句话，它就会像人一样「看屏幕、想下一步、动手点」，在 App 里替你把事情做完：比价、点单、查询、预约、整理信息、定时执行……
+**Droidance là một AI agent mã nguồn mở chạy trên điện thoại Android.** Bạn chỉ cần nói một câu, nó sẽ làm việc như một con người: nhìn màn hình, nghĩ bước tiếp theo rồi thao tác, và làm xong việc cho bạn ngay trong các App — so sánh giá, đặt món, tra cứu, đặt lịch, sắp xếp thông tin, chạy theo giờ…
 
-Droidance **只靠一个多模态大模型 API Key 就能跑起来**：不用 Root，不用连电脑，也不用开无障碍服务。任务在手机的**虚拟空间**里后台执行，你照常聊天、刷视频、接电话，它在另一块"看不见的屏幕"上安静干活。它**依靠截图理解界面**，不读取 UI 层级、不依赖无障碍树，人能看懂的界面，它就能尝试操作。
+Droidance **chỉ cần một API Key của LLM đa phương thức là chạy được**: không cần Root, không cần nối máy tính, cũng không cần bật dịch vụ trợ năng. Tác vụ chạy nền trong **không gian ảo** của điện thoại, bạn cứ chat, xem video, nghe điện thoại; nó lặng lẽ làm việc trên một "màn hình vô hình" khác. Nó **dựa vào ảnh chụp màn hình để hiểu giao diện**, không đọc cây UI, không phụ thuộc cây trợ năng — giao diện nào người hiểu được, nó cũng sẽ thử thao tác.
 
 <table>
 <tr>
 <td width="33%" valign="top">
 
-### 🔑 一个 Key 就能用
+### 🔑 Một Key là dùng được
 
-不需要 Root、电脑、数据线或额外硬件。装好 App，完成无线调试配对，填一个多模态大模型的 API Key，就能开始下达任务。已 Root 的设备也可以选择 Root 连接。已启动 Shizuku 的用户也可以选择 Shizuku 并授权。
-
-</td>
-<td width="33%" valign="top">
-
-### 🌌 后台执行，不打扰你
-
-任务运行在独立的虚拟空间里，不占用主屏幕。你用你的手机，它干它的活；需要时也能随时切过去围观或接手。
+Không cần Root, máy tính, cáp dữ liệu hay phần cứng phụ. Cài xong App, hoàn tất ghép nối gỡ lỗi không dây, điền một API Key của LLM đa phương thức là có thể bắt đầu giao việc. Máy đã Root cũng có thể chọn kết nối Root. Người dùng đã bật Shizuku cũng có thể chọn Shizuku và cấp quyền.
 
 </td>
 <td width="33%" valign="top">
 
-### 👁️ 纯视觉驱动
+### 🌌 Chạy nền, không làm phiền bạn
 
-不 Dump XML 层级，不使用无障碍服务。自绘控件、WebView 等无障碍树不完整的界面，也能像人一样看着屏幕操作。
+Tác vụ chạy trong không gian ảo riêng, không chiếm màn hình chính. Bạn dùng điện thoại của bạn, nó làm việc của nó; khi cần, bạn cũng có thể chuyển sang xem hoặc tiếp quản bất cứ lúc nào.
+
+</td>
+<td width="33%" valign="top">
+
+### 👁️ Điều khiển hoàn toàn bằng thị giác
+
+Không dump cây XML, không dùng dịch vụ trợ năng. Những giao diện có cây trợ năng không đầy đủ như control tự vẽ hay WebView vẫn được thao tác bằng cách nhìn màn hình như người thật.
 
 </td>
 </tr>
@@ -64,34 +64,34 @@ Droidance **只靠一个多模态大模型 API Key 就能跑起来**：不用 Ro
 
 ---
 
-## 📲 下载与上手
+## 📲 Tải về và bắt đầu
 
-**准备：**
+**Chuẩn bị:**
 
-- 一部 Android 11 及以上的手机。低内存设备和 Android Go 不支持。
-- 无线调试连接无需 Root，配对时需要 Wi‑Fi；Root 连接需要设备已 Root 并授予 Droidance Root 权限。模型服务仍需要可用的网络连接。
-- Android 11–13 为实验性支持：系统没有虚拟屏独立焦点，按键和文字输入时会短暂占用主屏焦点；Android 11、12 锁屏后任务无法继续。
-- 如果 Agent 提示系统拦截输入，小米系请在开发者选项开启“USB 调试（安全设置）”，OPPO、一加、realme 请关闭“权限监控”，然后重新连接设备。
-- 一个支持图像输入和工具调用的多模态大模型 API Key。
+- Một chiếc điện thoại Android 11 trở lên. Thiết bị ít RAM và Android Go không được hỗ trợ.
+- Kết nối gỡ lỗi không dây không cần Root, khi ghép nối cần Wi‑Fi; kết nối Root cần máy đã Root và đã cấp quyền Root cho Droidance. Dịch vụ mô hình vẫn cần kết nối mạng.
+- Android 11–13 là hỗ trợ thử nghiệm: hệ thống không có focus riêng cho màn hình ảo, khi bấm phím và nhập văn bản sẽ tạm chiếm focus màn hình chính; trên Android 11, 12 tác vụ không thể tiếp tục sau khi khóa màn hình.
+- Nếu Agent báo hệ thống chặn thao tác nhập, với máy Xiaomi hãy bật "Gỡ lỗi USB (cài đặt bảo mật)" trong Tùy chọn nhà phát triển; với OPPO, OnePlus, realme hãy tắt "Giám sát quyền", rồi kết nối lại thiết bị.
+- Một API Key của LLM đa phương thức hỗ trợ đầu vào hình ảnh và gọi công cụ.
 
-| 步骤 | 操作 |
+| Bước | Thao tác |
 | :---: | :--- |
-| **1** | 前往 [Releases](https://github.com/YbbLab/Droidance/releases/latest) 下载最新 APK 并安装 |
-| **2** | 在「连接设备」选择无线调试，按引导打开「开发者选项 → 无线调试」并输入配对码；已 Root 的设备也可以选择 Root 并授权；已启动 Shizuku 的用户可选择 Shizuku 并允许授权。**全程不需要电脑** |
-| **3** | 添加模型服务商的服务地址、API Key 和模型，用一句话说出你的任务 |
+| **1** | Truy cập [Releases](https://github.com/YbbLab/Droidance/releases/latest) tải APK mới nhất và cài đặt |
+| **2** | Trong “Kết nối thiết bị” chọn gỡ lỗi không dây, làm theo hướng dẫn mở “Tùy chọn nhà phát triển → Gỡ lỗi không dây” và nhập mã ghép nối; máy đã Root cũng có thể chọn Root và cấp quyền; người dùng đã bật Shizuku có thể chọn Shizuku và cho phép cấp quyền. **Toàn bộ không cần máy tính** |
+| **3** | Thêm địa chỉ dịch vụ, API Key và mô hình của nhà cung cấp, rồi nói tác vụ của bạn trong một câu |
 
-完成。任务会在后台执行，你可以通过顶部的运行岛随时查看进度、暂停或接手操作。
+Xong. Tác vụ sẽ chạy nền, bạn có thể xem tiến độ, tạm dừng hoặc tiếp quản thao tác bất cứ lúc nào qua đảo chạy ở trên cùng.
 
 > [!NOTE]
-> 从 v0.1.9 起支持 Root 连接。项目仍处于预览阶段，变更记录见 [CHANGELOG](CHANGELOG.md)。每个 Release 都附带 APK 的 `.sha256` 校验文件，安装前可以核对。
+> Từ v0.1.9 đã hỗ trợ kết nối Root. Dự án vẫn đang ở giai đoạn xem trước, xem [CHANGELOG](CHANGELOG.md). Mỗi Release đều kèm file kiểm tra `.sha256` của APK, có thể đối chiếu trước khi cài.
 
 > [!CAUTION]
-> 本项目仅供学习与研究使用。自动化操作可能违反部分 App 的服务条款，存在账号受限的风险。使用前请阅读[免责声明](#免责声明)。
+> Dự án này chỉ dành cho học tập và nghiên cứu. Thao tác tự động có thể vi phạm điều khoản dịch vụ của một số App, có nguy cơ bị hạn chế tài khoản. Vui lòng đọc [tuyên bố miễn trừ trách nhiệm](#tuyên-bố-miễn-trừ-trách-nhiệm) trước khi sử dụng.
 
 <details>
-<summary><b>从源码构建</b></summary>
+<summary><b>Build từ mã nguồn</b></summary>
 
-需要 JDK 17 与 Android SDK 35。在仓库根目录的 `local.properties` 中配置 `sdk.dir`（该文件已被 Git 忽略），然后：
+Cần JDK 17 và Android SDK 35. Cấu hình `sdk.dir` trong `local.properties` ở thư mục gốc repo (file này đã bị Git bỏ qua), sau đó:
 
 ```bash
 git clone https://github.com/YbbLab/Droidance.git
@@ -99,147 +99,147 @@ cd Droidance
 ./gradlew :app:assembleDebug
 ```
 
-选择内置服务商，填写 API 密钥和模型 ID 后保存即可启用。API 地址和协议已预填，不预置模型 ID；也可以添加自定义地址。已有配置会保留。构建过程不会将本机 Key 注入 APK。
+Chọn nhà cung cấp có sẵn, điền API key và model ID rồi lưu là dùng được. Địa chỉ API và giao thức đã được điền sẵn, không đặt model ID mặc định; cũng có thể thêm địa chỉ tùy chỉnh. Cấu hình đã có sẽ được giữ nguyên. Quá trình build không nhúng Key của máy vào APK.
 
-公开源码检查（架构、资源、原生依赖、Lint 与 Debug APK；本地保留测试时也会运行测试）：
+Kiểm tra mã nguồn công khai (kiến trúc, tài nguyên, phụ thuộc native, Lint và APK Debug; test giữ lại cục bộ cũng chạy nếu có):
 
 ```bash
 scripts/verify.sh
 ```
 
-开发约定与验证方式见 [CONTRIBUTING](CONTRIBUTING.md)。
+Quy ước phát triển và cách xác minh xem tại [CONTRIBUTING](CONTRIBUTING.md).
 
 </details>
 
 ---
 
-## ✨ 能做什么
+## ✨ Có thể làm gì
 
 <table>
 <tr>
-<td width="33%" align="center" valign="top"><a href="assets/demos/compare.mp4"><img src="assets/demos/compare.webp" width="240" alt="跨平台比价" /></a><br /><b>跨平台比价</b><br /><sub>比较拼多多、天猫旗舰店和京东自营的 iPhone 到手价</sub></td>
-<td width="33%" align="center" valign="top"><a href="assets/demos/tea.mp4"><img src="assets/demos/tea.webp" width="240" alt="点奶茶" /></a><br /><b>点奶茶</b><br /><sub>选好规格和红包，停在提交订单页等你确认</sub></td>
-<td width="33%" align="center" valign="top"><a href="assets/demos/meeting.mp4"><img src="assets/demos/meeting.webp" width="240" alt="预约并分享会议" /></a><br /><b>预约并分享会议</b><br /><sub>预约腾讯会议，把会议信息发到微信文件传输助手</sub></td>
+<td width="33%" align="center" valign="top"><a href="assets/demos/compare.mp4"><img src="assets/demos/compare.webp" width="240" alt="So sánh giá đa nền tảng" /></a><br /><b>So sánh giá đa nền tảng</b><br /><sub>So sánh giá iPhone trên Pinduoduo, Tmall Flagship và JD Tự vận</sub></td>
+<td width="33%" align="center" valign="top"><a href="assets/demos/tea.mp4"><img src="assets/demos/tea.webp" width="240" alt="Đặt trà sữa" /></a><br /><b>Đặt trà sữa</b><br /><sub>Chọn size và mã giảm giá, dừng ở trang đặt hàng chờ bạn xác nhận</sub></td>
+<td width="33%" align="center" valign="top"><a href="assets/demos/meeting.mp4"><img src="assets/demos/meeting.webp" width="240" alt="Đặt lịch và chia sẻ cuộc họp" /></a><br /><b>Đặt lịch và chia sẻ cuộc họp</b><br /><sub>Đặt Tencent Meeting, gửi thông tin cuộc họp tới Trợ lý chuyển file của WeChat</sub></td>
 </tr>
 <tr>
-<td width="33%" align="center" valign="top"><a href="assets/demos/train.mp4"><img src="assets/demos/train.webp" width="240" alt="查高铁" /></a><br /><b>查高铁</b><br /><sub>筛选后天上午有二等座的车次，整理时间和票价</sub></td>
-<td width="33%" align="center" valign="top"><a href="assets/demos/resale.mp4"><img src="assets/demos/resale.webp" width="240" alt="二手询价" /></a><br /><b>二手询价</b><br /><sub>在闲鱼挑 3 台 iPad，礼貌询问电池和维修情况</sub></td>
-<td width="33%" align="center" valign="top"><a href="assets/demos/review.mp4"><img src="assets/demos/review.webp" width="240" alt="商品评价" /></a><br /><b>商品评价</b><br /><sub>在京东完成待评价商品的评分和提交</sub></td>
+<td width="33%" align="center" valign="top"><a href="assets/demos/train.mp4"><img src="assets/demos/train.webp" width="240" alt="Tra tàu cao tốc" /></a><br /><b>Tra tàu cao tốc</b><br /><sub>Lọc các chuyến có ghế hạng hai buổi sáng ngày kia, tổng hợp giờ và giá vé</sub></td>
+<td width="33%" align="center" valign="top"><a href="assets/demos/resale.mp4"><img src="assets/demos/resale.webp" width="240" alt="Hỏi giá đồ cũ" /></a><br /><b>Hỏi giá đồ cũ</b><br /><sub>Chọn 3 chiếc iPad trên Xianyu, nhắn hỏi lịch sự về pin và tình trạng sửa chữa</sub></td>
+<td width="33%" align="center" valign="top"><a href="assets/demos/review.mp4"><img src="assets/demos/review.webp" width="240" alt="Đánh giá sản phẩm" /></a><br /><b>Đánh giá sản phẩm</b><br /><sub>Chấm điểm và gửi đánh giá cho sản phẩm đang chờ trên JD</sub></td>
 </tr>
 </table>
 
-<sub>示例经过剪辑，部分操作经过倍速处理，隐私信息已遮挡。点击动图查看完整视频。</sub>
+<sub>Video demo đã được biên tập, một số thao tác được tua nhanh, thông tin riêng tư đã được che. Bấm vào ảnh động để xem video đầy đủ.</sub>
 
-**更多能力**
+**Khả năng khác**
 
-- **人在回路**：人机验证（CAPTCHA）始终由你完成；遇到支付、密码、登录授权等需要你本人决定的步骤，智能体会暂停并请你接手。你也可以随时接管，操作完再交还给它。
-- **定时任务**：支持一次性、每日/每周与固定间隔的计划，到点自动执行。
-- **技能沉淀**：把摸索出的有效流程沉淀为可复用的技能（Skill），之后按需加载，越用越顺手。
-- **系统能力**：在你授权后，可以直接读写日历、联系人、短信等系统数据，不必每一步都操作界面。
-- **模型自由**：可接入支持图像输入与工具调用的 OpenAI 兼容端点，服务地址、API Key 和模型都由你自己配置。
+- **Người trong vòng lặp**: xác minh con người (CAPTCHA) luôn do bạn thực hiện; khi gặp các bước cần bạn tự quyết như thanh toán, mật khẩu, cấp quyền đăng nhập, agent sẽ tạm dừng và nhờ bạn tiếp quản. Bạn cũng có thể tiếp quản bất cứ lúc nào, làm xong rồi trả lại cho nó.
+- **Tác vụ định giờ**: hỗ trợ lịch chạy một lần, hằng ngày/hằng tuần và theo khoảng thời gian cố định, đến giờ tự chạy.
+- **Tích lũy kỹ năng**: biến những quy trình hiệu quả đã tìm ra thành kỹ năng (Skill) tái sử dụng, lần sau nạp khi cần, càng dùng càng quen tay.
+- **Năng lực hệ thống**: sau khi bạn cấp quyền, có thể trực tiếp đọc/ghi dữ liệu hệ thống như lịch, danh bạ, SMS, không cần thao tác giao diện từng bước.
+- **Tự do chọn mô hình**: có thể kết nối endpoint tương thích OpenAI hỗ trợ đầu vào hình ảnh và gọi công cụ; địa chỉ dịch vụ, API Key và mô hình đều do bạn tự cấu hình.
 
-**和常见方案对比**
+**So sánh với các cách phổ biến**
 
-| | 电脑端 ADB 控制方案 | 基于无障碍服务的 Agent | **Droidance** |
+| | Cách điều khiển bằng ADB từ máy tính | Agent dựa trên dịch vụ trợ năng | **Droidance** |
 | :--- | :---: | :---: | :---: |
-| 不需要电脑 / USB | ❌ | ✅ | ✅ |
-| 不需要 Root | ✅ | ✅ | ✅ |
-| 不依赖 UI 层级 / 无障碍服务 | ⚠️ 取决于实现 | ❌ | ✅ |
-| 执行时不占用主屏 | ❌ | ❌ | ✅ |
-| 敏感步骤暂停、人工接管 | ⚠️ | ⚠️ | ✅ |
+| Không cần máy tính / USB | ❌ | ✅ | ✅ |
+| Không cần Root | ✅ | ✅ | ✅ |
+| Không phụ thuộc cây UI / dịch vụ trợ năng | ⚠️ Tùy cách hiện thực | ❌ | ✅ |
+| Khi chạy không chiếm màn hình chính | ❌ | ❌ | ✅ |
+| Bước nhạy cảm thì dừng, người tiếp quản | ⚠️ | ⚠️ | ✅ |
 
 ---
 
-## 🏗️ 技术架构与运行机制
+## 🏗️ Kiến trúc kỹ thuật và cơ chế hoạt động
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/architecture/architecture-zh-dark.png" />
-  <img src="assets/architecture/architecture-zh-light.png" alt="Droidance 技术架构" />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/architecture/architecture-vi-dark.png" />
+  <img src="assets/architecture/architecture-vi-light.png" alt="Kiến trúc kỹ thuật của Droidance" />
 </picture>
 
-### 它是怎么在安卓手机上跑起来的
+### Nó chạy trên điện thoại Android như thế nào
 
-1. **内置 ADB，手机自己连自己**：App 内置完整的无线调试客户端：用 mDNS 发现本机端口，用 `libadb.so`（BoringSSL）完成 SPAKE2 配对，再由 Kotlin 实现的 TLS ADB 客户端以本地 RSA 密钥连接系统 `adbd`，启动常驻的 Shell 身份执行进程（Sidecar）。不需要 Root，也不需要电脑。已 Root 的设备也可以授权 App 通过 Root 启动同一个 Sidecar，无需无线调试。
-2. **创建虚拟空间**：Sidecar 在手机上创建一块独立的虚拟显示屏。App 在这块屏幕上打开，使用的是你手机上已安装的应用和已登录的账号，不是另一份数据拷贝。
-3. **纯视觉感知**：智能体只读取虚拟屏的截图，必要时局部放大查看细节。不读取 UI 层级、不使用无障碍服务，也不依赖本地 OCR 模型。
-4. **单一智能体决策**：同一个智能体根据画面和上下文，自主选择直接回答、调用系统能力（日历、短信、通讯录等）、执行隔离脚本，还是进行界面操作。没有额外的意图分类器或规划器，一个循环走到底。
-5. **执行与回报**：点击、输入、滑动都发往同一块虚拟屏。每一步执行后重新观察画面，确认效果再决定下一步；执行过程完整记录在本地，任务结束后把结果回报给你（App 内与本地通知）。
+1. **ADB tích hợp, điện thoại tự kết nối chính mình**: App tích hợp sẵn client gỡ lỗi không dây đầy đủ: dùng mDNS tìm cổng của máy, dùng `libadb.so` (BoringSSL) hoàn tất ghép nối SPAKE2, rồi client TLS ADB viết bằng Kotlin kết nối tới `adbd` của hệ thống bằng khóa RSA cục bộ, để khởi chạy một tiến trình thực thi thường trú dưới quyền Shell (Sidecar). Không cần Root, cũng không cần máy tính. Máy đã Root cũng có thể cấp quyền để App khởi chạy cùng một Sidecar qua Root, không cần gỡ lỗi không dây.
+2. **Tạo không gian ảo**: Sidecar tạo trên điện thoại một màn hình ảo tách biệt. App mở trên màn hình đó, dùng chính các ứng dụng đã cài và tài khoản đã đăng nhập trên máy bạn, không phải một bản sao dữ liệu khác.
+3. **Cảm nhận thuần thị giác**: agent chỉ đọc ảnh chụp màn hình ảo, khi cần thì phóng to cục bộ để xem chi tiết. Không đọc cây UI, không dùng dịch vụ trợ năng, cũng không phụ thuộc mô hình OCR cục bộ.
+4. **Quyết định bởi một tác nhân duy nhất**: cùng một tác nhân dựa trên hình ảnh và ngữ cảnh, tự chọn trả lời trực tiếp, gọi năng lực hệ thống (lịch, SMS, danh bạ…), chạy script cô lập, hay thao tác giao diện. Không có bộ phân loại ý định hay bộ lập kế hoạch riêng, một vòng lặp đi tới cùng.
+5. **Thực thi và báo cáo**: chạm, nhập, vuốt đều gửi tới cùng một màn hình ảo. Sau mỗi bước thực thi lại quan sát màn hình, xác nhận hiệu quả rồi mới quyết định bước tiếp. Toàn bộ quá trình được ghi lại cục bộ, khi tác vụ kết thúc thì báo kết quả cho bạn (trong App và qua thông báo cục bộ).
 
-### 模块组成
+### Thành phần module
 
-| 模块 | 职责 |
+| Module | Trách nhiệm |
 | --- | --- |
-| `app` | 安卓宿主、界面、设置与运行时服务 |
-| `core:agent` | 智能体决策循环、任务生命周期、工具协议与上下文管理 |
-| `core:model` | 模型抽象层、各服务商适配与流式协议 |
-| `core:device` | Sidecar、截屏、输入、系统能力与隔离脚本执行 |
-| `core:knowledge` | 技能、记忆与文档存储 |
-| `core:persistence` | 事件与知识的本地持久化 |
+| `app` | Host Android, giao diện, cài đặt và dịch vụ runtime |
+| `core:agent` | Vòng lặp quyết định của agent, vòng đời tác vụ, giao thức công cụ và quản lý ngữ cảnh |
+| `core:model` | Lớp trừu tượng mô hình, adapter từng nhà cung cấp và giao thức streaming |
+| `core:device` | Sidecar, chụp màn hình, nhập liệu, năng lực hệ thống và thực thi script cô lập |
+| `core:knowledge` | Kỹ năng, bộ nhớ và lưu trữ tài liệu |
+| `core:persistence` | Lưu trữ cục bộ sự kiện và tri thức |
 
-智能体的规则与策略放在 Markdown 配置中（`app/src/main/assets/rules/`、`skills/`），Kotlin 只负责通用编排、协议校验、设备执行与持久化。
+Quy tắc và chính sách của agent nằm trong cấu hình Markdown (`app/src/main/assets/rules/`, `skills/`), Kotlin chỉ đảm nhận điều phối chung, kiểm tra giao thức, thực thi trên thiết bị và lưu trữ.
 
 ---
 
-## 🔒 隐私与安全
+## 🔒 Quyền riêng tư và bảo mật
 
-**数据去向**
+**Dữ liệu đi đâu**
 
-- **本地优先**：会话、技能与执行记录只保存在你的设备上，没有任何第三方统计或遥测。
-- **模型请求**：任务指令、上下文与屏幕截图会发送给**你自己配置的模型服务商**，请求直连该端点，不经过 Droidance 的服务器。请了解对应服务商的隐私政策。
-- **凭证自持**：API Key 保存在应用私有存储中，并在运行时传入 Shell 身份进程的内存。运行数据和历史记录存放在设备上由 Shell 持有的目录中，卸载应用不会自动删除该目录；旧版卸载后遗留的目录可能仍含凭证副本。详情见 [SECURITY](SECURITY.md)。
-- **本地诊断**：应用为排障自动保存模型请求、响应和截图；其中仍可能包含个人信息。诊断记录以 7 天及 512 MiB 为清理目标，但清理只在后续请求时尽力执行，当前任务不参与清理，因此这不是严格的保存期限或容量上限。可在「设置 → 数据管理 → 清理运行日志」删除诊断记录；对话、回放附件和记忆需分别管理。导出诊断可能包含这些内容，分享前请检查。
-- **应用更新**：检查更新时访问 GitHub API；直连下载失败时会回退到 `ghproxy.net` 镜像，安装包校验值始终来自 GitHub API。
+- **Ưu tiên cục bộ**: hội thoại, kỹ năng và bản ghi thực thi chỉ lưu trên thiết bị của bạn, không có thống kê hay telemetry của bên thứ ba.
+- **Yêu cầu tới mô hình**: chỉ thị tác vụ, ngữ cảnh và ảnh chụp màn hình sẽ được gửi tới **nhà cung cấp mô hình do chính bạn cấu hình**, yêu cầu đi thẳng tới endpoint đó, không qua máy chủ của Droidance. Vui lòng tìm hiểu chính sách riêng tư của nhà cung cấp tương ứng.
+- **Bạn giữ thông tin đăng nhập**: API Key lưu trong vùng lưu trữ riêng của ứng dụng, khi chạy được truyền vào bộ nhớ của tiến trình dưới quyền Shell. Dữ liệu chạy và lịch sử nằm trong thư mục do Shell sở hữu trên thiết bị; gỡ cài đặt ứng dụng không tự xóa thư mục này; thư mục còn lại từ bản cũ đã gỡ có thể vẫn chứa bản sao thông tin đăng nhập. Chi tiết xem [SECURITY](SECURITY.md).
+- **Chẩn đoán cục bộ**: ứng dụng tự động lưu yêu cầu, phản hồi mô hình và ảnh chụp để khắc phục sự cố; trong đó vẫn có thể chứa thông tin cá nhân. Mục tiêu dọn dẹp là 7 ngày và 512 MiB, nhưng việc dọn chỉ được cố gắng thực hiện ở các yêu cầu sau, tác vụ hiện tại không tham gia dọn dẹp, nên đây không phải giới hạn lưu trữ hay dung lượng nghiêm ngặt. Có thể xóa bản ghi chẩn đoán tại “Cài đặt → Quản lý dữ liệu → Dọn nhật ký chạy”; hội thoại, tệp đính kèm phát lại và bộ nhớ cần quản lý riêng. Bản xuất chẩn đoán có thể chứa những nội dung này, hãy kiểm tra trước khi chia sẻ.
+- **Cập nhật ứng dụng**: khi kiểm tra cập nhật sẽ truy cập GitHub API; khi tải trực tiếp thất bại sẽ chuyển sang mirror `ghproxy.net`, giá trị kiểm tra của gói cài luôn lấy từ GitHub API.
 
-**权限用途**
+**Mục đích của các quyền**
 
-| 权限 / 能力 | 用途 |
+| Quyền / năng lực | Mục đích |
 | --- | --- |
-| 无线调试配对 | 无需 Root，启动 Shell 身份的设备控制进程 |
-| Root 授权（可选） | 无需无线调试，以 Shell 身份启动同一设备控制进程 |
-| Shizuku 授权（可选） | 通过已运行的 Shizuku 启动同一设备控制进程 |
-| 日历、联系人、短信、通话记录 | 你授权后，作为系统能力供智能体按任务读写 |
-| 通知使用权 | 读取通知内容，供任务与自动化使用 |
-| Droidance 输入法 | 在虚拟屏中输入文字 |
-| 查询应用列表 | 按名称找到并启动目标 App |
-| 精确闹钟、开机启动、电池优化豁免 | 定时任务按时执行与恢复 |
-| 安装未知应用 | 安装应用内下载的更新 |
+| Ghép nối gỡ lỗi không dây | Khởi chạy tiến trình điều khiển thiết bị dưới quyền Shell, không cần Root |
+| Cấp quyền Root (tùy chọn) | Khởi chạy cùng tiến trình điều khiển thiết bị dưới quyền Shell, không cần gỡ lỗi không dây |
+| Cấp quyền Shizuku (tùy chọn) | Khởi chạy cùng tiến trình điều khiển thiết bị qua Shizuku đang chạy |
+| Lịch, danh bạ, SMS, lịch sử cuộc gọi | Sau khi bạn cấp quyền, agent có thể đọc/ghi theo tác vụ như năng lực hệ thống |
+| Quyền truy cập thông báo | Đọc nội dung thông báo cho tác vụ và tự động hóa |
+| Bàn phím Droidance | Nhập văn bản trên màn hình ảo |
+| Truy vấn danh sách ứng dụng | Tìm và khởi chạy App mục tiêu theo tên |
+| Báo thức chính xác, khởi động cùng máy, miễn tối ưu pin | Tác vụ định giờ chạy đúng giờ và khôi phục |
+| Cài đặt ứng dụng không rõ nguồn gốc | Cài bản cập nhật tải trong ứng dụng |
 
-运行时权限都可以在系统设置中随时撤回。无线调试配对成功后，Sidecar 不依赖 Wi‑Fi，被杀后会自动拉起；重置配对或重启手机可以停止它，关闭开发者选项后它不再自动拉起。应用更新后需要启动匹配新版的 Sidecar；如果无法自动恢复，请开启无线调试重新连接，或在已 Root 的设备上使用 Root。Root 模式使用 Root 授权启动和恢复通道，撤销授权后新的启动或恢复会失败。安全问题请按 [SECURITY](SECURITY.md) 私下报告。
+Quyền runtime có thể thu hồi bất cứ lúc nào trong cài đặt hệ thống. Sau khi ghép nối gỡ lỗi không dây thành công, Sidecar không phụ thuộc Wi‑Fi, bị kill sẽ tự khởi động lại; đặt lại ghép nối hoặc khởi động lại máy có thể dừng nó, sau khi tắt tùy chọn nhà phát triển nó không tự khởi động lại nữa. Sau khi cập nhật ứng dụng cần khởi chạy Sidecar khớp với bản mới; nếu không tự khôi phục được, hãy bật gỡ lỗi không dây để kết nối lại, hoặc dùng Root trên máy đã Root. Chế độ Root dùng quyền Root để khởi chạy và khôi phục kênh; sau khi thu hồi quyền, lần khởi chạy hoặc khôi phục mới sẽ thất bại. Vấn đề bảo mật vui lòng báo cáo riêng theo [SECURITY](SECURITY.md).
 
-**边界**
+**Ranh giới**
 
-- **人工确认**：是否暂停交给你，由智能体按规则判断，并非硬性拦截。涉及资金、隐私或不可逆的操作，请让它停在确认页，由你亲自核对提交。
-- **无侵入**：不 Hook、不注入、不修改任何第三方 App。
-
----
-
-## 📱 兼容性与已知限制
-
-- 无线调试配对和重启手机后恢复连接需要 Wi‑Fi；部分系统会在断网、重启或长时间闲置后关闭无线调试，需要时重新开启。
-- Shizuku 需要单独安装并通过 ADB 或无线调试启动；手机重启后需重新启动。Root 启动的 Shizuku 请改用 Droidance 的 Root 连接。Shizuku 停止时，只要已有设备通道仍可用，任务就可以继续。
-- Root 连接已在 Android 16 和 SukiSU 上完成真机验证；其他 Root 管理器或设备的行为可能不同。
-- 部分厂商系统会限制后台运行，建议在系统设置中允许 Droidance 后台运行并关闭电池优化。
-- 部分 App 会检测开发者选项或无线调试是否开启，可能拒绝运行或限制功能。
-- 任务完成率与耗时取决于所用模型的视觉与推理能力；智能体报告"完成"不等于业务结果一定正确，重要结果请自行核对。
+- **Xác nhận thủ công**: việc có dừng lại để trao cho bạn hay không do agent phán đoán theo quy tắc, không phải chặn cứng. Với thao tác liên quan tới tiền bạc, riêng tư hay không thể đảo ngược, hãy để nó dừng ở trang xác nhận, bạn tự kiểm tra và gửi.
+- **Không xâm nhập**: không Hook, không inject, không sửa bất kỳ App bên thứ ba nào.
 
 ---
 
-## 🗺️ 开发计划
+## 📱 Tương thích và hạn chế đã biết
 
-- [ ] Pro 与 Ultra 模式：支持更多高级操作，并解锁极客模式
-- [ ] 子智能体：支持子智能体在多个虚拟空间中并行执行任务
+- Ghép nối gỡ lỗi không dây và khôi phục kết nối sau khi khởi động lại máy cần Wi‑Fi; một số hệ thống sẽ tắt gỡ lỗi không dây sau khi mất mạng, khởi động lại hoặc để lâu, cần bật lại khi dùng.
+- Shizuku cần cài riêng và khởi chạy qua ADB hoặc gỡ lỗi không dây; sau khi khởi động lại máy cần khởi chạy lại. Với Shizuku khởi chạy bằng Root, hãy chuyển sang kết nối Root của Droidance. Khi Shizuku dừng, miễn là kênh thiết bị sẵn có vẫn dùng được thì tác vụ có thể tiếp tục.
+- Kết nối Root đã được xác minh trên máy thật với Android 16 và SukiSU; hành vi với trình quản lý Root hoặc thiết bị khác có thể không giống.
+- Một số hệ thống của nhà sản xuất hạn chế chạy nền, nên cho phép Droidance chạy nền và tắt tối ưu pin trong cài đặt hệ thống.
+- Một số App phát hiện tùy chọn nhà phát triển hoặc gỡ lỗi không dây đang bật, có thể từ chối chạy hoặc hạn chế tính năng.
+- Tỷ lệ hoàn thành và thời gian tác vụ phụ thuộc vào năng lực thị giác và suy luận của mô hình được dùng; agent báo "hoàn thành" không có nghĩa kết quả nghiệp vụ nhất định đúng, kết quả quan trọng hãy tự kiểm tra.
 
 ---
 
-## 🤝 参与贡献
+## 🗺️ Kế hoạch phát triển
 
-欢迎通过 [Issue](https://github.com/YbbLab/Droidance/issues) 反馈问题、提出建议，或直接提交 Pull Request。开始之前请阅读：
+- [ ] Chế độ Pro và Ultra: hỗ trợ thêm nhiều thao tác nâng cao và mở khóa chế độ Geek
+- [ ] Tác nhân con: hỗ trợ tác nhân con chạy song song trên nhiều không gian ảo
 
-- [贡献指南](CONTRIBUTING.md)：开发环境、架构约定与验证方式
-- [行为准则](CODE_OF_CONDUCT.md)
-- [安全策略](SECURITY.md)：安全漏洞请通过 GitHub 私下报告，不要公开提交 Issue
+---
 
-关注我们：[X](https://x.com/ybblab2026) · [YouTube](https://www.youtube.com/@ybblab) · [哔哩哔哩](https://space.bilibili.com/3706972849310516) · [小红书](https://www.xiaohongshu.com/user/profile/69cb432b0000000032025c5e)
+## 🤝 Đóng góp
+
+Hoan nghênh phản hồi vấn đề, đề xuất ý tưởng qua [Issue](https://github.com/YbbLab/Droidance/issues), hoặc trực tiếp gửi Pull Request. Trước khi bắt đầu vui lòng đọc:
+
+- [Hướng dẫn đóng góp](CONTRIBUTING.md): môi trường phát triển, quy ước kiến trúc và cách xác minh
+- [Quy tắc ứng xử](CODE_OF_CONDUCT.md)
+- [Chính sách bảo mật](SECURITY.md): lỗ hổng bảo mật vui lòng báo riêng qua GitHub, không gửi Issue công khai
+
+Theo dõi chúng tôi: [X](https://x.com/ybblab2026) · [YouTube](https://www.youtube.com/@ybblab) · [Bilibili](https://space.bilibili.com/3706972849310516) · [Xiaohongshu](https://www.xiaohongshu.com/user/profile/69cb432b0000000032025c5e)
 
 <a href="https://github.com/YbbLab/Droidance/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=YbbLab/Droidance" alt="Contributors" />
@@ -247,30 +247,30 @@ scripts/verify.sh
 
 ---
 
-## 📄 开源协议
+## 📄 Giấy phép
 
-本项目基于 [Apache License 2.0](LICENSE) 开源。你可以自由地使用、修改和分发（包括商业用途），但需要遵守以下要求：
+Dự án này mã nguồn mở theo [Apache License 2.0](LICENSE). Bạn có thể tự do sử dụng, sửa đổi và phân phối (kể cả cho mục đích thương mại), nhưng cần tuân thủ các yêu cầu sau:
 
-- **保留声明**：分发源码或二进制时，请保留原有的版权声明、[LICENSE](LICENSE) 与 [NOTICE](NOTICE) 文件。
-- **标注修改**：如果修改了源文件，请在修改过的文件中注明。
-- **不得冒用名义**：协议不授予 Droidance 名称与 Logo 的商标使用权，基于本项目的衍生作品请勿以官方名义发布或宣传。
-- **第三方组件**：项目包含的第三方组件遵循各自的许可证，详见 [NOTICE](NOTICE) 及 [随源码保留的许可证](app/src/main/assets/licenses/)。
+- **Giữ thông báo**: khi phân phối mã nguồn hoặc bản binary, hãy giữ nguyên thông báo bản quyền, file [LICENSE](LICENSE) và [NOTICE](NOTICE).
+- **Ghi rõ sửa đổi**: nếu sửa file nguồn, hãy ghi chú trong chính những file đã sửa.
+- **Không mạo danh**: giấy phép không cấp quyền nhãn hiệu đối với tên và Logo Droidance, sản phẩm phái sinh dựa trên dự án này không được phát hành hay quảng bá dưới danh nghĩa chính thức.
+- **Thành phần bên thứ ba**: các thành phần bên thứ ba trong dự án tuân theo giấy phép riêng của chúng, xem [NOTICE](NOTICE) và [giấy phép đi kèm mã nguồn](app/src/main/assets/licenses/).
 
-### 免责声明
+### Tuyên bố miễn trừ trách nhiệm
 
 > [!IMPORTANT]
-> 以下是使用风险提示，不限制 [Apache License 2.0](LICENSE) 授予的权利。
+> Dưới đây là những lưu ý về rủi ro khi sử dụng, không giới hạn các quyền mà [Apache License 2.0](LICENSE) cấp.
 
-1. **遵守适用法律**：本项目是面向移动端智能体的开源项目；使用时请遵守适用法律和第三方服务条款。
-2. **账号风险自担**：自动化操作可能违反第三方 App 的用户协议，**可能导致账号被警告、限制、封禁或数据丢失**，风险由使用者自行承担。建议不要在重要账号上使用。
-3. **避免滥用**：请勿将本项目用于刷单刷量、批量注册、恶意抢购、绕过风控或验证码、未经授权采集他人信息、骚扰诈骗等违法或侵害他人权益的行为。
-4. **AI 可能出错**：大模型的决策存在不确定性，可能误点、误输入。涉及资金、隐私或不可逆的操作请务必人工确认。因使用本项目造成的任何直接或间接损失，作者与贡献者不承担责任。
-5. **第三方服务**：屏幕截图等数据会发送给你自行配置的模型服务商，请了解并遵守其隐私政策与使用条款。
-6. **无关联声明**：本项目与文中提及的任何第三方 App 或服务商无关联，相关商标归各自所有者所有。
+1. **Tuân thủ pháp luật áp dụng**: đây là dự án mã nguồn mở hướng tới agent di động; khi sử dụng hãy tuân thủ pháp luật áp dụng và điều khoản dịch vụ của bên thứ ba.
+2. **Tự chịu rủi ro tài khoản**: thao tác tự động có thể vi phạm thỏa thuận người dùng của App bên thứ ba, **có thể khiến tài khoản bị cảnh cáo, hạn chế, khóa hoặc mất dữ liệu**, rủi ro do người dùng tự chịu. Khuyến nghị không dùng trên tài khoản quan trọng.
+3. **Tránh lạm dụng**: vui lòng không dùng dự án này để đặt đơn ảo, tăng tương tác ảo, đăng ký hàng loạt, mua sắm ác ý, vượt qua kiểm soát rủi ro hoặc CAPTCHA, thu thập thông tin người khác khi chưa được phép, quấy rối, lừa đảo hay bất kỳ hành vi trái pháp luật hoặc xâm hại quyền lợi người khác.
+4. **AI có thể sai**: quyết định của mô hình lớn có tính không chắc chắn, có thể chạm nhầm, nhập nhầm. Với thao tác liên quan tới tiền bạc, riêng tư hay không thể đảo ngược, nhất định phải xác nhận thủ công. Tác giả và người đóng góp không chịu trách nhiệm cho bất kỳ tổn thất trực tiếp hay gián tiếp nào do việc dùng dự án này gây ra.
+5. **Dịch vụ bên thứ ba**: ảnh chụp màn hình và dữ liệu khác sẽ được gửi tới nhà cung cấp mô hình do chính bạn cấu hình, hãy tìm hiểu và tuân thủ chính sách riêng tư cùng điều khoản sử dụng của họ.
+6. **Không liên kết**: dự án này không liên kết với bất kỳ App hay nhà cung cấp bên thứ ba nào được nhắc tới trong tài liệu; các nhãn hiệu liên quan thuộc về chủ sở hữu tương ứng.
 
 ---
 
-## 📈 项目动态
+## 📈 Hoạt động dự án
 
 <a href="https://star-history.com/#YbbLab/Droidance&Date">
   <picture>
@@ -281,6 +281,6 @@ scripts/verify.sh
 
 <div align="center">
 
-**如果 Droidance 让你的手机"跳"起来了，请点一个 ⭐ 支持我们。**
+**Nếu Droidance khiến điện thoại của bạn "nhảy múa", hãy thả cho chúng tôi một ⭐.**
 
 </div>

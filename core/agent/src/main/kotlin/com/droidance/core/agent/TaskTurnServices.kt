@@ -167,7 +167,7 @@ internal class TaskTurnServices @Inject constructor(
     internal fun adaptiveReasoningAvailable(): Boolean =
         llmRouter.explicitReasoningEfforts().any { it in reasoningControlPolicy().adaptiveEfforts }
 
-    /** 唯一 Operator system prompt：通用执行协议 + 输出语言。 */
+    /** System prompt duy nhất của Operator: giao thức thực thi chung + ngôn ngữ đầu ra. */
     internal fun operatorSystemPrompt(): String = ruleConfigManager.operatorSystemPrompt() + "\n\n" +
         ruleConfigManager.readMarkdownSection("tool_context.md", "contract") +
         if (adaptiveReasoningAvailable()) "\n\n" + ruleConfigManager.readMarkdownSection("agent_core.md", "reasoning_control") else ""
@@ -219,17 +219,17 @@ internal class TaskTurnServices @Inject constructor(
         UnifiedDeviceToolProtocol.isScreenObservation(toolCall.name, toolCall.arguments)
 
     /**
-     * 执行当前用户目标的唯一模型循环。
+     * Vòng lặp mô hình duy nhất thực thi mục tiêu hiện tại của người dùng.
      *
-     * @param taskGoal 当前用户目标
-     * @param additionalContext 当前会话中与该目标直接相关的附加上下文
-     * @param onStreamContent 流式输出回调
-     * @param stateFlow Agent 状态流（用于更新 UI）
-     * @param onActionUpdate 工具执行前的动作描述回调
-     * @param onTaskTitle 当前任务的固定短标题，在正常响应提交后发布一次
-     * @param onManualTakeoverNeeded 模型识别到真实用户介入边界时暴露人工接管入口
-     * @param waitIfPaused 暂停检查回调
-     * @param takeManualResumeInstruction 用户接管后恢复时，取一次恢复提示并丢弃暂停前的旧动作
+     * @param taskGoal Mục tiêu hiện tại của người dùng
+     * @param additionalContext Ngữ cảnh bổ sung trong cuộc trò chuyện hiện tại liên quan trực tiếp đến mục tiêu này
+     * @param onStreamContent Callback xuất streaming
+     * @param stateFlow Luồng trạng thái của Agent (dùng để cập nhật UI)
+     * @param onActionUpdate Callback mô tả hành động trước khi công cụ thực thi
+     * @param onTaskTitle Tiêu đề ngắn cố định của tác vụ hiện tại, phát một lần sau khi phản hồi bình thường được gửi đi
+     * @param onManualTakeoverNeeded Mở lối tiếp quản thủ công khi mô hình nhận ra ranh giới can thiệp thật của người dùng
+     * @param waitIfPaused Callback kiểm tra tạm dừng
+     * @param takeManualResumeInstruction Khi khôi phục sau khi người dùng tiếp quản, lấy một lần gợi ý khôi phục và bỏ các hành động cũ trước khi tạm dừng
      */
 
     internal fun promptValuePreview(value: String, maxChars: Int): String {
@@ -273,14 +273,14 @@ internal class TaskTurnServices @Inject constructor(
     }
 
     internal companion object {
-        /** 动作叙事保留的条数：够模型看清"已经试过什么"，又不会把上下文撑大。 */
+        /** Số mục tường thuật hành động được giữ: đủ để mô hình thấy rõ "đã thử những gì", mà không làm ngữ cảnh phình to. */
         const val ACTION_NARRATIVE_LIMIT = 8
 
     }
 
     /**
-     * 生成供悬浮窗实时显示的操作标签
-     * 目标：让用户在悬浮窗上直观看到"Agent 当前在做什么"
+     * Tạo nhãn thao tác để cửa sổ nổi hiển thị thời gian thực
+     * Mục tiêu: để người dùng thấy trực quan trên cửa sổ nổi "Agent hiện đang làm gì"
      */
     internal fun buildActionLabel(tc: ToolCall): String {
         val operation = UnifiedDeviceToolProtocol.operation(tc.name, tc.arguments)

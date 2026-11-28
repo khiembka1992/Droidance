@@ -135,7 +135,7 @@ fun SettingsScreen(
                         title = stringResource(R.string.settings_language),
                         value = when (overview.language) {
                             AppLanguage.SYSTEM -> stringResource(R.string.settings_language_system)
-                            AppLanguage.SIMPLIFIED_CHINESE -> stringResource(R.string.settings_language_zh)
+                            AppLanguage.VIETNAMESE -> stringResource(R.string.settings_language_vi)
                             AppLanguage.ENGLISH -> stringResource(R.string.settings_language_en)
                         },
                         icon = DroidanceIcons.Languages,
@@ -181,9 +181,9 @@ internal fun SettingsGroupTitle(title: String) {
     )
 }
 
-// ── 共用组件（internal，子页面共享）─────────────────────────────────────────
+// ── Thành phần dùng chung (internal, các trang con chia sẻ) ─────────────────────────────────────────
 
-/** 子页面小节标题；起始缩进 32dp = 卡片外边距 16 + 行内边距 16，与卡片内文字左对齐 */
+/** Tiêu đề mục của trang con; thụt lề đầu 32dp = lề ngoài card 16 + padding trong dòng 16, căn trái với chữ trong card */
 @Composable
 internal fun SettingsSectionHeader(title: String) {
     Text(
@@ -197,7 +197,7 @@ internal fun SettingsSectionHeader(title: String) {
     )
 }
 
-/** 控件边界使用 outline；组内装饰分隔线使用较淡的 outlineVariant。 */
+/** Viền control dùng outline; đường phân cách trang trí trong nhóm dùng outlineVariant nhạt hơn. */
 @Composable
 internal fun settingsHairline(): androidx.compose.ui.graphics.Color =
     MaterialTheme.colorScheme.outline
@@ -222,7 +222,7 @@ internal fun SettingsCardGroup(
     }
 }
 
-/** 同一卡片内多行选择/数值列表的行间细分隔（iOS 式 inset） */
+/** Đường phân cách mảnh giữa các dòng của danh sách chọn/giá trị nhiều dòng trong cùng một card (inset kiểu iOS) */
 @Composable
 internal fun SettingsInsetDivider(startIndent: Dp = 16.dp, endIndent: Dp = 16.dp) {
     HorizontalDivider(
@@ -299,7 +299,7 @@ internal fun SettingsNavItem(
     }
 }
 
-/** 中性胶囊按钮：行尾操作统一入口，以灰底区分操作。 */
+/** Nút viên con nhộng trung tính: lối vào thống nhất cho thao tác cuối dòng, dùng nền xám để phân biệt thao tác. */
 @Composable
 internal fun SettingsPillButton(
     text: String,
@@ -314,7 +314,7 @@ internal fun SettingsPillButton(
     }
 }
 
-/** 行尾操作提示；点击语义由整行承载，避免一项操作出现两套点击目标。 */
+/** Gợi ý thao tác cuối dòng; ngữ nghĩa nhấn do cả dòng đảm nhận, tránh một thao tác có hai đích nhấn. */
 @Composable
 internal fun SettingsPillLabel(text: String) {
     Surface(
@@ -335,7 +335,7 @@ private fun SettingsPillLabelContent(text: String) {
     )
 }
 
-/** 立即执行型设置行：整行点击，尾部文字描述动作，不使用代表导航的右箭头。 */
+/** Dòng cài đặt kiểu thực thi ngay: nhấn cả dòng, chữ ở cuối mô tả hành động, không dùng mũi tên phải biểu thị điều hướng. */
 @Composable
 internal fun SettingsActionItem(
     title: String,
@@ -424,10 +424,10 @@ internal fun SettingsSwitchItem(
     }
 }
 
-/** 全应用开关统一缩放比例，避免各处开关大小不一 */
+/** Tỷ lệ thu phóng thống nhất cho switch toàn ứng dụng, tránh switch mỗi nơi một kích thước */
 internal const val SETTINGS_SWITCH_SCALE = 0.8f
 
-/** 长下拉列表右侧的细滚动条；内容不超高时不绘制 */
+/** Thanh cuộn mảnh bên phải của danh sách thả xuống dài; không vẽ khi nội dung không vượt chiều cao */
 internal fun Modifier.settingsScrollbar(
     state: androidx.compose.foundation.ScrollState,
     color: androidx.compose.ui.graphics.Color

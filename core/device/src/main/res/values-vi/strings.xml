@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 YBBLab
+  SPDX-License-Identifier: Apache-2.0
+-->
+
+<resources>
+    <string name="settings_air_notification_channel">Ghép nối gỡ lỗi không dây</string>
+    <string name="settings_air_notification_input_label">Nhập mã ghép nối 6 chữ số</string>
+    <string name="settings_air_notification_action">Nhập mã</string>
+    <string name="settings_air_notification_title">Nhập mã ghép nối gỡ lỗi không dây</string>
+    <string name="settings_air_notification_text">Giữ hộp thoại ghép nối của hệ thống mở và nhập mã 6 chữ số tại đây.</string>
+    <string name="settings_air_notification_submitted_title">Đã nhận mã ghép nối</string>
+    <string name="settings_air_notification_submitted_text">Đang gửi mã ghép nối tới dịch vụ ghép nối của hệ thống. Hãy giữ màn hình này mở.</string>
+    <string name="settings_air_notification_waiting_text">Đã nhận mã ghép nối. Đang chờ cổng ghép nối gỡ lỗi không dây.</string>
+    <string name="settings_air_notification_succeeded_title">Ghép nối thành công</string>
+    <string name="settings_air_notification_succeeded_text">Ghép nối gỡ lỗi không dây đã xong.</string>
+    <string name="settings_air_notification_failed_title">Ghép nối gỡ lỗi không dây chưa xong</string>
+    <string name="settings_air_notification_connection_failed_title">Kết nối gỡ lỗi không dây thất bại</string>
+    <string name="settings_air_notification_pairing_required_title">PV AutoAgent cần ghép nối lại</string>
+    <string name="settings_air_notification_pairing_required_text">Ủy quyền ghép nối ADB hiện tại không còn được chấp nhận. Nhấn để mở Tùy chọn nhà phát triển, rồi ghép nối lại trong Gỡ lỗi không dây.</string>
+    <string name="settings_air_notification_invalid_code_text">Mã ghép nối phải gồm 6 chữ số. Vui lòng nhập lại.</string>
+    <string name="settings_air_notification_unavailable_text">Không có yêu cầu ghép nối đang hoạt động. Hãy mở lại cài đặt gỡ lỗi không dây và nhập mã trong hộp thoại ghép nối của hệ thống.</string>
+    <string name="settings_air_notification_permission_required">Hãy cho phép PV AutoAgent gửi thông báo trước khi nhập mã ghép nối từ thanh thông báo.</string>
+    <string name="settings_air_notifications_disabled">Thông báo của PV AutoAgent đang tắt. Hãy bật trước trong cài đặt hệ thống.</string>
+    <string name="settings_air_notification_channel_disabled">Loại thông báo "Ghép nối gỡ lỗi không dây" không thể hiện lên. Hãy bật cảnh báo cho loại này trong cài đặt hệ thống trước.</string>
+    <string name="settings_air_notification_post_failed">Không thể gửi thông báo ghép nối. Hãy kiểm tra cài đặt thông báo của hệ thống và thử lại.</string>
+    <string name="settings_air_notification_input_missing">Không nhận được nội dung nhập mã ghép nối. Hãy giữ hộp thoại ghép nối của hệ thống mở và nhập lại mã trong thông báo.</string>
+    <string name="settings_air_pairing_required_detail">Android đã từ chối khóa ghép nối ADB hiện tại. Hãy mở Gỡ lỗi không dây › Ghép nối thiết bị bằng mã ghép nối và ghép nối lại.</string>
+    <string name="settings_air_wifi_unavailable_detail">Không có kết nối Wi-Fi khả dụng. Thông tin ghép nối vẫn còn hiệu lực và PV AutoAgent sẽ thử lại khi Wi-Fi có trở lại.</string>
+    <string name="settings_air_pairing_service_not_found">Không tìm thấy dịch vụ ghép nối. Hãy cho phép PV AutoAgent chạy nền, mở lại hộp thoại ghép nối của hệ thống và nhập mã mới vào thông báo.</string>
+    <string name="settings_air_pairing_timeout">Ghép nối đã quá thời gian chờ. Hãy mở lại hộp thoại ghép nối của hệ thống để lấy mã mới.</string>
+    <string name="settings_air_pairing_rejected">Android đã từ chối ghép nối. Hãy lấy mã ghép nối mới và thử lại.</string>
+    <string name="settings_air_pairing_connection_failed">Không thể kết nối tới dịch vụ ghép nối của hệ thống. Hãy lấy mã ghép nối mới và thử lại.</string>
+    <string name="settings_air_adb_health_check_failed">Kiểm tra tình trạng cầu nối ADB không dây thất bại. Vui lòng thử lại sau.</string>
+    <string name="settings_air_adb_health_response_missing">Cầu nối ADB không dây không trả về phản hồi hợp lệ. Vui lòng thử lại sau.</string>
+    <string name="settings_air_adb_identity_check_failed">Không thể xác minh danh tính shell của ADB không dây. Vui lòng thử lại sau.</string>
+    <string name="settings_air_adb_identity_response_missing">Phản hồi danh tính shell của ADB không dây không hợp lệ. Vui lòng thử lại sau.</string>
+    <string name="settings_air_adb_connection_failed">Kết nối ADB không dây thất bại. Hãy chắc chắn Gỡ lỗi không dây vẫn đang bật.</string>
+    <string name="settings_air_adb_endpoint_not_found">Không tìm thấy điểm cuối ADB không dây. Hãy chắc chắn Gỡ lỗi không dây đang bật.</string>
+    <string name="runtime_air_channel_lost_title">Kênh điều khiển tiêu chuẩn bị ngắt</string>
+    <string name="runtime_air_channel_lost_text">Hãy mở PV AutoAgent để kiểm tra kết nối và bật Wi-Fi cùng gỡ lỗi không dây. Nếu ủy quyền đã hết hạn, hãy ghép nối lại.</string>
+    <string name="runtime_root_channel_lost_title">Kênh điều khiển Root bị ngắt</string>
+    <string name="runtime_root_channel_lost_text">Hãy mở PV AutoAgent để kiểm tra quyền Root và kết nối lại thiết bị.</string>
+    <string name="settings_air_local_port_close_failed">Không thể xác nhận rằng cổng gỡ lỗi đã đóng. Thông tin ghép nối và cổng vẫn được giữ; hãy kết nối lại bằng Wi-Fi và thử lại.</string>
+    <string name="settings_air_local_adb_connection_failed">Không thể kết nối tới cổng gỡ lỗi cục bộ. Hãy giữ Gỡ lỗi USB bật và chấp nhận hộp thoại ủy quyền gỡ lỗi của hệ thống.</string>
+    <string name="settings_air_debug_port_invalid">Nhập cổng trong khoảng 1 đến 65535.</string>
+    <string name="runtime_shizuku_channel_lost_title">Kênh điều khiển Shizuku bị ngắt</string>
+    <string name="runtime_shizuku_channel_lost_text">Hãy mở PV AutoAgent để kiểm tra dịch vụ Shizuku và ủy quyền, sau đó kết nối lại thiết bị.</string>
+</resources>

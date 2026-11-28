@@ -80,8 +80,8 @@ import com.droidance.ui.viewmodel.UIMessage
 import kotlinx.coroutines.flow.collect
 
 /**
- * 对话界面（子页面）
- * 从对话列表进入，支持新建或打开已有对话
+ * Giao diện trò chuyện (trang con)
+ * Vào từ danh sách cuộc trò chuyện, hỗ trợ tạo mới hoặc mở cuộc trò chuyện đã có
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,7 +132,7 @@ internal fun HomeScreen(
         if (lifecycle == androidx.lifecycle.Lifecycle.State.RESUMED) skillsViewModel.loadSkills()
     }
     val snackbarHostState = remember { SnackbarHostState() }
-    // 监听错误事件，以 Snackbar 形式显示（不污染 chat）
+    // Lắng nghe sự kiện lỗi, hiển thị dạng Snackbar (không làm bẩn chat)
     LaunchedEffect(Unit) {
         viewModel.errorEvent.collect { msg ->
             snackbarHostState.showSnackbar(message = msg, duration = SnackbarDuration.Short)
@@ -209,8 +209,8 @@ internal fun HomeScreen(
                 .background(Color.Transparent)
                 // IME insets are shared by the composer and anchored Snackbar host.
         ) {
-            // ====== 顶部栏（侧栏开关） ======
-            // 左右两个控件用同一字形尺寸与透明度，品牌名比页面标题小一档。
+            // ====== Thanh trên cùng (nút bật/tắt thanh bên) ======
+            // Hai control trái phải dùng cùng cỡ glyph và độ trong suốt, tên thương hiệu nhỏ hơn tiêu đề trang một bậc.
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onOpenDrawer) {
@@ -270,7 +270,7 @@ internal fun HomeScreen(
                 }
             }
 
-            // ====== 消息列表（正常顺序：最新消息在底部） ======
+            // ====== Danh sách tin nhắn (thứ tự thường: tin mới nhất ở đáy) ======
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 LazyColumn(
                     state = listState,
@@ -438,7 +438,7 @@ internal fun HomeScreen(
                 }
             }
 
-            // ====== 底部输入区域 ======
+            // ====== Vùng nhập liệu phía dưới ======
             DeviceConnectionNotice(state = connectionState, onClick = onConnectDevice)
             Box(Modifier.fillMaxWidth().onSizeChanged { composerHeightPx = it.height }) {
                 ChatInputBar(
@@ -470,7 +470,7 @@ internal fun HomeScreen(
             }
         }
 
-        // Snackbar（显示非致命错误，不进入 chat）
+        // Snackbar (hiển thị lỗi không nghiêm trọng, không đi vào chat)
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
@@ -568,7 +568,7 @@ internal suspend fun LazyListState.followLatestItemToBottom(itemIndex: Int, shou
 }
 
 /**
- * 欢迎消息
+ * Tin nhắn chào mừng
  */
 @Composable
 private fun WelcomeMessage(hasDraft: Boolean) {
@@ -600,11 +600,11 @@ private fun WelcomeMessage(hasDraft: Boolean) {
     }
 }
 
-// ====== 对话分享功能 ======
+// ====== Chức năng chia sẻ cuộc trò chuyện ======
 
 /**
- * 将对话导出为文件并调用系统分享
- * @param format "md" 或 "html"
+ * Xuất cuộc trò chuyện ra tệp và gọi tính năng chia sẻ của hệ thống
+ * @param format "md" hoặc "html"
  */
 internal fun shareConversation(context: android.content.Context, messages: List<UIMessage>, format: String) {
     if (messages.isEmpty()) return
@@ -619,7 +619,7 @@ internal fun shareConversation(context: android.content.Context, messages: List<
     }
 
     try {
-        // 写入缓存目录（FileProvider 可以安全分享）
+        // Ghi vào thư mục bộ nhớ đệm (FileProvider có thể chia sẻ an toàn)
         val shareDir = File(context.cacheDir, "share")
         shareDir.mkdirs()
         val file = File(shareDir, fileName)

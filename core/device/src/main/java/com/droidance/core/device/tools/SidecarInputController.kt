@@ -96,7 +96,7 @@ class SidecarInputController @Inject constructor(
         )
     }
 
-    /** 在冻结的执行后端和 display 上执行一次可核验的文本粘贴。 */
+    /** Thực hiện một lần dán văn bản có thể xác minh trên backend thực thi và display đã đóng băng. */
     suspend fun inputText(text: String, clearExisting: Boolean, expectedFocusTarget: String, method: TextInputMethod): DeviceInputResult = withContext(Dispatchers.IO) {
         val startMs = System.currentTimeMillis()
         val context = executionContextStore.requireCurrent()

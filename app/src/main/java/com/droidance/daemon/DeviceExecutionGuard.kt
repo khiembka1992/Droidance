@@ -18,13 +18,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * 远程任务执行守护。
+ * Giám sát thực thi tác vụ từ xa.
  *
- * 定时任务可能在后台、息屏、锁屏时到达。执行 UI 自动化前先做一次轻量准备：
- * - 确保前台服务处于待命/保活
- * - 拿短时 WakeLock + WifiLock，避免任务期间 CPU / 网络休眠
- * - 虚拟空间保持 sidecar/VirtualDisplay，不唤醒、不解锁实体屏
- * - 任务结束后释放锁
+ * Tác vụ theo lịch có thể đến khi ở nền, tắt màn hình, khóa máy. Trước khi chạy tự động hóa UI hãy chuẩn bị nhẹ một lần:
+ * - Đảm bảo dịch vụ foreground đang ở trạng thái chờ sẵn/giữ sống
+ * - Lấy WakeLock + WifiLock ngắn hạn, tránh CPU / mạng ngủ trong lúc chạy tác vụ
+ * - Không gian ảo giữ sidecar/VirtualDisplay, không đánh thức, không mở khóa màn hình vật lý
+ * - Nhả khóa sau khi tác vụ kết thúc
  */
 enum class DevicePreparationFailure(val requiresUser: Boolean, val messageResource: Int) {
     BACKEND_UNAVAILABLE(false, com.droidance.R.string.automation_backend_unavailable)
@@ -115,9 +115,9 @@ class DeviceExecutionGuard @Inject constructor(
             acquireWifiLock()
 
 
-                // 顺序不能反：虚拟屏电源组独立于主屏，任务之间隔超过唤醒锁超时就会 DOZING。
-                // 先唤醒再重挂 surface——反过来的话，DOZING 的屏上没有窗口在绘，重挂等不到新帧，
-                // 会把虚拟空间自己判成不可用，任务第一步就失败。
+                // Thứ tự không được đảo: nhóm nguồn của màn hình ảo độc lập với màn hình chính, tác vụ cách nhau quá timeout wake lock sẽ DOZING.
+                // Đánh thức trước rồi mới gắn lại surface——nếu làm ngược lại, trên màn hình DOZING không có cửa sổ nào vẽ, gắn lại chờ mãi không có frame mới,
+                // sẽ tự đánh giá không gian ảo là không khả dụng, bước đầu tiên của tác vụ thất bại ngay.
                 val interactive = virtualSpaceManager.ensureDisplayInteractive()
                 if (wasLocked || !wasInteractive) {
                     virtualSpaceManager.onScreenLocked()
@@ -150,7 +150,7 @@ class DeviceExecutionGuard @Inject constructor(
     private fun acquireWakeLock() {
         try {
             if (!executionWakeLock.isHeld) {
-                // 任务时长由墙钟协议决定，唤醒锁跟随任务生命周期，由 finish 释放。
+                // Thời lượng tác vụ do giao thức wall clock quyết định, wake lock bám theo vòng đời tác vụ, được finish nhả ra.
                 executionWakeLock.acquire()
             }
         } catch (e: Exception) {

@@ -53,7 +53,7 @@ class HeartbeatWorker(
         try {
             Log.i("HeartbeatWorker", "Heartbeat check started")
 
-            // 0. 确保后台常驻服务仍在运行
+            // 0. Đảm bảo dịch vụ thường trú ở nền vẫn đang chạy
             runCatching { TaskExecutionService.startStandby(appContext) }
                 .onFailure { Log.w("HeartbeatWorker", "Failed to start the standby service: ${it.message}") }
 
